@@ -1,20 +1,69 @@
-# Rowcraft
+<a id="readme-top"></a>
 
-An open-source database workbench with a Rust engine, a Tauri desktop app, and a command-line interface.
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stars][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![CI][ci-shield]][ci-url]
 
-Browse schemas, write queries, inspect results, and manage connections from one workspace. Rowcraft brings SQL databases, document stores, key-value stores, and HTTP APIs into a shared interface, with consoles adapted to each query language.
+<br />
+<div align="center">
+  <a href="https://github.com/Sarfraz-droid/Rowcraft">
+    <img src="apps/dg-desktop/public/brand/svg/icon-blue.svg" alt="Rowcraft logo" width="80" height="80">
+  </a>
 
-[Get started](#get-started) · [Database support](#database-support) · [Build installers](#build-installers) · [Contributing](#contributing) · [Documentation](#documentation)
+  <h1 align="center">Rowcraft</h1>
 
-![Rowcraft desktop workbench showing the database explorer, SQL console, and query results](apps/landing/assets/ui.jpg)
+  <p align="center">
+    An open-source database workbench. Rust engine. Tauri desktop. One shared CLI.
+    <br />
+    <a href="#documentation"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/Sarfraz-droid/Rowcraft/releases">Releases</a>
+    &middot;
+    <a href="https://github.com/Sarfraz-droid/Rowcraft/issues/new?title=Bug%3A%20">Report a Bug</a>
+    &middot;
+    <a href="https://github.com/Sarfraz-droid/Rowcraft/issues/new?title=Feature%3A%20">Request a Feature</a>
+  </p>
+</div>
 
-## Project status
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About the Project</a>
+      <ul><li><a href="#built-with">Built With</a></li></ul>
+    </li>
+    <li><a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#database-support">Database Support</a></li>
+    <li><a href="#configuration-and-credentials">Configuration and Credentials</a></li>
+    <li><a href="#build-installers">Build Installers</a></li>
+    <li><a href="#development-and-testing">Development and Testing</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-Rowcraft is in early development. Connector coverage and validation vary by database; a driver appearing in the catalog does not mean every vendor, version, or feature has been tested. See the [support table](#database-support) and [connector boundaries](docs/database-consoles.md) before choosing a connection.
+## About the Project
 
-The project is independently developed and is not affiliated with JetBrains. Feature parity with DataGrip is not claimed. Performance comparisons require measurements against equivalent workloads.
+[![Rowcraft desktop workbench][product-screenshot]](apps/landing/assets/ui.jpg)
 
-## Features
+Rowcraft is a desktop workspace for exploring databases, writing queries, and inspecting results. SQL databases, document stores, key-value stores, and HTTP APIs share a connection explorer, with consoles adapted to their query languages.
+
+The desktop and command-line app share a Rust engine, so saved connections and database behavior stay consistent across both interfaces.
+
+### Features
 
 - **Database explorer:** browse schemas, tables, views, columns, indexes, keys, and routines where the connector exposes them.
 - **Query consoles:** SQL, MongoDB shell statements, Redis commands, CQL, PartiQL, SQL++, Cypher, and GraphQL, depending on the selected source.
@@ -27,7 +76,26 @@ The project is independently developed and is not affiliated with JetBrains. Fea
 
 The desktop uses the system webview. Database operations run in Rust, and production frontend assets are embedded in the application.
 
-## Get started
+### Project Status
+
+Rowcraft is in early development. Connector coverage and validation vary by database; a driver appearing in the catalog does not mean every vendor, version, or feature has been tested. See the [support table](#database-support) and [connector boundaries](docs/database-consoles.md) before choosing a connection.
+
+The project is independently developed and is not affiliated with JetBrains. Feature parity with DataGrip is not claimed. Performance comparisons require measurements against equivalent workloads.
+
+### Built With
+
+| Layer | Technology |
+| --- | --- |
+| Database engine and CLI | [Rust](https://www.rust-lang.org/), Tokio, Clap |
+| Desktop shell | [Tauri 2](https://tauri.app/) and the system webview |
+| Interface | [React](https://react.dev/), TypeScript, Vite, Tailwind CSS |
+| Query editor | [CodeMirror](https://codemirror.net/) |
+| Result grid | TanStack Virtual |
+| Database connectivity | Rust drivers, HTTP APIs, compatible wire protocols, JDBC |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Getting Started
 
 ### Prerequisites
 
@@ -42,14 +110,21 @@ For desktop development, install:
 
 Follow the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/) for the complete native dependency list. Java 11+ and vendor driver JARs are needed only for JDBC connections. SQLite is bundled and needs no separate server.
 
-### Run the desktop app
+### Installation
 
-From the repository root:
+1. Clone the repository:
 
-```sh
-pnpm --dir apps/dg-desktop install --frozen-lockfile
-pnpm --dir apps/dg-desktop tauri dev
-```
+   ```sh
+   git clone https://github.com/Sarfraz-droid/Rowcraft.git
+   cd Rowcraft
+   ```
+
+2. Install frontend dependencies and start the desktop app:
+
+   ```sh
+   pnpm --dir apps/dg-desktop install --frozen-lockfile
+   pnpm --dir apps/dg-desktop tauri dev
+   ```
 
 On macOS and Linux, the Makefile provides the same workflow:
 
@@ -58,7 +133,13 @@ make gui-install
 make run-gui
 ```
 
-In the app:
+To produce a distributable application, follow [Build Installers](#build-installers).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Usage
+
+### Connect and Query
 
 1. Select **+ Add** and choose a database type.
 2. Enter connection details and use **Test Connection**.
@@ -87,7 +168,7 @@ make web
 
 Open `http://localhost:1420`. This development preview uses mock data. Real connections, SQLite imports, and database queries require the desktop app.
 
-## Command-line interface
+### Command-line Interface
 
 The CLI binary is named `dg`. To build it:
 
@@ -97,7 +178,7 @@ cargo build --release -p dg-cli
 
 The executable is `target/release/dg` on macOS/Linux and `target/release/dg.exe` on Windows. The examples below use `cargo run` so no PATH setup is required.
 
-### Query a local SQLite database
+#### Query a local SQLite database
 
 ```sh
 cargo run -p dg-cli -- ds add local-sqlite --dialect sqlite --database /absolute/path/to/example.sqlite
@@ -106,7 +187,7 @@ cargo run -p dg-cli -- query -d local-sqlite "SELECT sqlite_version();"
 cargo run -p dg-cli -- introspect -d local-sqlite -f json
 ```
 
-### Connect to PostgreSQL
+#### Connect to PostgreSQL
 
 Set `APP_PW` in your shell to the database password, then save a reference to that environment variable:
 
@@ -121,7 +202,7 @@ cargo run -p dg-cli -- introspect -d local-pg -s public
 
 The desktop app reads the same saved sources. When a source uses an environment-variable password, launch the desktop app from a shell where that variable is set.
 
-### Discover commands and drivers
+#### Discover commands and drivers
 
 ```sh
 cargo run -p dg-cli -- --help
@@ -133,7 +214,9 @@ cargo run -p dg-cli -- query --help
 
 CLI exit codes are `0` for success, `1` for statement errors, `2` for connection/authentication errors, and `3` for usage/configuration errors.
 
-## Database support
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Database Support
 
 Rowcraft uses Rust drivers, HTTP connectors, compatible wire protocols, and a JDBC bridge. The table records the validation described in this repository; it is not a guarantee for every deployment.
 
@@ -167,7 +250,9 @@ For built-in JDBC entries, place JARs under `<config-dir>/jdbc/<driver-id>/` or 
 
 Use `DGLITE_JAVA` to select a Java executable or set `JAVA_HOME`. See [JDBC setup](docs/jdbc-drivers.md) for details.
 
-## Configuration and credentials
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Configuration and Credentials
 
 Desktop and CLI sources share the same configuration directory:
 
@@ -190,7 +275,9 @@ Open **Settings → AI** to configure a gateway and model. The optional local 9r
 
 AI requests can include conversation content, schema metadata, and sampled results when database tools are used. Choose a provider and data-access policy suitable for your database. Automatic query execution is restricted to supported read-only SQL backends; a supported console language does not automatically enable AI execution for that connector.
 
-## Build installers
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Build Installers
 
 Build a release executable without packaging:
 
@@ -218,7 +305,9 @@ The [Desktop installers workflow](.github/workflows/installers.yml) builds all f
 
 See [installer builds and signing](docs/installers.md) for native dependencies, versioning, signing secrets, and release steps. See [package distribution](docs/package-distribution.md) for website downloads and package-manager publishing.
 
-## Development and testing
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Development and Testing
 
 | Command | Purpose |
 | --- | --- |
@@ -250,6 +339,8 @@ cargo check -p dg-desktop
 
 The [CI workflow](.github/workflows/ci.yml) defines the checks run on pushes to `main` and pull requests.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Architecture
 
 The desktop and CLI share the Rust database engine. The Tauri shell exposes commands to React through IPC; reusable workbench logic lives in `dg-ui-model`. Database-specific behavior is implemented behind the `dg-dialect` traits.
@@ -278,6 +369,22 @@ apps/dg-cli ──────────────── Shared Rust engine 
 
 Read the [architecture guide](docs/architecture.md) for dependency rules and the [design specification](SPEC.md) for project direction. Planned behavior in the specification should not be treated as an implemented feature.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Roadmap
+
+The [project specification](SPEC.md) describes the wider design. Current areas for follow-up include:
+
+- [ ] Expand live-server coverage for connectors currently verified only with mocks or unit tests.
+- [ ] Validate more database vendor/version combinations and document compatibility.
+- [ ] Profile startup, CPU, and memory against repeatable workloads.
+- [ ] Complete public release signing, notarization, and package-manager distribution.
+- [ ] Add the standalone license texts declared by the workspace metadata.
+
+These are development goals, not release-date commitments. Use [open issues](https://github.com/Sarfraz-droid/Rowcraft/issues) to propose work and track discussions. Check the support table for what is available today.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Contributing
 
 Contributions are welcome across connectors, desktop UX, testing, documentation, and packaging.
@@ -289,6 +396,46 @@ Contributions are welcome across connectors, desktop UX, testing, documentation,
 5. Open a pull request explaining the problem, the change, and validation. For connector work, state the database/version tested and distinguish live-server tests from mocks.
 
 When reporting a bug, include your OS and architecture, Rowcraft version or commit, database and driver versions, steps to reproduce, and redacted logs or error output. Remove passwords, tokens, connection strings containing credentials, and private data before sharing.
+
+### Pull Request Workflow
+
+1. Fork the repository and clone your fork.
+2. Create a branch for the change:
+
+   ```sh
+   git switch -c feature/describe-your-change
+   ```
+
+3. Implement the change and run the relevant checks above.
+4. Commit and push to your fork:
+
+   ```sh
+   git add <changed-files>
+   git commit -m "Describe the change"
+   git push -u origin feature/describe-your-change
+   ```
+
+5. Open a pull request against Rowcraft and include your validation results.
+
+Browse [contributors](https://github.com/Sarfraz-droid/Rowcraft/graphs/contributors) or [open pull requests](https://github.com/Sarfraz-droid/Rowcraft/pulls) to see ongoing work.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## License
+
+The Cargo workspace declares `MIT OR Apache-2.0`. Standalone license texts have not yet been added to this repository. Bundled fonts and other third-party assets retain their own license notices.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contact
+
+Maintainer: [Sarfraz-droid](https://github.com/Sarfraz-droid)
+
+Project: [Sarfraz-droid/Rowcraft](https://github.com/Sarfraz-droid/Rowcraft)
+
+For bugs and feature ideas, [open an issue](https://github.com/Sarfraz-droid/Rowcraft/issues/new). Include enough detail to reproduce the problem, and remove credentials and private data from reports.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Documentation
 
@@ -302,6 +449,26 @@ When reporting a bug, include your OS and architecture, Rowcraft version or comm
 - [Package distribution](docs/package-distribution.md)
 - [Landing-page development](apps/landing/README.md)
 
-## License
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-The Cargo workspace declares `MIT OR Apache-2.0`. Standalone license texts have not yet been added to this repository. Bundled fonts and other third-party assets retain their own license notices.
+## Acknowledgments
+
+- [Best-README-Template](https://github.com/othneildrew/Best-README-Template) by othneildrew for this README's structure.
+- The Rust, Tauri, React, and CodeMirror communities, and the maintainers of the database drivers used by Rowcraft.
+- [Shields.io](https://shields.io/) for repository badges.
+- The creators of bundled fonts and other assets; their license notices remain alongside those assets.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Reference links and images -->
+[contributors-shield]: https://img.shields.io/github/contributors/Sarfraz-droid/Rowcraft.svg?style=for-the-badge
+[contributors-url]: https://github.com/Sarfraz-droid/Rowcraft/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Sarfraz-droid/Rowcraft.svg?style=for-the-badge
+[forks-url]: https://github.com/Sarfraz-droid/Rowcraft/forks
+[stars-shield]: https://img.shields.io/github/stars/Sarfraz-droid/Rowcraft.svg?style=for-the-badge
+[stars-url]: https://github.com/Sarfraz-droid/Rowcraft/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Sarfraz-droid/Rowcraft.svg?style=for-the-badge
+[issues-url]: https://github.com/Sarfraz-droid/Rowcraft/issues
+[ci-shield]: https://img.shields.io/github/actions/workflow/status/Sarfraz-droid/Rowcraft/ci.yml?branch=main&style=for-the-badge&label=CI
+[ci-url]: https://github.com/Sarfraz-droid/Rowcraft/actions/workflows/ci.yml
+[product-screenshot]: apps/landing/assets/ui.jpg
