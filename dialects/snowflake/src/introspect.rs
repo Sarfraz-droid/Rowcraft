@@ -9,6 +9,13 @@ use dg_model::{
     Table, TableKind,
 };
 
+type TableIdentity = (String, String);
+type PrimaryKeyMetadata = (String, Vec<(i64, String)>);
+type ForeignKeyIdentity = (String, String, String);
+// Sequence, local column, referenced schema/table/column, update rule, delete rule.
+type ForeignKeyColumnMetadata =
+    (i64, String, String, String, String, Option<String>, Option<String>);
+
 fn literal(s: &str) -> String {
     format!("'{}'", s.replace('\\', "\\\\").replace('\'', "''"))
 }
@@ -167,7 +174,7 @@ fn assemble(raw: &Raw) -> Catalog {
         at(&raw.primary, "key_sequence"),
         at(&raw.primary, "constraint_name"),
     ) {
-        let mut keys: HashMap<(String, String), (String, Vec<(i64, String)>)> = HashMap::new();
+        let mut keys: HashMap<TableIdentity, PrimaryKeyMetadata> = HashMap::new();
         for r in &raw.primary.rows {
             let (Some(s), Some(t), Some(c)) = (text(r, sc), text(r, tb), text(r, cl)) else {
                 continue;
@@ -216,11 +223,8 @@ fn assemble(raw: &Raw) -> Catalog {
         at(f, "delete_rule"),
         at(f, "fk_name"),
     ) {
-        let mut order: Vec<(String, String, String)> = Vec::new();
-        let mut parts: HashMap<
-            (String, String, String),
-            Vec<(i64, String, String, String, String, Option<String>, Option<String>)>,
-        > = HashMap::new();
+        let mut order: Vec<ForeignKeyIdentity> = Vec::new();
+        let mut parts: HashMap<ForeignKeyIdentity, Vec<ForeignKeyColumnMetadata>> = HashMap::new();
         for r in &f.rows {
             let (Some(s), Some(t), Some(c)) = (text(r, fs), text(r, ft), text(r, fc)) else {
                 continue;

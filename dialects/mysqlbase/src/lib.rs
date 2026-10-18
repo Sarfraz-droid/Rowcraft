@@ -83,7 +83,7 @@ impl Connection for MysqlConnection {
                 columns: columns.iter().map(|c| c.name_str().into_owned()).collect(),
                 ..ResultSet::default()
             };
-            let binary: Vec<bool> = columns.iter().map(|c| is_binary(c)).collect();
+            let binary: Vec<bool> = columns.iter().map(is_binary).collect();
             while let Some(row) = set.try_next().await.map_err(query_err)? {
                 // Rows past the limit are read (to reach the end of the response) but dropped.
                 if current.rows.len() >= max_rows {
