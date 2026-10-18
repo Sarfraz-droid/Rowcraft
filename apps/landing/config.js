@@ -1,6 +1,6 @@
 // Set verified public destinations before publishing. Missing downloads show "Coming soon".
 window.ROWCRAFT_CONFIG = {
-  repositoryUrl: '',
+  repositoryUrl: 'https://github.com/Sarfraz-droid/Rowcraft',
   downloads: {
     macos: { arm64: '', x64: '' }, // DMG: Apple Silicon and Intel
     windows: { exe: '', msi: '' }, // x64 installers
