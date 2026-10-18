@@ -73,6 +73,9 @@ h2 { font-size: clamp(30px, 3.25vw, 46px); line-height: 1.3; letter-spacing: -.0
 .hero-actions { display: flex; align-items: center; gap: 26px; }
 .hero-actions .text-button { font-size: 11px; }
 .hero-actions .text-button > .icon:first-child { width: 13px; }
+.hero-github { gap: 12px; }
+.hero-github .icon { width: 16px; height: 16px; }
+.hero-stars { display: inline-flex; }
 .platform-note { font-size: 10px; line-height: 1.8; color: var(--muted); }
 .product-preview { margin: 0; scroll-margin-top: 32px; min-width: 0; }
 .preview-stage { border: 1px solid var(--line); }
