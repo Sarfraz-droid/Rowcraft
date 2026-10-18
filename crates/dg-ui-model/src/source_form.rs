@@ -225,7 +225,13 @@ impl Draft {
             comment: config.comment.clone().unwrap_or_default(),
             color: config.color.clone().unwrap_or_default(),
             connection_type: config.connection_type.clone().unwrap_or_default(),
-            driver: config.driver.clone().or_else(|| dg_drivers::default_for_dialect(&config.dialect).map(|d| d.id.to_owned())).unwrap_or_default(),
+            driver: config
+                .driver
+                .clone()
+                .or_else(|| {
+                    dg_drivers::default_for_dialect(&config.dialect).map(|d| d.id.to_owned())
+                })
+                .unwrap_or_default(),
             dialect: config.dialect.clone(),
             host: config.host.clone().unwrap_or_default(),
             port: config.port.map(|v| v.to_string()).unwrap_or_default(),
@@ -241,9 +247,17 @@ impl Draft {
             session_control: config.options.session_control,
             single_database_mode: config.options.single_database_mode,
             time_zone: config.options.time_zone.clone().unwrap_or_default(),
-            keep_alive_secs: config.options.keep_alive_secs.map(|v| v.to_string()).unwrap_or_default(),
+            keep_alive_secs: config
+                .options
+                .keep_alive_secs
+                .map(|v| v.to_string())
+                .unwrap_or_default(),
             keep_alive_query: config.options.keep_alive_query.clone().unwrap_or_default(),
-            auto_disconnect_secs: config.options.auto_disconnect_secs.map(|v| v.to_string()).unwrap_or_default(),
+            auto_disconnect_secs: config
+                .options
+                .auto_disconnect_secs
+                .map(|v| v.to_string())
+                .unwrap_or_default(),
             startup_script: config.options.startup_script.clone().unwrap_or_default(),
             auto_sync: config.introspection.auto_sync,
             load_sources: config.introspection.load_sources,
@@ -257,7 +271,12 @@ impl Draft {
             key_password_env: config.ssl_files.key_password_env.clone().unwrap_or_default(),
             schema_pattern: config.schema_pattern.clone().unwrap_or_default(),
             object_filter: config.object_filter.clone().unwrap_or_default(),
-            properties: config.properties.iter().map(|(key, value)| format!("{key}={value}")).collect::<Vec<_>>().join("\n"),
+            properties: config
+                .properties
+                .iter()
+                .map(|(key, value)| format!("{key}={value}"))
+                .collect::<Vec<_>>()
+                .join("\n"),
             use_ssh: config.ssh_tunnel.is_some(),
             ssh_existing: config.ssh_tunnel.clone().unwrap_or_default(),
             ssh_local_port: config.ssh_local_port.map(|v| v.to_string()).unwrap_or_default(),
@@ -265,7 +284,11 @@ impl Draft {
         }
     }
 
-    pub fn preserve_saved_secrets(&self, original: &DataSourceConfig, config: &mut DataSourceConfig) {
+    pub fn preserve_saved_secrets(
+        &self,
+        original: &DataSourceConfig,
+        config: &mut DataSourceConfig,
+    ) {
         if self.auth == AuthType::UserPassword && self.password.is_empty() && !self.clear_password {
             config.password_keychain = original.password_keychain.clone();
         } else if self.clear_password && self.password.is_empty() {
@@ -569,14 +592,23 @@ mod tests {
         let mut cleared = draft.validate(DIALECTS, &[]).unwrap();
         draft.preserve_saved_secrets(&original, &mut cleared);
         assert!(cleared.password_keychain.is_none() && cleared.password_env.is_none());
-        assert!(cleared.ssl_files.key_password.account.is_none() && cleared.ssl_files.key_password_env.is_none());
+        assert!(
+            cleared.ssl_files.key_password.account.is_none()
+                && cleared.ssl_files.key_password_env.is_none()
+        );
         draft.password = "replacement password".into();
         draft.key_password = "replacement key password".into();
         let mut replaced = draft.validate(DIALECTS, &[]).unwrap();
         draft.preserve_saved_secrets(&original, &mut replaced);
         assert_eq!(replaced.password.as_deref(), Some("replacement password"));
-        assert_eq!(replaced.ssl_files.key_password.value.as_deref(), Some("replacement key password"));
-        assert!(replaced.password_keychain.is_none() && replaced.ssl_files.key_password.account.is_none());
+        assert_eq!(
+            replaced.ssl_files.key_password.value.as_deref(),
+            Some("replacement key password")
+        );
+        assert!(
+            replaced.password_keychain.is_none()
+                && replaced.ssl_files.key_password.account.is_none()
+        );
     }
 
     #[test]

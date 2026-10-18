@@ -103,17 +103,28 @@ async fn add_source(wb: State<'_, Workbench>, draft: Draft) -> Result<AddedSourc
 }
 
 #[tauri::command]
-fn edit_source(wb: State<'_, Workbench>, name: String) -> Result<dg_ui_model::workbench::SourceEditDefaults, String> {
+fn edit_source(
+    wb: State<'_, Workbench>,
+    name: String,
+) -> Result<dg_ui_model::workbench::SourceEditDefaults, String> {
     wb.edit_source(&name)
 }
 
 #[tauri::command]
-async fn update_source(wb: State<'_, Workbench>, original_name: String, draft: Draft) -> Result<AddedSource, String> {
+async fn update_source(
+    wb: State<'_, Workbench>,
+    original_name: String,
+    draft: Draft,
+) -> Result<AddedSource, String> {
     wb.update_source(&original_name, &draft)
 }
 
 #[tauri::command]
-async fn test_connection(wb: State<'_, Workbench>, draft: Draft, original_name: Option<String>) -> Result<(), String> {
+async fn test_connection(
+    wb: State<'_, Workbench>,
+    draft: Draft,
+    original_name: Option<String>,
+) -> Result<(), String> {
     wb.test_source_connection(&draft, original_name.as_deref()).await
 }
 
@@ -123,7 +134,11 @@ async fn save_ssh_config(wb: State<'_, Workbench>, draft: Draft) -> Result<Vec<S
 }
 
 #[tauri::command]
-async fn connect(wb: State<'_, Workbench>, name: String, reconnect: Option<bool>) -> Result<String, String> {
+async fn connect(
+    wb: State<'_, Workbench>,
+    name: String,
+    reconnect: Option<bool>,
+) -> Result<String, String> {
     if reconnect.unwrap_or(false) { wb.reconnect(&name).await } else { wb.connect(&name).await }
 }
 
