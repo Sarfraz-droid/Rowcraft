@@ -331,6 +331,49 @@ summary::-webkit-details-marker { display: none; }
   .footer > a:last-of-type { grid-column: 2; grid-row: 1; font-size: 9px; gap: 8px; }
   .footer-bottom { font-size: 8px; margin-top: 0; gap: 16px; }
 }
+/* Benchmark values are taken from the bundled completed Mac capture. */
+.benchmark { padding-block: 72px 0; }
+.benchmark-intro { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; margin-bottom: 32px; }
+.benchmark-intro p { max-width: 58ch; font-size: 12px; color: var(--muted); margin: 18px 0 0; }
+.benchmark-platform { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; font-size: 12px; }
+.benchmark-platform > span { font-size: 10px; color: var(--muted); }
+.benchmark-chart { margin: 0; border: 1px solid var(--line); background: var(--panel); }
+.benchmark-chart-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding: 12px 20px; }
+.benchmark-chart-heading h3 { margin: 0; font-size: 12px; }
+.benchmark-chart-heading > span { font-size: 10px; color: var(--muted); }
+.cpu-chart { display: block; width: min(100%, 960px); height: auto; margin: 20px auto 0; padding: 0 28px; font-family: var(--mono); }
+.chart-grid { fill: none; stroke: var(--line); stroke-width: 1; }
+.chart-label { fill: var(--text); font-size: 14px; }
+.chart-rowcraft { fill: var(--blue); }
+.chart-datagrip { fill: #8c8c92; }
+.chart-value { fill: var(--text); font-size: 15px; }
+.chart-tick { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.benchmark-chart figcaption { display: flex; gap: 32px; border-top: 1px solid var(--line); padding: 12px 20px; font-size: 10px; color: var(--muted); }
+.benchmark-chart figcaption strong { color: var(--text); font-weight: 400; margin-left: 12px; }
+.benchmark-notes { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); align-items: start; gap: 48px; border-bottom: 1px solid var(--line); padding: 20px 0 28px; }
+.benchmark-notes p { font-size: 11px; color: var(--muted); margin-bottom: 0; }
+.benchmark-notes summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 36px; font-size: 11px; }
+.benchmark-notes summary .icon { width: 14px; height: 14px; }
+.benchmark-notes details[open] summary .icon { transform: rotate(45deg); }
+.benchmark-notes details p { margin-top: 14px; }
+.benchmark-notes .inline-link { margin-top: 14px; min-height: 36px; font-size: 11px; }
+@media (max-width: 700px) {
+  .benchmark { padding-top: 48px; }
+  .benchmark-intro { display: block; margin-bottom: 24px; }
+  .benchmark-intro p { font-size: 11px; }
+  .benchmark-platform { margin-top: 20px; font-size: 11px; }
+  .benchmark-platform > span { font-size: 9px; }
+  .benchmark-chart-heading { padding: 12px; gap: 12px; align-items: start; }
+  .benchmark-chart-heading h3 { font-size: 10px; }
+  .benchmark-chart-heading > span { font-size: 9px; white-space: nowrap; }
+  .cpu-chart { padding: 0 12px; margin-top: 12px; }
+  .chart-label, .chart-value { font-size: 24px; }
+  .chart-tick { font-size: 22px; }
+  .benchmark-chart figcaption { flex-direction: column; gap: 6px; padding: 12px; font-size: 10px; }
+  .benchmark-notes { display: block; padding-top: 16px; }
+  .benchmark-notes details { margin-top: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }

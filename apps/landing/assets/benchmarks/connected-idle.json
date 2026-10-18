@@ -1,0 +1,47 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-18T17:57:31.679857+00:00",
+  "workload": "connected-idle",
+  "system": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "logical_cpus": 12
+  },
+  "settings": {
+    "duration": 120.0,
+    "warmup": 30.0,
+    "interval": 1
+  },
+  "apps": {
+    "Rowcraft": {
+      "version": "0.0.1"
+    },
+    "DataGrip": {
+      "version": "2026.2.5"
+    }
+  },
+  "summary": {
+    "Rowcraft": {
+      "samples": 98,
+      "measured_seconds": 120.043016542,
+      "average_cpu_percent": 0.1832676371665715,
+      "peak_cpu_percent": 2.75432668295923,
+      "cpu_seconds": 0.21999999999999997
+    },
+    "DataGrip": {
+      "samples": 98,
+      "measured_seconds": 120.043016542,
+      "average_cpu_percent": 4.656664053459702,
+      "peak_cpu_percent": 48.17568746763944,
+      "cpu_seconds": 5.589999999999998
+    }
+  },
+  "metric": "CPU calculated from observed main-process and descendant CPU time. 100% equals one logical CPU fully occupied.",
+  "limitations": [
+    "One completed shared-machine capture; not a query-latency or startup-speed benchmark.",
+    "Helpers outside the observed process trees, including macOS-managed WebKit helpers, are excluded. No extra helper PIDs were supplied.",
+    "External database servers and unrelated system services are excluded.",
+    "Results vary with workload, app version, hardware, power mode, and background activity."
+  ],
+  "source_report": "benchmark-results/20261018-232731-669880/summary.json",
+  "methodology": "scripts/benchmark-apps.py; docs/benchmarking.md"
+}

@@ -11,7 +11,7 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="header wrap"><a class="brand" href="#" aria-label="Rowcraft home"><img src="assets/mark.svg" alt="" width="31" height="24">rowcraft</a><nav aria-label="Main navigation"><a href="#workbench">The workbench</a><a href="#databases">Databases</a><a href="#open-source" id="github-link">GitHub <svg class="icon"><use href="#arrow-up"/></svg></a></nav><a class="button small" href="#download">Download app <svg class="icon"><use href="#download-icon"/></svg></a></header>
+<header class="header wrap"><a class="brand" href="#" aria-label="Rowcraft home"><img src="assets/mark.svg" alt="" width="31" height="24">rowcraft</a><nav aria-label="Main navigation"><a href="#workbench">The workbench</a><a href="#databases">Databases</a><a href="#benchmarks">Benchmarks</a><a href="#open-source" id="github-link">GitHub <svg class="icon"><use href="#arrow-up"/></svg></a></nav><a class="button small" href="#download">Download app <svg class="icon"><use href="#download-icon"/></svg></a></header>
 <main id="main">
 <section class="hero wrap">
 
@@ -23,6 +23,24 @@
 </figure>
 </section>
 <section class="database-section wrap" id="databases"><div class="database-heading"><p>Different databases.<br>The same familiar feeling.</p><span>Native connectors & a JDBC bridge.<br>Bring your databases together.</span></div><div class="database-logos"><span><svg class="db-symbol"><use href="#database-icon"/></svg> PostgreSQL</span><span class="mysql">MySQL</span><span><svg class="db-symbol mongo"><use href="#leaf"/></svg> MongoDB</span><span class="sqlite">SQLite</span><span class="redis"><svg class="db-symbol"><use href="#layers"/></svg> Redis</span></div><details id="database-list"><summary>Database compatibility & driver requirements</summary><p>Native connectors include PostgreSQL, SQLite, MySQL, MariaDB, Redis, MongoDB, Cassandra, and more. Other databases connect through JDBC, requiring Java 11+ and vendor driver JARs. Support and live testing vary by connector; see the project README for the full status.</p></details></section>
+<section class="benchmark wrap" id="benchmarks" aria-labelledby="benchmark-title">
+<div class="benchmark-intro"><div><h2 id="benchmark-title">Rust at the core.<br>Less CPU at idle.</h2><p>A measured look at Rowcraft and DataGrip with a database connected and both apps idle.</p></div><span class="benchmark-platform"><em>Tested on Mac</em><span>macOS 26.6.2 · Apple Silicon</span></span></div>
+<figure class="benchmark-chart" aria-labelledby="benchmark-chart-title" aria-describedby="benchmark-summary benchmark-caveat">
+<div class="benchmark-chart-heading"><h3 id="benchmark-chart-title">Average observed CPU usage</h3><span>Lower is better</span></div>
+<svg class="cpu-chart" viewBox="0 0 760 250" role="img" aria-labelledby="cpu-chart-title cpu-chart-desc">
+<title id="cpu-chart-title">Rowcraft versus DataGrip: average observed CPU usage</title>
+<desc id="cpu-chart-desc">In one connected-idle capture on Mac, Rowcraft used 0.18 percent CPU and DataGrip used 4.66 percent CPU. The axis runs from zero to five percent. Helpers outside each observed process tree are excluded.</desc>
+<g class="chart-grid"><path d="M140 38V196M240 38V196M340 38V196M440 38V196M540 38V196M640 38V196"/></g>
+<g class="chart-label"><text x="0" y="82">Rowcraft</text><text x="0" y="160">DataGrip</text></g>
+<rect class="chart-rowcraft" x="140" y="58" width="18.327" height="32"/>
+<rect class="chart-datagrip" x="140" y="136" width="465.666" height="32"/>
+<g class="chart-value"><text x="182.327" y="81">0.18%</text><text x="629.666" y="159">4.66%</text></g>
+<g class="chart-tick"><text x="140" y="222">0%</text><text x="240" y="222">1%</text><text x="340" y="222">2%</text><text x="440" y="222">3%</text><text x="540" y="222">4%</text><text x="640" y="222">5%</text></g>
+</svg>
+<figcaption id="benchmark-summary"><span>Rowcraft 0.0.1 <strong>0.18%</strong></span><span>DataGrip 2026.2.5 <strong>4.66%</strong></span></figcaption>
+</figure>
+<div class="benchmark-notes"><p id="benchmark-caveat">One 120-second capture after a 30-second warmup. Observed process trees only; external WebKit helpers are excluded. This measures idle CPU use, not query or startup speed.</p><details><summary>Test conditions &amp; results <svg class="icon"><use href="#plus"/></svg></summary><div><p>Captured October 18, 2026 on macOS 26.6.2 (ARM64, 12 logical CPUs), with 98 samples over 120.04 seconds. Both app instances were sampled on the same Mac. 100% CPU represents one logical CPU fully occupied.</p><p>CPU use is calculated from elapsed process CPU time for each main process and observed descendants. No additional helper processes were attributed. Helpers launched outside the process tree, including macOS-managed WebKit helpers, are not included. A single capture does not establish repeatable query performance; results vary with your workload and system.</p><a class="inline-link" href="assets/benchmarks/connected-idle.json" target="_blank" rel="noopener">View benchmark data <svg class="icon"><use href="#arrow-up"/></svg></a></div></details></div>
+</section>
 <section class="intro wrap" id="workbench"><div><h2>Find your flow.<br>Keep your context.</h2><p>From the first connection to the final export, Rowcraft brings the tools you reach for into one considered workspace.</p></div></section>
 <section class="features wrap"><article class="feature feature-query"><div class="feature-copy"><h3>Good SQL.<br>Room to think.</h3><p>A focused SQL editor with completion, query history, and results right where you need them. Run a selection or the whole statement.</p><a class="inline-link demo-link" href="#demo">Find your next insight <svg class="icon"><use href="#arrow-right"/></svg></a></div><div class="query-art"><div class="art-tab"><span class="connection-dot"></span> a_little_clarity.sql <span>SQL</span></div><pre><span class="syntax-muted">-- Less friction. More discovery.</span>
 <span class="syntax-purple">SELECT</span>

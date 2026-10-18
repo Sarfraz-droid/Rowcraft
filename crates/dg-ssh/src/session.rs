@@ -198,9 +198,22 @@ async fn authenticate(
             }
         }
         SshAuth::Agent => {
+            #[cfg(unix)]
             let mut agent = AgentClient::connect_env().await.map_err(|e| {
                 Error::NoCredentials(format!("no SSH agent reachable (SSH_AUTH_SOCK): {e}"))
             })?;
+            #[cfg(windows)]
+            let mut agent = {
+                let pipe = std::env::var_os("SSH_AUTH_SOCK")
+                    .filter(|path| !path.is_empty())
+                    .unwrap_or_else(|| r"\\.\pipe\openssh-ssh-agent".into());
+                AgentClient::connect_named_pipe(&pipe).await.map_err(|e| {
+                    Error::NoCredentials(format!(
+                        "no SSH agent reachable ({}): {e}; start the Windows OpenSSH Authentication Agent service or set SSH_AUTH_SOCK to an agent pipe",
+                        pipe.to_string_lossy()
+                    ))
+                })?
+            };
             let identities = agent.request_identities().await.map_err(failed)?;
             if identities.is_empty() {
                 return Err(Error::NoCredentials(
