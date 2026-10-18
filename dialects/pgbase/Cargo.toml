@@ -1,0 +1,15 @@
+[package]
+name = "dg-dialect-pgbase"
+description = "Shared Postgres wire/catalog helpers (pg, Redshift, Greenplum, CockroachDB, Vertica)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+dg-dialect.workspace = true
+dg-model.workspace = true

@@ -1,0 +1,81 @@
+[package]
+name = "dg-registry"
+description = "Wires every dialect crate into a Registry behind cargo features"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+dg-dialect.workspace = true
+dg-dialect-http = { workspace = true, optional = true }
+dg-drivers.workspace = true
+dg-dialect-jdbc = { workspace = true, optional = true }
+dg-dialect-pg = { workspace = true, optional = true }
+dg-dialect-redshift = { workspace = true, optional = true }
+dg-dialect-greenplum = { workspace = true, optional = true }
+dg-dialect-cockroach = { workspace = true, optional = true }
+dg-dialect-mysql = { workspace = true, optional = true }
+dg-dialect-mariadb = { workspace = true, optional = true }
+dg-dialect-sqlite = { workspace = true, optional = true }
+dg-dialect-mssql = { workspace = true, optional = true }
+dg-dialect-clickhouse = { workspace = true, optional = true }
+dg-dialect-cassandra = { workspace = true, optional = true }
+dg-dialect-mongo = { workspace = true, optional = true }
+dg-dialect-redis = { workspace = true, optional = true }
+dg-dialect-dynamo = { workspace = true, optional = true }
+dg-dialect-h2 = { workspace = true, optional = true }
+dg-dialect-snowflake = { workspace = true, optional = true }
+dg-dialect-bigquery = { workspace = true, optional = true }
+dg-dialect-couchbase = { workspace = true, optional = true }
+dg-dialect-exasol = { workspace = true, optional = true }
+dg-dialect-hive = { workspace = true, optional = true }
+dg-dialect-spark = { workspace = true, optional = true }
+dg-dialect-vertica = { workspace = true, optional = true }
+dg-dialect-sybase = { workspace = true, optional = true }
+dg-dialect-db2 = { workspace = true, optional = true }
+dg-dialect-derby = { workspace = true, optional = true }
+dg-dialect-oracle = { workspace = true, optional = true }
+dg-dialect-hsqldb = { workspace = true, optional = true }
+dg-dialect-trino = { workspace = true, optional = true }
+
+[features]
+default = ["all"]
+all = ["http", "jdbc", "pg", "redshift", "greenplum", "cockroach", "mysql", "mariadb", "sqlite", "mssql", "clickhouse", "cassandra", "mongo", "redis", "dynamo", "h2", "snowflake", "bigquery", "couchbase", "exasol", "hive", "spark", "vertica", "sybase", "db2", "derby", "oracle", "hsqldb", "trino"]
+http = ["dep:dg-dialect-http"]
+jdbc = ["dep:dg-dialect-jdbc"]
+tier-a = ["pg", "redshift", "greenplum", "cockroach", "mysql", "mariadb", "sqlite", "mssql", "clickhouse", "cassandra", "mongo", "redis", "dynamo", "h2"]
+tier-b = ["snowflake", "bigquery", "couchbase", "exasol", "hive", "spark"]
+tier-c = ["vertica", "sybase", "db2", "derby", "oracle", "hsqldb"]
+pg = ["dep:dg-dialect-pg"]
+redshift = ["dep:dg-dialect-redshift"]
+greenplum = ["dep:dg-dialect-greenplum"]
+cockroach = ["dep:dg-dialect-cockroach"]
+mysql = ["dep:dg-dialect-mysql"]
+mariadb = ["dep:dg-dialect-mariadb"]
+sqlite = ["dep:dg-dialect-sqlite"]
+mssql = ["dep:dg-dialect-mssql"]
+clickhouse = ["dep:dg-dialect-clickhouse"]
+cassandra = ["dep:dg-dialect-cassandra"]
+mongo = ["dep:dg-dialect-mongo"]
+redis = ["dep:dg-dialect-redis"]
+dynamo = ["dep:dg-dialect-dynamo"]
+h2 = ["dep:dg-dialect-h2"]
+snowflake = ["dep:dg-dialect-snowflake"]
+bigquery = ["dep:dg-dialect-bigquery"]
+couchbase = ["dep:dg-dialect-couchbase"]
+exasol = ["dep:dg-dialect-exasol"]
+hive = ["dep:dg-dialect-hive"]
+spark = ["dep:dg-dialect-spark"]
+vertica = ["dep:dg-dialect-vertica"]
+sybase = ["dep:dg-dialect-sybase"]
+db2 = ["dep:dg-dialect-db2"]
+derby = ["dep:dg-dialect-derby"]
+oracle = ["dep:dg-dialect-oracle"]
+hsqldb = ["dep:dg-dialect-hsqldb"]
+# Registers both Trino and Presto.
+trino = ["dep:dg-dialect-trino"]

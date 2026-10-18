@@ -1,0 +1,37 @@
+@layer components {
+  .document-view-toolbar { @apply tw:flex tw:items-center tw:justify-between tw:gap-[12px] tw:shrink-0 tw:border-b tw:border-border tw:px-[14px] tw:py-[5px] tw:text-meta tw:text-muted-foreground; }
+  .document-view-toolbar > div { @apply tw:flex tw:gap-[8px] tw:flex-wrap; }
+  .document-view-toolbar .btn { @apply tw:text-meta tw:py-[4px]; }
+  .result-documents-scroll { @apply tw:p-0; }
+  .document-record { @apply tw:border-b tw:border-border tw:px-[14px] tw:py-[10px]; }
+  .document-record-head { @apply tw:flex tw:items-center tw:justify-between tw:gap-[12px]; }
+  .document-record-toggle { @apply tw:min-w-0 tw:flex-1 tw:flex tw:items-center tw:gap-[6px] tw:border-0 tw:bg-transparent tw:p-0 tw:text-label tw:text-muted-foreground; }
+  .document-record-toggle > .icon, .document-record-number { @apply tw:shrink-0; }
+  .document-record-identity { @apply tw:font-mono tw:text-label tw:text-foreground tw:truncate tw:ml-[12px]; }
+  .document-record-identity > span { @apply tw:text-muted-foreground; }
+  .document-record-toggle:hover { @apply tw:text-foreground; }
+  .document-record-body { @apply tw:mt-[10px] tw:mb-[8px] tw:ml-[18px]; }
+  .json-line, .json-disclosure { @apply tw:font-mono tw:text-label tw:leading-[1.9] tw:text-foreground tw:whitespace-pre-wrap tw:break-words; }
+  .json-children { @apply tw:pl-[20px] tw:ml-[5px] tw:border-l tw:border-border; }
+  .json-disclosure { @apply tw:flex tw:items-baseline tw:gap-[4px] tw:text-left tw:border-0 tw:bg-transparent tw:p-0 tw:max-w-full; }
+  .json-disclosure > .icon { @apply tw:shrink-0 tw:self-center tw:text-muted-foreground; }
+  .json-disclosure > span { @apply tw:min-w-0; }
+  .json-disclosure:hover { @apply tw:bg-hover; }
+  .json-disclosure small { @apply tw:font-sans tw:text-meta tw:text-muted-foreground tw:ml-[10px]; }
+  .json-key { @apply tw:text-syntax-type; }
+  .json-string { @apply tw:text-syntax-string; }
+  .json-number { @apply tw:text-syntax-number; }
+  .json-boolean, .json-null { @apply tw:text-syntax-keyword; }
+  .json-preview { @apply tw:text-muted-foreground; }
+  .document-copy-notice { @apply tw:ml-auto tw:text-meta; }
+  .document-empty { @apply tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-[10px] tw:h-full tw:p-[24px] tw:text-center tw:text-muted-foreground; }
+  .document-empty p { @apply tw:m-0 tw:text-ui tw:text-foreground; }
+  .document-empty span { @apply tw:text-label; }
+  .table-workspace-modes { @apply tw:flex-wrap tw:gap-y-[5px]; }
+  @media (max-width:700px) {
+    .document-view-toolbar { @apply tw:flex-wrap; }
+    .document-record { @apply tw:px-[10px]; }
+    .document-record-body { @apply tw:ml-[6px]; }
+    .document-copy-notice { @apply tw:basis-full tw:ml-0; }
+  }
+}

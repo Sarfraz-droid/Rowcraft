@@ -1,0 +1,43 @@
+/target
+/benchmark-results/
+/scripts/benchmark-apps.py
+/scripts/setup-benchmark.py
+/scripts/test_benchmark_apps.py
+**/*.rs.bk
+.DS_Store
+.idea/
+.vscode/
+*.sqlite
+*.sqlite-journal
+.env
+.dev/
+node_modules/
+.pnpm-store/
+.npm-cache/
+/apps/dg-desktop/dist/
+/apps/dg-desktop/src-tauri/gen/
+
+# Local configuration and credentials
+.env.*
+!.env.example
+!.env.*.example
+
+# Python caches and test output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+coverage/
+*.tsbuildinfo
+*.log
+
+# SQLite sidecar files
+*.sqlite-wal
+*.sqlite-shm
+
+# Local design references; runtime assets live under apps/
+/samples/
+/rowcraft-logos.zip
+/ui.jpg
+/.impeccable/hook.cache.json

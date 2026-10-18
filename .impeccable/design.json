@@ -1,0 +1,642 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T11:13:43.857029+00:00",
+  "title": "Design System: dglite",
+  "extensions": {
+    "colorMeta": {
+      "dark-bg": {
+        "role": "neutral",
+        "displayName": "Dark Bg",
+        "canonical": "#17191e",
+        "tonalRamp": [
+          "oklch(15% 0.0103 268.20)",
+          "oklch(26% 0.0103 268.20)",
+          "oklch(38% 0.0103 268.20)",
+          "oklch(49% 0.0103 268.20)",
+          "oklch(61% 0.0103 268.20)",
+          "oklch(72% 0.0103 268.20)",
+          "oklch(84% 0.0103 268.20)",
+          "oklch(95% 0.0103 268.20)"
+        ]
+      },
+      "dark-panel": {
+        "role": "neutral",
+        "displayName": "Dark Panel",
+        "canonical": "#1d2027",
+        "tonalRamp": [
+          "oklch(15% 0.0141 266.99)",
+          "oklch(26% 0.0141 266.99)",
+          "oklch(38% 0.0141 266.99)",
+          "oklch(49% 0.0141 266.99)",
+          "oklch(61% 0.0141 266.99)",
+          "oklch(72% 0.0141 266.99)",
+          "oklch(84% 0.0141 266.99)",
+          "oklch(95% 0.0141 266.99)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark Surface",
+        "canonical": "#21252d",
+        "tonalRamp": [
+          "oklch(15% 0.0161 264.25)",
+          "oklch(26% 0.0161 264.25)",
+          "oklch(38% 0.0161 264.25)",
+          "oklch(49% 0.0161 264.25)",
+          "oklch(61% 0.0161 264.25)",
+          "oklch(72% 0.0161 264.25)",
+          "oklch(84% 0.0161 264.25)",
+          "oklch(95% 0.0161 264.25)"
+        ]
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "Dark Text",
+        "canonical": "#dce0e8",
+        "tonalRamp": [
+          "oklch(15% 0.0117 264.51)",
+          "oklch(26% 0.0117 264.51)",
+          "oklch(38% 0.0117 264.51)",
+          "oklch(49% 0.0117 264.51)",
+          "oklch(61% 0.0117 264.51)",
+          "oklch(72% 0.0117 264.51)",
+          "oklch(84% 0.0117 264.51)",
+          "oklch(95% 0.0117 264.51)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark Muted",
+        "canonical": "#9aA3b5",
+        "tonalRamp": [
+          "oklch(15% 0.0281 264.38)",
+          "oklch(26% 0.0281 264.38)",
+          "oklch(38% 0.0281 264.38)",
+          "oklch(49% 0.0281 264.38)",
+          "oklch(61% 0.0281 264.38)",
+          "oklch(72% 0.0281 264.38)",
+          "oklch(84% 0.0281 264.38)",
+          "oklch(95% 0.0281 264.38)"
+        ]
+      },
+      "dark-border": {
+        "role": "neutral",
+        "displayName": "Dark Border",
+        "canonical": "#303640",
+        "tonalRamp": [
+          "oklch(15% 0.0195 260.65)",
+          "oklch(26% 0.0195 260.65)",
+          "oklch(38% 0.0195 260.65)",
+          "oklch(49% 0.0195 260.65)",
+          "oklch(61% 0.0195 260.65)",
+          "oklch(72% 0.0195 260.65)",
+          "oklch(84% 0.0195 260.65)",
+          "oklch(95% 0.0195 260.65)"
+        ]
+      },
+      "dark-hover": {
+        "role": "neutral",
+        "displayName": "Dark Hover",
+        "canonical": "#272e39",
+        "tonalRamp": [
+          "oklch(15% 0.0223 259.37)",
+          "oklch(26% 0.0223 259.37)",
+          "oklch(38% 0.0223 259.37)",
+          "oklch(49% 0.0223 259.37)",
+          "oklch(61% 0.0223 259.37)",
+          "oklch(72% 0.0223 259.37)",
+          "oklch(84% 0.0223 259.37)",
+          "oklch(95% 0.0223 259.37)"
+        ]
+      },
+      "dark-selection": {
+        "role": "neutral",
+        "displayName": "Dark Selection",
+        "canonical": "#253951",
+        "tonalRamp": [
+          "oklch(15% 0.0497 253.61)",
+          "oklch(26% 0.0497 253.61)",
+          "oklch(38% 0.0497 253.61)",
+          "oklch(49% 0.0497 253.61)",
+          "oklch(61% 0.0497 253.61)",
+          "oklch(72% 0.0497 253.61)",
+          "oklch(84% 0.0497 253.61)",
+          "oklch(95% 0.0497 253.61)"
+        ]
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Dark Accent",
+        "canonical": "#85b4f9",
+        "tonalRamp": [
+          "oklch(15% 0.1118 257.86)",
+          "oklch(26% 0.1118 257.86)",
+          "oklch(38% 0.1118 257.86)",
+          "oklch(49% 0.1118 257.86)",
+          "oklch(61% 0.1118 257.86)",
+          "oklch(72% 0.1118 257.86)",
+          "oklch(84% 0.1118 257.86)",
+          "oklch(95% 0.1118 257.86)"
+        ]
+      },
+      "dark-error": {
+        "role": "functional",
+        "displayName": "Dark Error",
+        "canonical": "#f19a9d",
+        "tonalRamp": [
+          "oklch(15% 0.1046 17.52)",
+          "oklch(26% 0.1046 17.52)",
+          "oklch(38% 0.1046 17.52)",
+          "oklch(49% 0.1046 17.52)",
+          "oklch(61% 0.1046 17.52)",
+          "oklch(72% 0.1046 17.52)",
+          "oklch(84% 0.1046 17.52)",
+          "oklch(95% 0.1046 17.52)"
+        ]
+      },
+      "dark-success": {
+        "role": "functional",
+        "displayName": "Dark Success",
+        "canonical": "#7cc8a8",
+        "tonalRamp": [
+          "oklch(15% 0.0892 165.56)",
+          "oklch(26% 0.0892 165.56)",
+          "oklch(38% 0.0892 165.56)",
+          "oklch(49% 0.0892 165.56)",
+          "oklch(61% 0.0892 165.56)",
+          "oklch(72% 0.0892 165.56)",
+          "oklch(84% 0.0892 165.56)",
+          "oklch(95% 0.0892 165.56)"
+        ]
+      },
+      "dark-syn-keyword": {
+        "role": "functional",
+        "displayName": "Dark Syn Keyword",
+        "canonical": "#b6a1e0",
+        "tonalRamp": [
+          "oklch(15% 0.0917 299.48)",
+          "oklch(26% 0.0917 299.48)",
+          "oklch(38% 0.0917 299.48)",
+          "oklch(49% 0.0917 299.48)",
+          "oklch(61% 0.0917 299.48)",
+          "oklch(72% 0.0917 299.48)",
+          "oklch(84% 0.0917 299.48)",
+          "oklch(95% 0.0917 299.48)"
+        ]
+      },
+      "dark-syn-string": {
+        "role": "functional",
+        "displayName": "Dark Syn String",
+        "canonical": "#a8c6a5",
+        "tonalRamp": [
+          "oklch(15% 0.0562 142.59)",
+          "oklch(26% 0.0562 142.59)",
+          "oklch(38% 0.0562 142.59)",
+          "oklch(49% 0.0562 142.59)",
+          "oklch(61% 0.0562 142.59)",
+          "oklch(72% 0.0562 142.59)",
+          "oklch(84% 0.0562 142.59)",
+          "oklch(95% 0.0562 142.59)"
+        ]
+      },
+      "dark-syn-number": {
+        "role": "functional",
+        "displayName": "Dark Syn Number",
+        "canonical": "#dbb487",
+        "tonalRamp": [
+          "oklch(15% 0.0748 70.42)",
+          "oklch(26% 0.0748 70.42)",
+          "oklch(38% 0.0748 70.42)",
+          "oklch(49% 0.0748 70.42)",
+          "oklch(61% 0.0748 70.42)",
+          "oklch(72% 0.0748 70.42)",
+          "oklch(84% 0.0748 70.42)",
+          "oklch(95% 0.0748 70.42)"
+        ]
+      },
+      "dark-syn-type": {
+        "role": "functional",
+        "displayName": "Dark Syn Type",
+        "canonical": "#90c4d1",
+        "tonalRamp": [
+          "oklch(15% 0.0571 214.88)",
+          "oklch(26% 0.0571 214.88)",
+          "oklch(38% 0.0571 214.88)",
+          "oklch(49% 0.0571 214.88)",
+          "oklch(61% 0.0571 214.88)",
+          "oklch(72% 0.0571 214.88)",
+          "oklch(84% 0.0571 214.88)",
+          "oklch(95% 0.0571 214.88)"
+        ]
+      },
+      "light-bg": {
+        "role": "neutral",
+        "displayName": "Light Bg",
+        "canonical": "#fff",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "light-panel": {
+        "role": "neutral",
+        "displayName": "Light Panel",
+        "canonical": "#f5f6f8",
+        "tonalRamp": [
+          "oklch(15% 0.0029 264.54)",
+          "oklch(26% 0.0029 264.54)",
+          "oklch(38% 0.0029 264.54)",
+          "oklch(49% 0.0029 264.54)",
+          "oklch(61% 0.0029 264.54)",
+          "oklch(72% 0.0029 264.54)",
+          "oklch(84% 0.0029 264.54)",
+          "oklch(95% 0.0029 264.54)"
+        ]
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "Light Surface",
+        "canonical": "#eff1f5",
+        "tonalRamp": [
+          "oklch(15% 0.0058 264.53)",
+          "oklch(26% 0.0058 264.53)",
+          "oklch(38% 0.0058 264.53)",
+          "oklch(49% 0.0058 264.53)",
+          "oklch(61% 0.0058 264.53)",
+          "oklch(72% 0.0058 264.53)",
+          "oklch(84% 0.0058 264.53)",
+          "oklch(95% 0.0058 264.53)"
+        ]
+      },
+      "light-text": {
+        "role": "neutral",
+        "displayName": "Light Text",
+        "canonical": "#252b36",
+        "tonalRamp": [
+          "oklch(15% 0.0219 262.50)",
+          "oklch(26% 0.0219 262.50)",
+          "oklch(38% 0.0219 262.50)",
+          "oklch(49% 0.0219 262.50)",
+          "oklch(61% 0.0219 262.50)",
+          "oklch(72% 0.0219 262.50)",
+          "oklch(84% 0.0219 262.50)",
+          "oklch(95% 0.0219 262.50)"
+        ]
+      },
+      "light-muted": {
+        "role": "neutral",
+        "displayName": "Light Muted",
+        "canonical": "#626d7e",
+        "tonalRamp": [
+          "oklch(15% 0.0299 259.03)",
+          "oklch(26% 0.0299 259.03)",
+          "oklch(38% 0.0299 259.03)",
+          "oklch(49% 0.0299 259.03)",
+          "oklch(61% 0.0299 259.03)",
+          "oklch(72% 0.0299 259.03)",
+          "oklch(84% 0.0299 259.03)",
+          "oklch(95% 0.0299 259.03)"
+        ]
+      },
+      "light-border": {
+        "role": "neutral",
+        "displayName": "Light Border",
+        "canonical": "#dfe3ea",
+        "tonalRamp": [
+          "oklch(15% 0.0104 261.79)",
+          "oklch(26% 0.0104 261.79)",
+          "oklch(38% 0.0104 261.79)",
+          "oklch(49% 0.0104 261.79)",
+          "oklch(61% 0.0104 261.79)",
+          "oklch(72% 0.0104 261.79)",
+          "oklch(84% 0.0104 261.79)",
+          "oklch(95% 0.0104 261.79)"
+        ]
+      },
+      "light-hover": {
+        "role": "neutral",
+        "displayName": "Light Hover",
+        "canonical": "#e9edf4",
+        "tonalRamp": [
+          "oklch(15% 0.0104 261.79)",
+          "oklch(26% 0.0104 261.79)",
+          "oklch(38% 0.0104 261.79)",
+          "oklch(49% 0.0104 261.79)",
+          "oklch(61% 0.0104 261.79)",
+          "oklch(72% 0.0104 261.79)",
+          "oklch(84% 0.0104 261.79)",
+          "oklch(95% 0.0104 261.79)"
+        ]
+      },
+      "light-selection": {
+        "role": "neutral",
+        "displayName": "Light Selection",
+        "canonical": "#e2edfd",
+        "tonalRamp": [
+          "oklch(15% 0.0247 257.65)",
+          "oklch(26% 0.0247 257.65)",
+          "oklch(38% 0.0247 257.65)",
+          "oklch(49% 0.0247 257.65)",
+          "oklch(61% 0.0247 257.65)",
+          "oklch(72% 0.0247 257.65)",
+          "oklch(84% 0.0247 257.65)",
+          "oklch(95% 0.0247 257.65)"
+        ]
+      },
+      "light-accent": {
+        "role": "primary",
+        "displayName": "Light Accent",
+        "canonical": "#285db1",
+        "tonalRamp": [
+          "oklch(15% 0.1453 259.40)",
+          "oklch(26% 0.1453 259.40)",
+          "oklch(38% 0.1453 259.40)",
+          "oklch(49% 0.1453 259.40)",
+          "oklch(61% 0.1453 259.40)",
+          "oklch(72% 0.1453 259.40)",
+          "oklch(84% 0.1453 259.40)",
+          "oklch(95% 0.1453 259.40)"
+        ]
+      },
+      "light-error": {
+        "role": "functional",
+        "displayName": "Light Error",
+        "canonical": "#b02e3d",
+        "tonalRamp": [
+          "oklch(15% 0.1656 19.28)",
+          "oklch(26% 0.1656 19.28)",
+          "oklch(38% 0.1656 19.28)",
+          "oklch(49% 0.1656 19.28)",
+          "oklch(61% 0.1656 19.28)",
+          "oklch(72% 0.1656 19.28)",
+          "oklch(84% 0.1656 19.28)",
+          "oklch(95% 0.1656 19.28)"
+        ]
+      },
+      "light-success": {
+        "role": "functional",
+        "displayName": "Light Success",
+        "canonical": "#28745b",
+        "tonalRamp": [
+          "oklch(15% 0.0848 167.75)",
+          "oklch(26% 0.0848 167.75)",
+          "oklch(38% 0.0848 167.75)",
+          "oklch(49% 0.0848 167.75)",
+          "oklch(61% 0.0848 167.75)",
+          "oklch(72% 0.0848 167.75)",
+          "oklch(84% 0.0848 167.75)",
+          "oklch(95% 0.0848 167.75)"
+        ]
+      },
+      "light-syn-keyword": {
+        "role": "functional",
+        "displayName": "Light Syn Keyword",
+        "canonical": "#7855a8",
+        "tonalRamp": [
+          "oklch(15% 0.1301 301.53)",
+          "oklch(26% 0.1301 301.53)",
+          "oklch(38% 0.1301 301.53)",
+          "oklch(49% 0.1301 301.53)",
+          "oklch(61% 0.1301 301.53)",
+          "oklch(72% 0.1301 301.53)",
+          "oklch(84% 0.1301 301.53)",
+          "oklch(95% 0.1301 301.53)"
+        ]
+      },
+      "light-syn-string": {
+        "role": "functional",
+        "displayName": "Light Syn String",
+        "canonical": "#397544",
+        "tonalRamp": [
+          "oklch(15% 0.0992 148.04)",
+          "oklch(26% 0.0992 148.04)",
+          "oklch(38% 0.0992 148.04)",
+          "oklch(49% 0.0992 148.04)",
+          "oklch(61% 0.0992 148.04)",
+          "oklch(72% 0.0992 148.04)",
+          "oklch(84% 0.0992 148.04)",
+          "oklch(95% 0.0992 148.04)"
+        ]
+      },
+      "light-syn-number": {
+        "role": "functional",
+        "displayName": "Light Syn Number",
+        "canonical": "#98521f",
+        "tonalRamp": [
+          "oklch(15% 0.1124 52.78)",
+          "oklch(26% 0.1124 52.78)",
+          "oklch(38% 0.1124 52.78)",
+          "oklch(49% 0.1124 52.78)",
+          "oklch(61% 0.1124 52.78)",
+          "oklch(72% 0.1124 52.78)",
+          "oklch(84% 0.1124 52.78)",
+          "oklch(95% 0.1124 52.78)"
+        ]
+      },
+      "light-syn-type": {
+        "role": "functional",
+        "displayName": "Light Syn Type",
+        "canonical": "#28728b",
+        "tonalRamp": [
+          "oklch(15% 0.0812 224.30)",
+          "oklch(26% 0.0812 224.30)",
+          "oklch(38% 0.0812 224.30)",
+          "oklch(49% 0.0812 224.30)",
+          "oklch(61% 0.0812 224.30)",
+          "oklch(72% 0.0812 224.30)",
+          "oklch(84% 0.0812 224.30)",
+          "oklch(95% 0.0812 224.30)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Workbench body",
+        "purpose": "Interface and SQL text."
+      },
+      "title": {
+        "displayName": "Source title",
+        "purpose": "Source view headings."
+      },
+      "label": {
+        "displayName": "Control label",
+        "purpose": "Controls and compact labels."
+      },
+      "data": {
+        "displayName": "Data grid",
+        "purpose": "Returned database values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "add-menu",
+        "value": "0 12px 28px #0004",
+        "purpose": "Add-source popover."
+      },
+      {
+        "name": "source-menu",
+        "value": "0 8px 20px #0003",
+        "purpose": "Source actions."
+      },
+      {
+        "name": "dialog",
+        "value": "0 20px 80px #0004",
+        "purpose": "Connection and driver settings."
+      },
+      {
+        "name": "document-menu",
+        "value": "0 8px 24px rgb(0 0 0 / .2)",
+        "purpose": "New-document view menu."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-state",
+        "value": "background-color 140ms, color 140ms, border-color 140ms",
+        "purpose": "Button state changes; disabled with reduced motion."
+      },
+      {
+        "name": "query-spinner",
+        "value": "spin .8s linear infinite",
+        "purpose": "Query activity; disabled with reduced motion."
+      },
+      {
+        "name": "refresh-spinner",
+        "value": "spin 1s linear infinite",
+        "purpose": "Schema refresh; disabled with reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "max-1050",
+        "value": "1050px"
+      },
+      {
+        "name": "max-1000",
+        "value": "1000px"
+      },
+      {
+        "name": "max-760",
+        "value": "760px"
+      },
+      {
+        "name": "max-700",
+        "value": "700px"
+      },
+      {
+        "name": "max-480",
+        "value": "480px"
+      },
+      {
+        "name": "max-900",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Run SQL or perform a supporting action.",
+      "html": "<button class=\"ds-primary\">Run</button>",
+      "css": ".ds-primary{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;background:var(--accent,#85b4f9);color:var(--bg,#17191e);border:1px solid var(--border,#303640);border-radius:5px;padding:7px 11px;cursor:pointer;transition:background-color 140ms,color 140ms,border-color 140ms}.ds-primary:hover{filter:brightness(1.1)}.ds-primary:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:2px}.ds-primary:disabled{opacity:.5;cursor:default}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Run SQL or perform a supporting action.",
+      "html": "<button class=\"ds-secondary\">Refresh schema</button>",
+      "css": ".ds-secondary{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;background:var(--bg,#17191e);color:var(--text,#dce0e8);border:1px solid var(--border,#303640);border-radius:5px;padding:7px 11px;cursor:pointer;transition:background-color 140ms,color 140ms,border-color 140ms}.ds-secondary:hover{background:var(--hover,#272e39)}.ds-secondary:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:2px}.ds-secondary:disabled{opacity:.5;cursor:default}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}}"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "description": "Search database objects.",
+      "html": "<input class=\"ds-search\" aria-label=\"Search tables and views\" placeholder=\"Search tables and views\u2026\" />",
+      "css": ".ds-search{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;background:var(--panel,#1d2027);color:var(--text,#dce0e8);border:1px solid var(--border,#303640);border-radius:5px;padding:7px 9px}.ds-search::placeholder{color:var(--muted,#9aa3b5)}.ds-search:hover{border-color:var(--muted,#9aa3b5)}.ds-search:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:2px}"
+    },
+    {
+      "name": "Selected source navigation",
+      "kind": "nav",
+      "refersTo": "navigation-selected",
+      "description": "The current view inside an expanded source.",
+      "html": "<nav aria-label=\"Source views\"><button class=\"ds-nav\" aria-current=\"page\">SQL console</button></nav>",
+      "css": ".ds-nav{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;display:flex;width:220px;text-align:left;background:var(--selection,#253951);color:var(--accent,#85b4f9);border:0;border-radius:4px;height:28px;padding:5px 8px;align-items:center;cursor:pointer}.ds-nav:hover{background:var(--hover,#272e39)}.ds-nav:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:2px}"
+    },
+    {
+      "name": "Dialect badge",
+      "kind": "chip",
+      "description": "Read-only SQL dialect context.",
+      "html": "<span class=\"ds-dialect\">SQLITE</span>",
+      "css": ".ds-dialect{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;display:inline-block;font-size:8px;padding:0;font-size:9px;color:var(--muted,#9aa3b5)}"
+    },
+    {
+      "name": "Schema table card",
+      "kind": "card",
+      "description": "Schema map object with type and key metadata.",
+      "html": "<article class=\"ds-table\"><header><button>customers</button><small>public</small></header><div><span>PK</span> id <small>INTEGER</small></div><footer>1 column \u00b7 1 index</footer></article>",
+      "css": ".ds-table{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;width:260px;border:1px solid var(--border,#303640);border-radius:6px;background:var(--panel,#1d2027);color:var(--text,#dce0e8);overflow:hidden}.ds-table header{display:flex;justify-content:space-between;padding:11px 13px;background:var(--hover,#272e39);border-bottom:1px solid var(--border,#303640)}.ds-table button{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;font-size:12px;font-weight:600;border:0;background:none;color:inherit;padding:0;cursor:pointer}.ds-table button:hover{color:var(--accent,#85b4f9)}.ds-table button:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:2px}.ds-table small{color:var(--muted,#9aa3b5);font-size:9px}.ds-table>div{display:flex;gap:8px;padding:10px 11px}.ds-table>div small{margin-left:auto}.ds-table>div span{color:var(--accent,#85b4f9);font-size:8px}.ds-table footer{padding:8px 12px;border-top:1px solid var(--border,#303640);color:var(--muted,#9aa3b5);font-size:9px}"
+    },
+    {
+      "name": "Workspace document tab",
+      "kind": "nav",
+      "description": "An independently closable document; source subtitles appear for cross-source workspaces and tooltips always identify the source.",
+      "html": "<div class=\"ds-document\"><button class=\"ds-document-select\" role=\"tab\" aria-selected=\"true\">Console 1 <small>local</small></button><button class=\"ds-document-close\" aria-label=\"Close Console 1 for local\">\u00d7</button></div>",
+      "css": ".ds-document{display:inline-flex;height:35px;border-right:1px solid var(--border,#303640);border-bottom:2px solid var(--accent,#85b4f9);background:var(--bg,#17191e);color:var(--text,#dce0e8)}.ds-document button{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;color:inherit;border:0;background:none;cursor:pointer}.ds-document-select{display:flex;align-items:center;gap:7px;padding:0 3px 0 11px}.ds-document-select small{font-size:8px;color:var(--muted,#9aa3b5)}.ds-document-close{align-self:center;width:24px;height:27px;border-radius:4px}.ds-document button:hover{background:var(--hover,#272e39)}.ds-document button:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:-3px}"
+    },
+    {
+      "name": "Console database selector",
+      "kind": "input",
+      "description": "Saved source target for the current SQL document.",
+      "html": "<label class=\"ds-database\">Database <select aria-label=\"Database for Console 1\"><option>local</option><option>analytics</option></select></label>",
+      "css": ".ds-database{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;display:inline-flex;align-items:center;gap:8px;font-size:10px;color:var(--muted,#9aa3b5)}.ds-database select{font-family:var(--mono,\"JetBrains Mono\",monospace);font-size:11px;background:var(--bg,#17191e);color:var(--text,#dce0e8);border:1px solid var(--border,#303640);padding:3px 23px 3px 7px;border-radius:3px;min-width:100px;max-width:260px}.ds-database select:hover{border-color:var(--muted,#9aa3b5)}.ds-database select:focus-visible{outline:2px solid var(--accent,#85b4f9);outline-offset:1px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Developer workbench",
+    "overview": "dglite uses a compact developer workbench: a persistent source navigator, closable documents across sources, and dedicated views for SQL, data, and database structure. Monospace type carries the interface and the data. Quiet graphite or light surfaces keep blue selection and action states easy to find.\n\nThis document records the implemented UI in the desktop frontend. Its descriptive language is inferred from source, rather than a separately approved brand concept. No image comp defines this system. Browser visual verification is pending; these values were extracted from code.",
+    "keyCharacteristics": [
+      "Compact navigation and toolbars",
+      "Self-hosted monospace typography",
+      "Theme-aware surfaces and restrained blue actions",
+      "Charts and relationships derived from returned data"
+    ],
+    "rules": [
+      {
+        "name": "The Context Rule",
+        "body": "Use blue for actions, selection, and data marks; pair connection and failure colors with readable state text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Data Rule",
+        "body": "Keep SQL, object names, numeric values, and surrounding controls in the shared monospace family.",
+        "section": "typography"
+      },
+      {
+        "name": "The Overlay Rule",
+        "body": "Reserve shadows for menus and dialogs; separate working panes with tone and borders.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the shared theme variables for surfaces, text, borders, and state.",
+      "Do keep source context visible in navigation and workspace breadcrumbs.",
+      "Do pair state colors with labels, icons, counts, or key markers.",
+      "Do preserve scrolling, truncation, and focus states when adding dense content."
+    ],
+    "donts": [
+      "Don't add large display typography to routine database views.",
+      "Don't use shadows to separate ordinary workspace panes.",
+      "Don't draw relationships or chart values that the catalog or query result does not supply.",
+      "Don't treat session history or SQL drafts as durable storage."
+    ]
+  }
+}

@@ -1,0 +1,582 @@
+[
+  {
+    "id": "athena",
+    "name": "Amazon Athena",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:athena://AwsRegion={database}"
+  },
+  {
+    "id": "aurora_mysql",
+    "name": "Amazon Aurora MySQL",
+    "dialect": "mysql",
+    "port": 3306,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "documentdb",
+    "name": "Amazon DocumentDB",
+    "dialect": "mongo",
+    "port": 27017,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "dynamodb",
+    "name": "Amazon DynamoDB",
+    "dialect": "dynamo",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "redshift",
+    "name": "Amazon Redshift",
+    "dialect": "redshift",
+    "port": 5439,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "cassandra",
+    "name": "Apache Cassandra",
+    "dialect": "cassandra",
+    "port": 9042,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "derby_embedded",
+    "name": "Apache Derby (Embedded)",
+    "dialect": "derby",
+    "port": null,
+    "file": true,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:derby:{database};create=true"
+  },
+  {
+    "id": "derby_remote",
+    "name": "Apache Derby (Remote)",
+    "dialect": "derby",
+    "port": 1527,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:derby://{host}:{port}/{database}"
+  },
+  {
+    "id": "hive",
+    "name": "Apache Hive",
+    "dialect": "hive",
+    "port": 10000,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:hive2://{host}:{port}/{database}"
+  },
+  {
+    "id": "ignite",
+    "name": "Apache Ignite",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:ignite:thin://{host}:{port}"
+  },
+  {
+    "id": "phoenix_thick",
+    "name": "Apache Phoenix",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:phoenix:{host}:{port}"
+  },
+  {
+    "id": "phoenix_thin",
+    "name": "Apache Phoenix Thin",
+    "dialect": "jdbc",
+    "port": 8765,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:phoenix:thin:url=http://{host}:{port}"
+  },
+  {
+    "id": "spark",
+    "name": "Apache Spark",
+    "dialect": "spark",
+    "port": 10000,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:hive2://{host}:{port}/{database}"
+  },
+  {
+    "id": "azure_sql",
+    "name": "Azure SQL Database",
+    "dialect": "mssql",
+    "port": 1433,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "synapse",
+    "name": "Azure Synapse Analytics",
+    "dialect": "mssql",
+    "port": 1433,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "clickhouse",
+    "name": "ClickHouse",
+    "dialect": "clickhouse",
+    "port": 8123,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "cockroach",
+    "name": "CockroachDB",
+    "dialect": "cockroach",
+    "port": 26257,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "couchbase",
+    "name": "Couchbase Server",
+    "dialect": "couchbase",
+    "port": 8093,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "databricks",
+    "name": "Databricks",
+    "dialect": "jdbc",
+    "port": 443,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:databricks://{host}:{port};httpPath={database}"
+  },
+  {
+    "id": "denodo",
+    "name": "Denodo",
+    "dialect": "jdbc",
+    "port": 9999,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:vdb://{host}:{port}/{database}"
+  },
+  {
+    "id": "duckdb",
+    "name": "DuckDB",
+    "dialect": "jdbc",
+    "port": null,
+    "file": true,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:duckdb:{database}"
+  },
+  {
+    "id": "elasticsearch",
+    "name": "Elasticsearch",
+    "dialect": "jdbc",
+    "port": 9200,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:es://https://{host}:{port}"
+  },
+  {
+    "id": "exasol",
+    "name": "Exasol",
+    "dialect": "exasol",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:exa:{host}:{port};schema={database}"
+  },
+  {
+    "id": "firebird",
+    "name": "Firebird",
+    "dialect": "jdbc",
+    "port": 3050,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:firebirdsql://{host}:{port}/{database}"
+  },
+  {
+    "id": "bigquery",
+    "name": "Google BigQuery",
+    "dialect": "bigquery",
+    "port": 443,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:bigquery://https://{host}:{port};ProjectId={database}"
+  },
+  {
+    "id": "cloudspanner",
+    "name": "Google Cloud Spanner",
+    "dialect": "jdbc",
+    "port": 9200,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:cloudspanner:/{database}"
+  },
+  {
+    "id": "greenplum",
+    "name": "Greenplum",
+    "dialect": "greenplum",
+    "port": 5432,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "h2",
+    "name": "H2",
+    "dialect": "h2",
+    "port": 5435,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "hsqldb_local",
+    "name": "HSQLDB (Local)",
+    "dialect": "hsqldb",
+    "port": null,
+    "file": true,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:hsqldb:file:{database}"
+  },
+  {
+    "id": "hsqldb_remote",
+    "name": "HSQLDB (Remote)",
+    "dialect": "hsqldb",
+    "port": 9001,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:hsqldb:hsql://{host}:{port}/{database}"
+  },
+  {
+    "id": "db2",
+    "name": "IBM Db2",
+    "dialect": "db2",
+    "port": 50000,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:db2://{host}:{port}/{database}"
+  },
+  {
+    "id": "db2_jtopen",
+    "name": "IBM Db2 for i (JTOpen)",
+    "dialect": "db2",
+    "port": 446,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:as400://{host}/{database}"
+  },
+  {
+    "id": "informix",
+    "name": "IBM Informix",
+    "dialect": "jdbc",
+    "port": 1526,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:informix-sqli://{host}:{port}/{database}"
+  },
+  {
+    "id": "influxdb",
+    "name": "InfluxDB",
+    "dialect": "jdbc",
+    "port": 8181,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:arrow-flight-sql://{host}:{port}?database={database}"
+  },
+  {
+    "id": "iris",
+    "name": "InterSystems IRIS",
+    "dialect": "jdbc",
+    "port": 9091,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:IRIS://{host}:{port}/{database}"
+  },
+  {
+    "id": "mariadb",
+    "name": "MariaDB",
+    "dialect": "mariadb",
+    "port": 3306,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "sqlserver",
+    "name": "Microsoft SQL Server",
+    "dialect": "mssql",
+    "port": 1433,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "mimer",
+    "name": "Mimer SQL",
+    "dialect": "jdbc",
+    "port": 1360,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:mimer:multi1:{database}"
+  },
+  {
+    "id": "mongodb",
+    "name": "MongoDB",
+    "dialect": "mongo",
+    "port": 27017,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "mysql",
+    "name": "MySQL",
+    "dialect": "mysql",
+    "port": 3306,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "odbc",
+    "name": "ODBC",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Requires a third-party JDBC/ODBC bridge and driver files.",
+    "jdbc_url_template": "jdbc:odbc:{database}"
+  },
+  {
+    "id": "openedge",
+    "name": "OpenEdge",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:datadirect:openedge://{host}:{port};databaseName={database}"
+  },
+  {
+    "id": "oracle",
+    "name": "Oracle",
+    "dialect": "oracle",
+    "port": 1521,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:oracle:thin:@//{host}:{port}/{database}"
+  },
+  {
+    "id": "postgresql",
+    "name": "PostgreSQL",
+    "dialect": "pg",
+    "port": 5432,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "presto",
+    "name": "Presto",
+    "dialect": "presto",
+    "port": 8080,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "redis",
+    "name": "Redis",
+    "dialect": "redis",
+    "port": 6379,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "hana",
+    "name": "SAP HANA",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:sap://{host}:{port}/?databaseName={database}"
+  },
+  {
+    "id": "singlestore",
+    "name": "SingleStore",
+    "dialect": "mysql",
+    "port": 3306,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "snowflake",
+    "name": "Snowflake",
+    "dialect": "snowflake",
+    "port": 443,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "sqlite",
+    "name": "SQLite",
+    "dialect": "sqlite",
+    "port": null,
+    "file": true,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "sybase",
+    "name": "Sybase ASE",
+    "dialect": "sybase",
+    "port": 5000,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:sybase:Tds:{host}:{port}/{database}"
+  },
+  {
+    "id": "tarantool",
+    "name": "Tarantool",
+    "dialect": "jdbc",
+    "port": 3301,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:tarantool://{host}:{port}/{database}"
+  },
+  {
+    "id": "teradata",
+    "name": "Teradata Vantage",
+    "dialect": "jdbc",
+    "port": null,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:teradata://{host}/DATABASE={database},DBS_PORT={port}"
+  },
+  {
+    "id": "tibero",
+    "name": "Tibero",
+    "dialect": "jdbc",
+    "port": 8629,
+    "file": false,
+    "custom": false,
+    "caveat": "Configure JDBC driver files in the desktop app.",
+    "jdbc_url_template": "jdbc:tibero:thin:@{host}:{port}:{database}"
+  },
+  {
+    "id": "tidb",
+    "name": "TiDB",
+    "dialect": "mysql",
+    "port": 3306,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "trino",
+    "name": "Trino",
+    "dialect": "trino",
+    "port": 8080,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "vertica",
+    "name": "Vertica",
+    "dialect": "vertica",
+    "port": 5433,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  },
+  {
+    "id": "yugabyte",
+    "name": "YugabyteDB",
+    "dialect": "pg",
+    "port": 5433,
+    "file": false,
+    "custom": false,
+    "caveat": null,
+    "jdbc_url_template": null
+  }
+]

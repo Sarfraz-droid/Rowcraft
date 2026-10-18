@@ -1,0 +1,13 @@
+[package]
+name = "dg-wire-tds5"
+description = "Wire protocol: TDS 5.0 (Sybase ASE)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]

@@ -1,0 +1,32 @@
+[package]
+name = "dg-desktop"
+description = "Desktop app: a Tauri shell around the web frontend in ../src"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+name = "dg_desktop"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rowcraft"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+dg-config.workspace = true
+dg-core.workspace = true
+dg-model.workspace = true
+dg-registry.workspace = true
+dg-ui-model.workspace = true
+tauri.workspace = true
+serde.workspace = true
+reqwest.workspace = true

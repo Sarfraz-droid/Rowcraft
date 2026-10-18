@@ -1,0 +1,53 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "#123456",
+        "files": [
+          "apps/dg-desktop/src/components/AddSourceDialog.test.tsx"
+        ],
+        "createdAt": "2026-10-18T11:40:59.339Z",
+        "reason": "Agent: arbitrary color-picker test input; verifies user-selected colors, not a UI palette token."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#d1242f",
+        "files": [
+          "apps/dg-desktop/src/mock.ts"
+        ],
+        "createdAt": "2026-10-18T11:40:59.609Z",
+        "reason": "Agent: existing demo datasource color represents a user-selected connection color, not a UI palette token."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "files": [
+          "apps/dg-desktop/src/components/Editor.tsx"
+        ],
+        "createdAt": "2026-10-18T13:00:14.305Z",
+        "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "9px",
+        "files": [
+          "apps/dg-desktop/src/components/Editor.tsx"
+        ],
+        "createdAt": "2026-10-18T13:00:14.515Z",
+        "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "10px",
+        "files": [
+          "apps/dg-desktop/src/components/Editor.tsx"
+        ],
+        "createdAt": "2026-10-18T13:00:14.739Z",
+        "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
+      }
+    ]
+  }
+}

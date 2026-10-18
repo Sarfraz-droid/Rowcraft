@@ -1,0 +1,110 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "dialects/*", "wire/*", "apps/dg-cli", "apps/dg-desktop/src-tauri"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+repository = ""
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+dbg_macro = "warn"
+
+[workspace.dependencies]
+# External
+async-trait = "0.1"
+webpki-roots = "1"
+scylla = { version = "1", default-features = false, features = ["rustls-023", "full-serialization"] }
+base64 = "0.22"
+bson = { version = "3", features = ["serde_json-1"] }
+hmac = "0.12"
+sha2 = "0.10"
+mongodb = { version = "3", default-features = false, features = ["rustls-tls", "dns-resolver", "compat-3-0-0", "bson-3"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "alloc"] }
+tiberius = { version = "=0.13.0", default-features = false, features = ["rustls", "tds73", "chrono", "rust_decimal"] }
+tokio-util = { version = "0.7", features = ["compat"] }
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls-no-provider", "json", "gzip", "query", "form"] }
+redis = { version = "=1.7.1", default-features = false, features = ["tokio-comp", "tokio-rustls-comp", "tls-rustls-webpki-roots"] }
+mysql_async = { version = "=0.37.1", default-features = false, features = ["minimal-rust", "default-rustls-ring"] }
+rusqlite = { version = "0.37", features = ["bundled", "column_decltype"] }
+clap = { version = "4", features = ["derive"] }
+futures-util = { version = "0.3", default-features = false }
+# GUI: Tauri shell around a web frontend (SPEC.md §3.1).
+tauri = { version = "2", default-features = false, features = ["wry", "compression"] }
+tauri-build = { version = "2", features = [] }
+russh = { version = "=0.64.1", default-features = false, features = ["flate2", "ring", "rsa"] }
+regex = { version = "1", default-features = false, features = ["std", "perf", "unicode"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio-postgres = "0.7"
+tokio-postgres-rustls = { version = "0.14", features = ["ring", "webpki-roots"] }
+toml = "1"
+
+# Internal: core
+dg-cache = { path = "crates/dg-cache" }
+dg-config = { path = "crates/dg-config" }
+dg-core = { path = "crates/dg-core" }
+dg-dialect = { path = "crates/dg-dialect" }
+dg-drivers = { path = "crates/dg-drivers" }
+dg-grid = { path = "crates/dg-grid" }
+dg-io = { path = "crates/dg-io" }
+dg-model = { path = "crates/dg-model" }
+dg-registry = { path = "crates/dg-registry" }
+dg-script = { path = "crates/dg-script" }
+dg-sql = { path = "crates/dg-sql" }
+dg-ssh = { path = "crates/dg-ssh" }
+dg-ui-model = { path = "crates/dg-ui-model" }
+
+# Internal: shared dialect bases
+dg-dialect-jdbc = { path = "dialects/jdbc" }
+dg-dialect-http = { path = "dialects/http" }
+dg-dialect-pgbase = { path = "dialects/pgbase" }
+dg-dialect-mysqlbase = { path = "dialects/mysqlbase" }
+dg-dialect-pg = { path = "dialects/pg" }
+dg-dialect-redshift = { path = "dialects/redshift" }
+dg-dialect-greenplum = { path = "dialects/greenplum" }
+dg-dialect-cockroach = { path = "dialects/cockroach" }
+dg-dialect-mysql = { path = "dialects/mysql" }
+dg-dialect-mariadb = { path = "dialects/mariadb" }
+dg-dialect-sqlite = { path = "dialects/sqlite" }
+dg-dialect-mssql = { path = "dialects/mssql" }
+dg-dialect-clickhouse = { path = "dialects/clickhouse" }
+dg-dialect-cassandra = { path = "dialects/cassandra" }
+dg-dialect-mongo = { path = "dialects/mongo" }
+dg-dialect-redis = { path = "dialects/redis" }
+dg-dialect-dynamo = { path = "dialects/dynamo" }
+dg-dialect-h2 = { path = "dialects/h2" }
+dg-dialect-snowflake = { path = "dialects/snowflake" }
+dg-dialect-bigquery = { path = "dialects/bigquery" }
+dg-dialect-couchbase = { path = "dialects/couchbase" }
+dg-dialect-exasol = { path = "dialects/exasol" }
+dg-dialect-hive = { path = "dialects/hive" }
+dg-dialect-spark = { path = "dialects/spark" }
+dg-dialect-vertica = { path = "dialects/vertica" }
+dg-dialect-sybase = { path = "dialects/sybase" }
+dg-dialect-db2 = { path = "dialects/db2" }
+dg-dialect-derby = { path = "dialects/derby" }
+dg-dialect-oracle = { path = "dialects/oracle" }
+dg-dialect-hsqldb = { path = "dialects/hsqldb" }
+dg-dialect-trino = { path = "dialects/trino" }
+
+# Internal: wire protocols
+dg-wire-drda = { path = "wire/drda" }
+dg-wire-tds5 = { path = "wire/tds5" }
+dg-wire-tns = { path = "wire/tns" }
+dg-wire-vertica = { path = "wire/vertica" }
+dg-wire-exasol = { path = "wire/exasol" }
+dg-wire-hs2 = { path = "wire/hs2" }
+dg-wire-hsqldb = { path = "wire/hsqldb" }

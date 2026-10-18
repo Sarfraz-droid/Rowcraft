@@ -1,0 +1,26 @@
+[package]
+name = "dg-dialect-mssql"
+description = "Microsoft SQL Server dialect (tier A)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+async-trait.workspace = true
+dg-config.workspace = true
+dg-dialect.workspace = true
+dg-model.workspace = true
+tiberius.workspace = true
+tokio = { workspace = true, features = ["net"] }
+tokio-util.workspace = true
+futures-util.workspace = true
+rustls.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+toml.workspace = true

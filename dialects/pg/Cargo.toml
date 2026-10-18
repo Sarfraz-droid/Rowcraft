@@ -1,0 +1,25 @@
+[package]
+name = "dg-dialect-pg"
+description = "PostgreSQL dialect (tier A)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+async-trait.workspace = true
+dg-config.workspace = true
+dg-dialect.workspace = true
+dg-model.workspace = true
+futures-util.workspace = true
+rustls.workspace = true
+tokio.workspace = true
+tokio-postgres.workspace = true
+tokio-postgres-rustls.workspace = true
+
+[dev-dependencies]
+dg-model.workspace = true

@@ -1,0 +1,12 @@
+import { ErrorNotice } from "./ErrorNotice";
+import { useState } from "react";
+import type { QueryHistoryItem } from "../workbench-model";
+import { Icon } from "./Icon";
+
+interface Props { history: QueryHistoryItem[]; source: string | null; onUse(statement: string): void; onClear(): void }
+export function QueryHistory({ history, source, onUse, onClear }: Props) {
+  const [search, setSearch] = useState("");
+  const scoped = history.filter(item => !source || item.source === source);
+  const filtered = scoped.filter(item => `${item.statement} ${item.error ?? ""}`.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+  return <section className="query-history"><header className="history-header"><div><h1>Query history</h1><p>{source ? `Executed on ${source}` : "Executed across your data sources"} · This session · {scoped.length} {scoped.length === 1 ? "statement" : "statements"}</p></div><button type="button" className="btn" onClick={onClear} disabled={!scoped.length}>Clear history</button></header><label className="history-search"><Icon name="search" /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search queries or errors…" aria-label="Search query history" /></label>{!filtered.length ? <div className="history-empty"><Icon name="history" size={28} /><h2>{search ? "No matching statements" : "Your queries will appear here"}</h2><p>{search ? "Try another object name, query keyword, or error message." : "Run a query in the console to record its timing and result count."}</p></div> : <ol className="history-list tw:p-0 tw:list-none">{filtered.map(item => <li key={item.id} className="history-item"><div className="history-item-meta"><span className={item.error ? "history-state failed" : "history-state"}><Icon name={item.error ? "close" : "check"} size={12} />{item.error ? "Failed" : "Completed"}</span><time dateTime={item.at} title={new Date(item.at).toLocaleString()}>{new Date(item.at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" })}</time><span>{item.duration_ms.toLocaleString()} ms</span>{!item.error && <span>{item.rows.toLocaleString()} rows</span>}<button type="button" className="btn ghost" onClick={() => onUse(item.statement)} title="Load this statement in the console"><Icon name="console" size={13} />Use in console</button></div><pre>{item.statement}</pre>{item.error && <ErrorNotice error={item.error} title="Query failed" context={item.source} />}</li>)}</ol>}</section>;
+}

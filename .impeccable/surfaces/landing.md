@@ -1,0 +1,3 @@
+# Rowcraft landing
+
+Mode: Persuade. User-pinned reference: samples/arccheo.framer.ai/index.html. Extend the Rowcraft brand into a dark architectural marketing surface: spacious editorial composition, large Space Grotesk display type, flat charcoal panels, precise rules, existing white mark, cobalt actions. Product proof is an interactive, clearly labeled sample database workbench. Primary path: download; secondary: try demo. No invented popularity, benchmark, license, or release availability claims. Keep desktop UI unchanged. Standalone static HTML/CSS/JS in apps/landing; no dependency installation. Download/repository URLs are configured in config.js; unset downloads show inline source build instructions. Responsive and keyboard-operable.

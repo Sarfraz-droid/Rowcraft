@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 789 125" width="789" height="125">
+
+<g transform="translate(0 0) scale(1.0)">
+<rect x="0" y="0" width="80" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="96" y="0" width="31" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="0" y="47" width="80" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="96" y="47" width="31" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="0" y="94" width="80" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="96" y="94" width="31" height="31" rx="3" fill="#FFFFFF"/>
+<rect x="142" y="47" width="31" height="31" rx="3" fill="#FFFFFF"/>
+</g>
+<g fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(233 12.5)">
+<path transform="translate(0 0)" d="M6 100V6H40L46 12V36L40 42H6M24 42L46 100"/>
+<path transform="translate(72 0)" d="M12 44H40L46 50V88L40 94H12L6 88V50Z"/>
+<path transform="translate(144 0)" d="M6 44V88L12 94H20L26 80L32 94H40L46 88V44"/>
+<path transform="translate(216 0)" d="M46 44H12L6 50V88L12 94H46"/>
+<path transform="translate(288 0)" d="M6 44V94M6 60L22 44H46"/>
+<path transform="translate(360 0)" d="M6 44H40L46 50V94H12L6 88V76L12 70H46"/>
+<path transform="translate(432 0)" d="M18 100V14L26 6H46M4 44H38"/>
+<path transform="translate(504 0)" d="M18 12V88L24 94H46M4 44H40"/>
+</g>
+</svg>

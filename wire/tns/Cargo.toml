@@ -1,0 +1,13 @@
+[package]
+name = "dg-wire-tns"
+description = "Wire protocol: Oracle Net (TNS) + TTC thin protocol"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
