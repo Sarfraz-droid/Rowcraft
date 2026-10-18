@@ -54,7 +54,7 @@ components:
 
 ## Overview
 
-The landing page carries Rowcraft’s desktop UI into a dark, technical marketing surface. Monospace typography, charcoal panels, square controls, and thin rules make the real workspace screenshot its visual anchor. The user confirmed this direction, including the dark palette and “Built with Rust” label.
+The landing page carries Rowcraft’s desktop UI into a dark, technical marketing surface. Monospace typography, charcoal panels, square controls, and thin rules make the real workspace screenshot its visual anchor. The user confirmed this direction, including the dark palette and “Built with Rust” label. The Rust credit sits directly below the left hero headline at 18px (15px on mobile), with “Rust” in pale blue.
 
 Scope is `apps/landing` only. Root `DESIGN.md` and `.impeccable/design.json` describe the desktop app. Implementation sources are `index.html`, `styles.css`, `main.js`, and the existing download configuration and renderer. Product context comes from root `PRODUCT.md`; the current landing code and bundled benchmark supersede its older demo/evidence descriptions.
 
