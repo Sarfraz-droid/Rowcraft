@@ -8,43 +8,83 @@ document.querySelectorAll('a[href="#source-guide"]').forEach(link => link.addEve
 if (location.hash === '#source-guide') document.querySelector('#source-guide').open = true;
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-// Content stays visible without JavaScript, browser animation support, or motion consent.
-function setupScrollTransitions() {
+// Default content remains visible if scripting or animation support is unavailable.
+function setupPageTransitions() {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (motion.matches || !('IntersectionObserver' in window) || !Element.prototype.animate) return;
+  if (!Element.prototype.animate) return;
 
-  const animations = new Map();
-  const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      observer.unobserve(entry.target);
-      if (motion.matches) continue;
-      const animation = entry.target.animate([
-        { opacity: 0.65, transform: 'translateY(12px)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ], { duration: 400, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-      animations.set(entry.target, animation);
-      animation.finished.then(() => animations.delete(entry.target), () => animations.delete(entry.target));
-    }
-  }, { threshold: 0, rootMargin: '0px 0px -32px 0px' });
+  const active = new Map();
+  const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  let observer;
 
-  document.querySelectorAll('.database-section, .intro, .feature, .utility-features article, .open-source-inner, .faq, .download, .footer').forEach(section => {
-    // Preserve the opening viewport and restored scroll position on refresh.
-    if (section.getBoundingClientRect().top >= window.innerHeight) observer.observe(section);
-  });
+  function play(element, keyframes, options = {}) {
+    if (!element || motion.matches || document.hidden) return;
+    active.get(element)?.cancel();
+    const animation = element.animate(keyframes, { duration: 560, easing: ease, ...options });
+    active.set(element, animation);
+    const release = () => { if (active.get(element) === animation) active.delete(element); };
+    animation.finished.then(release, release);
+  }
 
   function finishMotion() {
-    for (const animation of animations.values()) animation.cancel();
-    animations.clear();
+    for (const animation of active.values()) animation.cancel();
+    active.clear();
   }
+
+  // Assemble the opening workspace in reading order. Deep links and restored
+  // scroll positions should land on their content without replaying the hero.
+  if (!motion.matches && !location.hash && window.scrollY < 32) {
+    const sequence = [
+      ['.header', 0, -8],
+      ['.hero-heading h1', 60, 16],
+      ['.rust-credit', 170, 10],
+      ['.hero-aside', 230, 12],
+      ['.hero-actions', 300, 10],
+      ['.platform-note', 300, 10],
+      ['.preview-reveal', 380, 18],
+    ];
+    for (const [selector, delay, distance] of sequence) {
+      play(document.querySelector(selector), [
+        { opacity: 0.3, transform: `translateY(${distance}px)`, clipPath: 'inset(0 0 8% 0)' },
+        { opacity: 1, transform: 'translateY(0)', clipPath: 'inset(0)' },
+      ], { delay, duration: 620, fill: 'backwards' });
+    }
+  }
+
+  if (!motion.matches && 'IntersectionObserver' in window) {
+    observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        play(entry.target, [
+          { opacity: 0.5, transform: 'translateY(18px)' },
+          { opacity: 1, transform: 'translateY(0)' },
+        ]);
+        if (entry.target.matches('.benchmark')) {
+          entry.target.querySelectorAll('.chart-rowcraft, .chart-datagrip').forEach((bar, index) => {
+            play(bar, [
+              { transform: 'scaleX(0)', opacity: 0.5 },
+              { transform: 'scaleX(1)', opacity: 1 },
+            ], { delay: 100 + index * 80, duration: 700, fill: 'backwards' });
+          });
+        }
+      }
+    }, { threshold: 0, rootMargin: '0px 0px -48px 0px' });
+
+    document.querySelectorAll('.database-section, .benchmark, .intro, .feature, .utility-features, .open-source-inner, .faq, .download, .footer').forEach(section => {
+      if (section.getBoundingClientRect().top >= window.innerHeight) observer.observe(section);
+    });
+  }
+
   motion.addEventListener('change', event => {
-    if (event.matches) { observer.disconnect(); finishMotion(); }
+    if (event.matches) { observer?.disconnect(); finishMotion(); }
   });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) finishMotion(); });
+  window.addEventListener('pagehide', finishMotion);
   document.addEventListener('focusin', event => {
-    // Keyboard and anchor navigation can always reach fully visible controls.
-    for (const [section, animation] of animations) {
-      if (section.contains(event.target)) animation.cancel();
+    for (const [element, animation] of active) {
+      if (element.contains(event.target)) animation.cancel();
     }
   });
 }
-setupScrollTransitions();
+setupPageTransitions();

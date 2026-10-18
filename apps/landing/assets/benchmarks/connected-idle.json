@@ -25,22 +25,29 @@
       "measured_seconds": 120.043016542,
       "average_cpu_percent": 0.1832676371665715,
       "peak_cpu_percent": 2.75432668295923,
-      "cpu_seconds": 0.21999999999999997
+      "cpu_seconds": 0.21999999999999997,
+      "average_rss_mib": 35.5089458697861,
+      "peak_rss_mib": 42.4375,
+      "median_rss_mib": 35.3828125
     },
     "DataGrip": {
       "samples": 98,
       "measured_seconds": 120.043016542,
       "average_cpu_percent": 4.656664053459702,
       "peak_cpu_percent": 48.17568746763944,
-      "cpu_seconds": 5.589999999999998
+      "cpu_seconds": 5.589999999999998,
+      "average_rss_mib": 157.4590964962594,
+      "peak_rss_mib": 348.015625,
+      "median_rss_mib": 143.453125
     }
   },
-  "metric": "CPU calculated from observed main-process and descendant CPU time. 100% equals one logical CPU fully occupied.",
+  "metric": "Memory is interval-weighted average summed resident set size (RSS) in MiB for each observed main process and descendants. CPU is calculated from observed process CPU time; 100% equals one logical CPU fully occupied.",
   "limitations": [
     "One completed shared-machine capture; not a query-latency or startup-speed benchmark.",
-    "Helpers outside the observed process trees, including macOS-managed WebKit helpers, are excluded. No extra helper PIDs were supplied.",
+    "Helpers outside the observed process trees, including macOS-managed WebKit helpers, are excluded. No extra helper PIDs were supplied. This undercounts Rowcraft total memory; these values are not complete app footprints.",
     "External database servers and unrelated system services are excluded.",
-    "Results vary with workload, app version, hardware, power mode, and background activity."
+    "Results vary with workload, app version, hardware, power mode, and background activity.",
+    "RSS is not macOS physical footprint, JVM heap size, or unique memory. Shared pages may be counted more than once; compressed or swapped allocations are not fully represented."
   ],
   "source_report": "benchmark-results/20261018-232731-669880/summary.json",
   "methodology": "scripts/benchmark-apps.py; docs/benchmarking.md"

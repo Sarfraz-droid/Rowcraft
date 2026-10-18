@@ -58,7 +58,7 @@ macOS builds use ad-hoc signing by default. These are suitable for local testing
 | `APPLE_PASSWORD` | App-specific password for that account |
 | `APPLE_TEAM_ID` | Apple Developer team ID |
 
-The workflow passes these to Tauri for certificate import, signing, and notarization. Locally, install the certificate in Keychain and provide the same signing/notarization environment variables; `APPLE_SIGNING_IDENTITY` overrides the ad-hoc configuration. See [Tauri macOS signing](https://v2.tauri.app/distribute/sign/macos/).
+The workflow exports only configured signing credentials to Tauri. When `APPLE_CERTIFICATE` is absent or empty, the certificate and its password stay unset so Tauri uses ad-hoc signing instead of trying to import an empty certificate. Empty notarization secrets also stay unset. A configured certificate must be a base64-encoded `.p12` containing both the certificate and private key, with the matching export password. Locally, install the certificate in Keychain and provide the same signing/notarization environment variables; `APPLE_SIGNING_IDENTITY` overrides the ad-hoc configuration. See [Tauri macOS signing](https://v2.tauri.app/distribute/sign/macos/).
 
 Windows packages are unsigned by default. Before public distribution, configure a Windows signing certificate or signing service through Tauri's `bundle.windows.certificateThumbprint` / `signCommand` options and make its credentials available on the Windows runner. This setup does not include a certificate or a signing service. See [Tauri Windows signing](https://v2.tauri.app/distribute/sign/windows/).
 
