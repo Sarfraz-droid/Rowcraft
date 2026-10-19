@@ -14,7 +14,9 @@ Open http://127.0.0.1:4321. Press Ctrl+C to stop. Requires Python 3; no dependen
 
 Run `make landing-check` from the repository root to check JavaScript syntax and run the sample-query tests (requires Node/npm).
 
-From this directory, `npm run dev` generates the public analytics configuration and starts the preview. Requires Node 20.12+ and Python 3. Run `npm run build` before deploying to any static host; include the generated `runtime-config.js` in the published files.
+From this directory, `npm run dev` generates the public analytics configuration and starts the preview. Requires Node 20.12+ and Python 3. Run `npm run build` before deploying to any static host, then publish `dist/`. The build includes the generated `runtime-config.js` and all browser assets.
+
+For Vercel, set the project's Root Directory to `apps/landing`. The checked-in `vercel.json` selects `npm run build` and the `dist` Output Directory.
 
 ## Configure downloads
 
