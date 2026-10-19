@@ -8,11 +8,11 @@ Follow [installer builds and signing](installers.md). Push the matching `v<VERSI
 
 Copy the actual public HTTPS asset URLs into `apps/landing/config.js`: the two macOS DMGs, Windows EXE/MSI, and Linux AppImage/DEB/RPM. Use versioned URLs from the published release, with the exact filenames produced by Tauri. Workflow artifacts and draft releases are not public download links. Do not guess release asset names.
 
-For the current version (`0.0.1`), once the source and workflow are committed to your public GitHub repository:
+For the current version (`0.0.2`), once the source and workflow are committed to your public GitHub repository:
 
 ```sh
-git tag v0.0.1
-git push origin v0.0.1
+git tag v0.0.2
+git push origin v0.0.2
 ```
 
 Run these yourself when ready to trigger the release build. Publishing the resulting draft is a separate action in GitHub Releases. Set the version consistently before tagging a later release; see the installer guide for all version files.
@@ -33,7 +33,7 @@ This is the cask file structure. Replace every uppercase placeholder with your r
 
 ```ruby
 cask "rowcraft" do
-  version "0.0.1"
+  version "0.0.2"
 
   on_arm do
     sha256 "APPLE_SILICON_DMG_SHA256"

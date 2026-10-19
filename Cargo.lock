@@ -1381,14 +1381,14 @@ dependencies = [
 
 [[package]]
 name = "dg-cache"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-model",
 ]
 
 [[package]]
 name = "dg-cli"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "clap",
  "dg-config",
@@ -1405,7 +1405,7 @@ dependencies = [
 
 [[package]]
 name = "dg-config"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-drivers",
  "regex",
@@ -1417,7 +1417,7 @@ dependencies = [
 
 [[package]]
 name = "dg-core"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-cache",
@@ -1434,7 +1434,7 @@ dependencies = [
 
 [[package]]
 name = "dg-desktop"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-config",
  "dg-core",
@@ -1449,7 +1449,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1459,7 +1459,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-bigquery"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1468,7 +1468,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-cassandra"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1484,7 +1484,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-clickhouse"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1499,7 +1499,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-cockroach"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1511,7 +1511,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-couchbase"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1526,7 +1526,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-db2"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1535,7 +1535,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-derby"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1544,7 +1544,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-dynamo"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -1562,7 +1562,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-exasol"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1571,7 +1571,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-greenplum"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1583,7 +1583,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-h2"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1595,7 +1595,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-hive"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1604,7 +1604,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-hsqldb"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1613,7 +1613,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-http"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1626,7 +1626,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-jdbc"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -1640,7 +1640,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-mariadb"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1651,7 +1651,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-mongo"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "bson 3.1.0",
@@ -1666,7 +1666,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-mssql"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1683,7 +1683,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-mysql"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1694,7 +1694,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-mysqlbase"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1709,7 +1709,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-oracle"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1718,7 +1718,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-pg"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1733,7 +1733,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-pgbase"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-dialect",
  "dg-model",
@@ -1741,7 +1741,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-redis"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1755,7 +1755,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-redshift"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1767,7 +1767,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-snowflake"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1782,7 +1782,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-spark"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1791,7 +1791,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-sqlite"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1803,7 +1803,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-sybase"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1812,7 +1812,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-trino"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1827,7 +1827,7 @@ dependencies = [
 
 [[package]]
 name = "dg-dialect-vertica"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1839,18 +1839,18 @@ dependencies = [
 
 [[package]]
 name = "dg-drivers"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-grid"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-dialect",
 ]
 
 [[package]]
 name = "dg-io"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-dialect",
  "serde_json",
@@ -1859,7 +1859,7 @@ dependencies = [
 
 [[package]]
 name = "dg-model"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -1867,7 +1867,7 @@ dependencies = [
 
 [[package]]
 name = "dg-registry"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-dialect",
  "dg-dialect-bigquery",
@@ -1904,18 +1904,18 @@ dependencies = [
 
 [[package]]
 name = "dg-script"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-sql"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-model",
 ]
 
 [[package]]
 name = "dg-ssh"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "async-trait",
  "dg-config",
@@ -1927,7 +1927,7 @@ dependencies = [
 
 [[package]]
 name = "dg-ui-model"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "dg-config",
  "dg-core",
@@ -1948,31 +1948,31 @@ dependencies = [
 
 [[package]]
 name = "dg-wire-drda"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-exasol"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-hs2"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-hsqldb"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-tds5"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-tns"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "dg-wire-vertica"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "digest"
