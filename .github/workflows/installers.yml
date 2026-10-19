@@ -89,6 +89,25 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: node ../../.github/scripts/prepare-macos-signing.mjs
+      - name: Find existing release
+        id: release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { version } = JSON.parse(fs.readFileSync('apps/dg-desktop/src-tauri/tauri.conf.json', 'utf8'));
+            const tag = `v${version}`;
+            // Include drafts and published releases. Passing the ID lets Tauri
+            // upload to either without requiring a matching releaseDraft value.
+            for await (const { data: releases } of github.paginate.iterator(
+              github.rest.repos.listReleases, { ...context.repo, per_page: 100 }
+            )) {
+              const release = releases.find(release => release.tag_name === tag);
+              if (release) {
+                core.setOutput('id', String(release.id));
+                break;
+              }
+            }
       - name: Build installers
         uses: tauri-apps/tauri-action@v1
         env:
@@ -96,8 +115,10 @@ jobs:
         with:
           projectPath: apps/dg-desktop
           args: --target ${{ matrix.target }} --ci -- --locked
-          # Manual runs only upload workflow artifacts. Tags create draft releases.
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          # Both manual and tag runs attach installers to the app version's release.
+          releaseId: ${{ steps.release.outputs.id }}
+          tagName: v__VERSION__
+          releaseCommitish: ${{ github.sha }}
           releaseName: Rowcraft v__VERSION__
           releaseBody: Download the installer for your operating system and CPU architecture. See docs/installers.md for installation and signing details.
           releaseDraft: true

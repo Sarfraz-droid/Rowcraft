@@ -35,15 +35,17 @@ Linux build machines also need the packaging tools installed by `.github/workflo
 
 ## Build all platforms in GitHub Actions
 
-Add this project to a GitHub repository and push the workflow with the source. In **Actions → Desktop installers → Run workflow**, select a branch and run it. The four jobs produce macOS Apple Silicon, macOS Intel, Linux x64, and Windows x64 downloads in the run's **Artifacts** section. Extract each artifact before using its installer.
+In **Actions → Desktop installers → Run workflow**, select the branch or tag to build and run it. Both manual runs and pushes of a matching version tag attach the macOS Apple Silicon, macOS Intel, Linux x64, and Windows x64 installers directly to the GitHub release for `v<VERSION>`, using the version in the app configuration. If the release does not exist, the workflow creates a draft; otherwise, it uploads to the existing release. A new release tag points to the commit selected for the run. Keep the app version aligned with the intended release before running manually.
+
+The installers are also retained in the run's **Artifacts** section as a backup. Extract those workflow artifacts before using their installers; files in the release's **Assets** section can be downloaded directly.
 
 For a versioned release:
 
 1. Set the same version in `apps/dg-desktop/src-tauri/tauri.conf.json`, `apps/dg-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
 2. Commit the source and push a matching tag, for example `v0.0.1` for the current version.
-3. Wait for all four installer jobs. Review the generated **draft** GitHub release, then publish it when ready. Manual runs do not create a release.
+3. Wait for all four installer jobs. Review the installers in the GitHub release's **Assets** section, then publish the release when ready if it is still a draft. You can also run the workflow manually to create or add installers to the version's release.
 
-The workflow needs permission to create releases with its `GITHUB_TOKEN`. If organization policy restricts that token, allow repository content write access for this workflow. No GitHub remote is configured automatically by this setup.
+The workflow needs permission to create releases and upload assets with its `GITHUB_TOKEN`; the installer job requests `contents: write`. If organization policy restricts that token, allow repository content write access for this workflow.
 
 ## Signing
 
