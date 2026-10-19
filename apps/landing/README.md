@@ -18,17 +18,19 @@ From this directory, `npm run dev` also starts the preview. Any static host can 
 
 ## Configure downloads
 
-Set `repositoryUrl` and verified HTTPS installer URLs in `config.js` before publishing:
+The download panel links to the published [v0.0.1 release](https://github.com/Sarfraz-droid/Rowcraft/releases/tag/v0.0.1). Update `repositoryUrl` and verified HTTPS installer URLs in `config.js` for future releases:
 
 - `downloads.macos.arm64` / `x64`: Apple Silicon / Intel DMGs.
 - `downloads.windows.exe` / `msi`: x64 installers.
 - `downloads.linux.appimage` / `deb` / `rpm`: x64 packages.
 
-The OS picker initially selects the visitor's desktop platform and allows switching to every platform. Missing or non-HTTPS URLs show disabled “Coming soon” buttons. Older string URLs per platform remain supported. Without JavaScript, source build instructions remain available.
+The main tabs select macOS, Windows, or Linux, initially matching the visitor's desktop platform. Within macOS, choose Apple Silicon or Intel; within Linux, choose DEB, RPM, or AppImage; Windows offers EXE. Each OS remembers its selected installer when switching tabs. Arrow keys, Home, and End work within both tab levels. Missing or non-HTTPS URLs show disabled “Coming soon” buttons. Older string URLs per platform remain supported. Without JavaScript, source build instructions remain available.
 
 Set `packages.homebrew` to a published full cask token (`owner/tap/rowcraft`), `packages.winget` to the approved package ID, and `packages.chocolatey` to the approved package name. Empty or invalid IDs show clearly labeled command previews with a comment explaining that publishing is required. Homebrew and WinGet previews include explicit owner/publisher placeholders; the copy button says “Copy example”. Configured IDs show the actual command. These commands install the desktop app; the headless `dg` CLI is a separate build.
 
-Linux instructions install local downloaded files using APT/DNF, or run an AppImage. Visitors are told to rename the file to the exact name used by the command. This does not set up an APT/DNF repository or automatic updates.
+Installer tabs appear only in the Setup commands column and switch its instructions, each with its own copy button. The downloads column always lists every installer for the selected OS. Both macOS tabs also include quarantine removal instructions. Unpublished registry previews are omitted from these installer tabs. Visitors download a file into Downloads, then open the matching macOS DMG, run the Windows EXE from PowerShell, or install/run the Linux DEB, RPM, or AppImage. Commands use the configured asset filename, restricted to shell-safe characters; no renaming is needed. MSI remains unavailable because v0.0.1 does not publish one.
+
+The macOS “Allow opening” option provides `xattr -dr com.apple.quarantine "/Applications/Rowcraft.app"` followed by `open`. It explains that the app must first be copied into Applications and that quarantine should only be removed for a trusted download blocked by macOS. Linux guidance covers AppImage lsof/FUSE requirements and the extraction fallback. These instructions do not set up an APT/DNF repository or automatic updates.
 
 See [package-manager publishing](../../docs/package-distribution.md) for the release, Homebrew, WinGet, Chocolatey, and Linux setup.
 

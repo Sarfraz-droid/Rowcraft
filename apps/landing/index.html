@@ -76,14 +76,12 @@
 <section class="download wrap" id="download">
 <div class="download-intro"><div><h2>Make room for your<br>next discovery.</h2><p>A calmer workspace. A closer connection to your data.</p></div><a href="#demo" class="inline-link demo-link">See the workspace <svg class="icon"><use href="#arrow-right"/></svg></a></div>
 <div class="installer" id="installer" hidden>
-<div class="platform-picker" role="group" aria-label="Choose your operating system">
-<button type="button" data-platform="macos" aria-pressed="true">macOS</button>
-<button type="button" data-platform="windows" aria-pressed="false">Windows</button>
-<button type="button" data-platform="linux" aria-pressed="false">Linux</button>
-</div>
+<div class="platform-picker" id="platform-tabs" role="tablist" aria-label="Choose your operating system"></div>
+<div id="platform-panel" role="tabpanel">
 <div class="install-options">
 <div class="installer-downloads"><h3 id="platform-title">Download for macOS</h3><p id="platform-note"></p><div id="download-options"></div><a class="source-alternative" href="#source-guide">Prefer to build it yourself? <span>Build from source <svg class="icon"><use href="#arrow-right"/></svg></span></a></div>
-<div class="terminal-install"><h3>Or use your terminal</h3><p id="install-note"></p><div class="terminal-window"><div class="terminal-heading"><span><svg class="icon"><use href="#terminal"/></svg><span id="terminal-shell">Terminal</span></span><label class="sr-only" for="install-method">Installation method</label><select id="install-method"></select></div><div class="copy-command" id="install-command-box"><pre><code id="install-command"></code></pre></div><div class="terminal-footer"><span id="command-state"></span><button type="button" id="copy-install"><svg class="icon"><use href="#copy"/></svg><span>Copy command</span></button></div></div><p id="install-feedback" role="status" aria-live="polite"></p></div>
+<div class="terminal-install"><h3>Setup commands</h3><div class="platform-picker installer-types" id="installer-tabs" role="tablist" aria-label="Choose setup commands for your installer"></div><div id="installer-panel" role="tabpanel" tabindex="0"><div id="setup-commands"></div></div></div>
+</div>
 </div>
 </div>
 <details class="source-guide" id="source-guide"><summary>Build Rowcraft from source</summary><p>To build the desktop app, install Rust, Node 24, pnpm 11, and your platform’s Tauri prerequisites. From your Rowcraft source checkout, run:</p><div class="copy-command"><pre><code>pnpm --dir apps/dg-desktop install --frozen-lockfile
