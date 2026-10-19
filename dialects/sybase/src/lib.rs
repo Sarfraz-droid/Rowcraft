@@ -3,8 +3,8 @@
 //! TODO: driver/wire integration, introspection queries, type mapping, DDL generator.
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{Connection, Dialect, DialectFamily, DialectId, Error, Result};
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{Connection, Dialect, DialectFamily, DialectId, Error, Result};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct SybaseDialect;

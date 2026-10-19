@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-dynamo"
+name = "rowcraft-dialect-dynamo"
 description = "Amazon DynamoDB dialect (tier A)"
 version.workspace = true
 edition.workspace = true
@@ -12,10 +12,10 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
 base64.workspace = true
-dg-model.workspace = true
+rowcraft-model.workspace = true
 hmac.workspace = true
 reqwest.workspace = true
 rustls.workspace = true

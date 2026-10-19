@@ -163,6 +163,12 @@ summary::-webkit-details-marker { display: none; }
 .download-intro > .inline-link { min-height: 44px; white-space: nowrap; font-size: 11px; }
 .installer[hidden] { display: none; }
 .installer { margin-top: 32px; }
+.release-picker { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+.release-field { display: grid; gap: 8px; flex: 1 1 220px; max-width: 340px; min-width: 0; }
+.release-field label { font-size: 12px; color: var(--muted); }
+.release-field select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0; background: var(--bg); color: var(--text); font: 12px var(--mono); color-scheme: dark; }
+.release-picker > a { min-height: 44px; display: inline-flex; align-items: center; font-size: 11px; }
+.release-status { color: var(--muted); font-size: 11px; line-height: 1.8; margin: 0 0 24px; max-width: 65ch; }
 .platform-picker { display: flex; flex-wrap: wrap; gap: 10px; max-width: 100%; }
 .platform-picker button { min-height: 44px; min-width: 105px; padding: 10px 20px; font-size: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); }
 .platform-picker button[aria-selected='true'] { background: var(--blue); border-color: var(--blue); color: var(--text); }
@@ -350,9 +356,9 @@ summary::-webkit-details-marker { display: none; }
 .memory-chart { display: block; width: min(100%, 960px); height: auto; margin: 20px auto 0; padding: 0 28px; font-family: var(--mono); }
 .chart-grid { fill: none; stroke: var(--line); stroke-width: 1; }
 .chart-label { fill: var(--text); font-size: 14px; }
-.chart-rowcraft, .chart-datagrip { transform-box: fill-box; transform-origin: left center; }
+.chart-rowcraft, .chart-peak { transform-box: fill-box; transform-origin: left center; }
 .chart-rowcraft { fill: var(--blue); }
-.chart-datagrip { fill: #8c8c92; }
+.chart-peak { fill: #8c8c92; }
 .chart-value { fill: var(--text); font-size: 15px; }
 .chart-tick { fill: var(--muted); font-size: 11px; text-anchor: middle; }
 .benchmark-chart figcaption { display: flex; flex-wrap: wrap; gap: 12px 32px; border-top: 1px solid var(--line); padding: 12px 20px; font-size: 10px; color: var(--muted); }

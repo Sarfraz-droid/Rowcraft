@@ -10,13 +10,13 @@ mod introspect;
 use std::{net::ToSocketAddrs, sync::Arc};
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use futures_util::StreamExt;
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::Catalog;
-use futures_util::StreamExt;
+use rowcraft_model::Catalog;
 use scylla::{
     client::{session::Session, session_builder::SessionBuilder},
     value::{CqlValue, Row},

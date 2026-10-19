@@ -12,12 +12,12 @@
 mod introspect;
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 use serde_json::{Value as Json, json};
 
 #[derive(Debug, Default, Clone, Copy)]

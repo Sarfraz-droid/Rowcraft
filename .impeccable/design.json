@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-10-18T11:13:43.857029+00:00",
-  "title": "Design System: dglite",
+  "title": "Design System: rowcraft",
   "extensions": {
     "colorMeta": {
       "dark-bg": {
@@ -602,7 +602,7 @@
   ],
   "narrative": {
     "northStar": "Developer workbench",
-    "overview": "dglite uses a compact developer workbench: a persistent source navigator, closable documents across sources, and dedicated views for SQL, data, and database structure. Monospace type carries the interface and the data. Quiet graphite or light surfaces keep blue selection and action states easy to find.\n\nThis document records the implemented UI in the desktop frontend. Its descriptive language is inferred from source, rather than a separately approved brand concept. No image comp defines this system. Browser visual verification is pending; these values were extracted from code.",
+    "overview": "rowcraft uses a compact developer workbench: a persistent source navigator, closable documents across sources, and dedicated views for SQL, data, and database structure. Monospace type carries the interface and the data. Quiet graphite or light surfaces keep blue selection and action states easy to find.\n\nThis document records the implemented UI in the desktop frontend. Its descriptive language is inferred from source, rather than a separately approved brand concept. No image comp defines this system. Browser visual verification is pending; these values were extracted from code.",
     "keyCharacteristics": [
       "Compact navigation and toolbars",
       "Self-hosted monospace typography",

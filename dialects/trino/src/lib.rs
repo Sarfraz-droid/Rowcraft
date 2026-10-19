@@ -11,12 +11,12 @@
 mod introspect;
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 use serde_json::Value as Json;
 
 /// What differs between the two servers.
@@ -101,7 +101,7 @@ async fn connect(flavor: Flavor, cfg: &DataSourceConfig) -> Result<Box<dyn Conne
         client,
         flavor,
         base: base_url(cfg),
-        user: cfg.user.clone().filter(|u| !u.is_empty()).unwrap_or_else(|| "dglite".into()),
+        user: cfg.user.clone().filter(|u| !u.is_empty()).unwrap_or_else(|| "rowcraft".into()),
         password: cfg.password.clone().filter(|p| !p.is_empty()),
         catalog,
         schema,

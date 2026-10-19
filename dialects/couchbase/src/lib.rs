@@ -6,12 +6,12 @@
 //! schema and each collection as a table; documents have no fixed columns, so none are listed.
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::{Catalog, Schema, Table};
+use rowcraft_model::{Catalog, Schema, Table};
 use serde_json::{Map, Value as Json};
 
 #[derive(Debug, Default, Clone, Copy)]

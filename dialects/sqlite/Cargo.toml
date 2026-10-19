@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-sqlite"
+name = "rowcraft-dialect-sqlite"
 description = "SQLite dialect (tier A)"
 version.workspace = true
 edition.workspace = true
@@ -12,8 +12,8 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
-dg-model.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-model.workspace = true
 rusqlite.workspace = true
 tokio.workspace = true

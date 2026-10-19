@@ -22,8 +22,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all -- --check
       # The Tauri shell needs platform webview libraries; it has its own job.
-      - run: cargo clippy --workspace --all-targets --exclude dg-desktop -- -D warnings
-      - run: cargo test --workspace --exclude dg-desktop
+      - run: cargo clippy --workspace --all-targets --exclude rowcraft-desktop -- -D warnings
+      - run: cargo test --workspace --exclude rowcraft-desktop
 
   desktop:
     runs-on: macos-latest
@@ -40,8 +40,8 @@ jobs:
         with:
           version: 11
       - run: pnpm install --frozen-lockfile
-        working-directory: apps/dg-desktop
+        working-directory: apps/rowcraft-desktop
       - run: pnpm build && pnpm test
-        working-directory: apps/dg-desktop
-      - run: cargo clippy -p dg-desktop --all-targets -- -D warnings
-      - run: cargo test -p dg-desktop
+        working-directory: apps/rowcraft-desktop
+      - run: cargo clippy -p rowcraft-desktop --all-targets -- -D warnings
+      - run: cargo test -p rowcraft-desktop

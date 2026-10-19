@@ -1,14 +1,14 @@
 //! Shared Postgres wire/catalog helpers (pg, Redshift, Greenplum, CockroachDB, Vertica).
 //!
-//! `dg-dialect-pg` reads `pg_catalog` directly and needs PostgreSQL 12. The databases that only
+//! `rowcraft-dialect-pg` reads `pg_catalog` directly and needs PostgreSQL 12. The databases that only
 //! look like PostgreSQL (Redshift is 8.0-based, CockroachDB has a partial `pg_catalog`, old
 //! Greenplum is 9.4-based) all have a working `information_schema`, so this crate introspects
 //! through that: schemas, tables and views, columns, primary keys, unique and foreign keys.
 
 use std::collections::HashMap;
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{
     Catalog, Column, Constraint, ConstraintKind, FkAction, ForeignKeyTarget, Identity, Schema,
     Table, TableKind,
 };

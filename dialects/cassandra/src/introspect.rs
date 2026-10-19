@@ -3,8 +3,10 @@
 
 use std::collections::HashMap;
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{Catalog, Column, Constraint, ConstraintKind, Index, Schema, Table, TableKind};
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{
+    Catalog, Column, Constraint, ConstraintKind, Index, Schema, Table, TableKind,
+};
 
 const SYSTEM: &str = "'system', 'system_schema', 'system_auth', 'system_distributed', 'system_traces', 'system_views', 'system_virtual_schema'";
 

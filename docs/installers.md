@@ -1,6 +1,6 @@
 # Rowcraft installers
 
-The Tauri build produces native packages using the existing Rowcraft icon and application identifier, `dev.dglite.desktop`. Keep this identifier stable so later versions upgrade the same application.
+The Tauri build produces native packages using the existing Rowcraft icon and application identifier, `dev.rowcraft.desktop`. Keep this identifier stable so later versions upgrade the same application.
 
 | Platform | Architecture | Outputs | Installation |
 | --- | --- | --- | --- |
@@ -17,8 +17,8 @@ The app embeds its frontend and Rust database connectors. It does not require a 
 Install Rust stable, Node.js 24, pnpm 11.6.0, and the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/). Build each platform's installers on that operating system.
 
 ```sh
-pnpm --dir apps/dg-desktop install --frozen-lockfile
-pnpm --dir apps/dg-desktop installer
+pnpm --dir apps/rowcraft-desktop install --frozen-lockfile
+pnpm --dir apps/rowcraft-desktop installer
 ```
 
 On macOS/Linux, `make installer` runs the same build. Output is under `target/release/bundle/` at the Cargo workspace root. A build with `--target <triple>` writes to `target/<triple>/release/bundle/` instead.
@@ -27,8 +27,8 @@ To build both Mac architectures from a Mac:
 
 ```sh
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-pnpm --dir apps/dg-desktop installer --target aarch64-apple-darwin
-pnpm --dir apps/dg-desktop installer --target x86_64-apple-darwin
+pnpm --dir apps/rowcraft-desktop installer --target aarch64-apple-darwin
+pnpm --dir apps/rowcraft-desktop installer --target x86_64-apple-darwin
 ```
 
 Linux build machines also need the packaging tools installed by `.github/workflows/installers.yml`, including `rpm` and `patchelf`. Windows builds need Visual Studio C++ Build Tools and the Windows SDK. Tauri downloads the NSIS/WiX bundling tools as needed.
@@ -41,7 +41,7 @@ The installers are also retained in the run's **Artifacts** section as a backup.
 
 For a versioned release:
 
-1. Set the same version in `apps/dg-desktop/src-tauri/tauri.conf.json`, `apps/dg-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
+1. Set the same version in `apps/rowcraft-desktop/src-tauri/tauri.conf.json`, `apps/rowcraft-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
 2. Commit the source and push a matching tag, for example `v0.0.3` for the current version.
 3. Wait for all four installer jobs. Review the installers in the GitHub release's **Assets** section, then publish the release when ready if it is still a draft. You can also run the workflow manually to create or add installers to the version's release.
 

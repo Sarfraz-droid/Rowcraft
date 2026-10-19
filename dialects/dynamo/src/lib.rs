@@ -17,12 +17,12 @@ mod sigv4;
 
 use async_trait::async_trait;
 use base64::Engine;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 use serde_json::{Value as Json, json};
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -152,8 +152,8 @@ impl Target {
             Some(h) => {
                 let host = cfg.port.map_or_else(|| h.to_owned(), |p| format!("{h}:{p}"));
                 let tls = match cfg.ssl_mode {
-                    dg_config::SslMode::Disable => false,
-                    dg_config::SslMode::Auto => !cfg.is_loopback_host(),
+                    rowcraft_config::SslMode::Disable => false,
+                    rowcraft_config::SslMode::Auto => !cfg.is_loopback_host(),
                     _ => true,
                 };
                 (format!("{}://{host}", if tls { "https" } else { "http" }), host)

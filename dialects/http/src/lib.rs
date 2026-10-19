@@ -1,11 +1,11 @@
 //! Native HTTP connectors: Neo4j Query API v2 and GraphQL over HTTP.
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use reqwest::{Client, Url};
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result, ResultSet, Value,
 };
-use dg_model::{Catalog, Column, Schema, Table};
-use reqwest::{Client, Url};
+use rowcraft_model::{Catalog, Column, Schema, Table};
 use serde_json::{Value as Json, json};
 use std::{fmt, time::Duration};
 

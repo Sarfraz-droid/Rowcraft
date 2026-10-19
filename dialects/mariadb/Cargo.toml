@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-mariadb"
+name = "rowcraft-dialect-mariadb"
 description = "MariaDB dialect (tier A)"
 version.workspace = true
 edition.workspace = true
@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
-dg-dialect-mysqlbase.workspace = true
-dg-model.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-dialect-mysqlbase.workspace = true
+rowcraft-model.workspace = true

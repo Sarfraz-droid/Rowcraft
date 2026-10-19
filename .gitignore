@@ -1,8 +1,5 @@
 /target
 /benchmark-results/
-/scripts/benchmark-apps.py
-/scripts/setup-benchmark.py
-/scripts/test_benchmark_apps.py
 **/*.rs.bk
 .DS_Store
 .idea/
@@ -14,8 +11,8 @@
 node_modules/
 .pnpm-store/
 .npm-cache/
-/apps/dg-desktop/dist/
-/apps/dg-desktop/src-tauri/gen/
+/apps/rowcraft-desktop/dist/
+/apps/rowcraft-desktop/src-tauri/gen/
 
 # Local configuration and credentials
 .env.*
@@ -41,3 +38,9 @@ coverage/
 /rowcraft-logos.zip
 /ui.jpg
 /.impeccable/hook.cache.json
+
+# Local UI verification captures
+/.impeccable/review/
+
+# Vite dependency cache
+**/.vite/

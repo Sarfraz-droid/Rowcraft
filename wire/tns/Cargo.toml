@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-tns"
+name = "rowcraft-wire-tns"
 description = "Wire protocol: Oracle Net (TNS) + TTC thin protocol"
 version.workspace = true
 edition.workspace = true

@@ -2,14 +2,14 @@
 //!
 //! Start the server with `java -cp h2.jar org.h2.tools.Server -pg` (default port 5435); the H2
 //! TCP protocol itself is not implemented. The catalog is read through `information_schema`
-//! (`dg-dialect-pgbase`).
+//! (`rowcraft-dialect-pgbase`).
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, IntrospectScope, Result,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct H2Dialect;
@@ -41,7 +41,7 @@ impl Dialect for H2Dialect {
     }
 
     async fn connect(&self, cfg: &DataSourceConfig) -> Result<Box<dyn Connection>> {
-        dg_dialect_pg::connect_wire(cfg, self.default_port()).await
+        rowcraft_dialect_pg::connect_wire(cfg, self.default_port()).await
     }
 
     async fn introspect(
@@ -49,6 +49,6 @@ impl Dialect for H2Dialect {
         conn: &mut dyn Connection,
         scope: &IntrospectScope,
     ) -> Result<Catalog> {
-        dg_dialect_pgbase::introspect_information_schema(conn, scope).await
+        rowcraft_dialect_pgbase::introspect_information_schema(conn, scope).await
     }
 }

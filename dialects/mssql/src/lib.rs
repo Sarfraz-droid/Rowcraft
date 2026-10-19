@@ -9,13 +9,13 @@ mod introspect;
 
 use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use futures_util::StreamExt;
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
-use dg_model::Catalog;
-use futures_util::StreamExt;
+use rowcraft_model::Catalog;
 use tiberius::{AuthMethod, Client, ColumnData, Config, EncryptionLevel, FromSql, QueryItem};
 use tokio::net::TcpStream;
 use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};

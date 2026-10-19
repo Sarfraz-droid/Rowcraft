@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-exasol"
+name = "rowcraft-wire-exasol"
 description = "Wire protocol: Exasol WebSocket JSON API"
 version.workspace = true
 edition.workspace = true

@@ -1,17 +1,17 @@
 //! ClickHouse dialect (tier A, see SPEC.md §5) over the HTTP interface (`reqwest` + rustls).
 //!
 //! Each statement is one POST answered in `JSONCompact`; a script is split with
-//! [`dg_dialect::split_statements`] because the HTTP interface runs one statement per request.
+//! [`rowcraft_dialect::split_statements`] because the HTTP interface runs one statement per request.
 
 mod introspect;
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value, split_statements,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct ClickhouseDialect;

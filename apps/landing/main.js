@@ -61,7 +61,7 @@ function setupPageTransitions() {
           { opacity: 1, transform: 'translateY(0)' },
         ]);
         if (entry.target.matches('.benchmark')) {
-          entry.target.querySelectorAll('.chart-rowcraft, .chart-datagrip').forEach((bar, index) => {
+          entry.target.querySelectorAll('.chart-rowcraft, .chart-peak').forEach((bar, index) => {
             play(bar, [
               { transform: 'scaleX(0)', opacity: 0.5 },
               { transform: 'scaleX(1)', opacity: 1 },

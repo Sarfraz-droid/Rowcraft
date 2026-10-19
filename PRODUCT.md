@@ -18,4 +18,4 @@ SQL console, database explorer, result grid, export/import, schema exploration, 
 Rowcraft name and existing brand marks. User requests a dark landing page similar to samples/arccheo.framer.ai.
 
 ## Evidence on Hand
-README.md, SPEC.md, desktop source, and apps/dg-desktop/public/brand. No customer testimonials or performance benchmarks supplied.
+README.md, SPEC.md, desktop source, and apps/rowcraft-desktop/public/brand. No customer testimonials or performance benchmarks supplied.

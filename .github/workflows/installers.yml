@@ -41,7 +41,7 @@ jobs:
             target: x86_64-pc-windows-msvc
     defaults:
       run:
-        working-directory: apps/dg-desktop
+        working-directory: apps/rowcraft-desktop
         shell: bash
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
           node-version: 24
       - uses: pnpm/action-setup@v4
         with:
-          package_json_file: apps/dg-desktop/package.json
+          package_json_file: apps/rowcraft-desktop/package.json
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -95,7 +95,7 @@ jobs:
         with:
           script: |
             const fs = require('node:fs');
-            const { version } = JSON.parse(fs.readFileSync('apps/dg-desktop/src-tauri/tauri.conf.json', 'utf8'));
+            const { version } = JSON.parse(fs.readFileSync('apps/rowcraft-desktop/src-tauri/tauri.conf.json', 'utf8'));
             const tag = `v${version}`;
             // Include drafts and published releases. Passing the ID lets Tauri
             // upload to either without requiring a matching releaseDraft value.
@@ -113,7 +113,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          projectPath: apps/dg-desktop
+          projectPath: apps/rowcraft-desktop
           args: --target ${{ matrix.target }} --ci -- --locked
           # Both manual and tag runs attach installers to the app version's release.
           releaseId: ${{ steps.release.outputs.id }}

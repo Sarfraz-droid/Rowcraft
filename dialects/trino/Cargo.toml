@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-trino"
+name = "rowcraft-dialect-trino"
 description = "Trino and Presto dialects (HTTP statement protocol)"
 version.workspace = true
 edition.workspace = true
@@ -12,9 +12,9 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
-dg-model.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-model.workspace = true
 reqwest.workspace = true
 rustls.workspace = true
 serde_json.workspace = true

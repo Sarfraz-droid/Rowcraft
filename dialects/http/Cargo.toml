@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-http"
+name = "rowcraft-dialect-http"
 description = "Neo4j Query API and GraphQL HTTP connections"
 version.workspace = true
 edition.workspace = true
@@ -10,9 +10,9 @@ publish.workspace = true
 workspace = true
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
-dg-model.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-model.workspace = true
 reqwest.workspace = true
 rustls.workspace = true
 serde_json.workspace = true

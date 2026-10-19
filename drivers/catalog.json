@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "repository": "https://repo.maven.apache.org/maven2",
+  "drivers": [
+    {
+      "id": "athena",
+      "name": "Amazon Athena",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "vendor",
+      "source": "https://docs.aws.amazon.com/athena/latest/ug/connect-with-jdbc.html",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "aurora_mysql",
+      "name": "Amazon Aurora MySQL",
+      "dialect": "mysql",
+      "port": 3306,
+      "distribution": "native"
+    },
+    {
+      "id": "documentdb",
+      "name": "Amazon DocumentDB",
+      "dialect": "mongo",
+      "port": 27017,
+      "distribution": "native"
+    },
+    {
+      "id": "dynamodb",
+      "name": "Amazon DynamoDB",
+      "dialect": "dynamo",
+      "port": null,
+      "distribution": "native"
+    },
+    {
+      "id": "redshift",
+      "name": "Amazon Redshift",
+      "dialect": "redshift",
+      "port": 5439,
+      "distribution": "native"
+    },
+    {
+      "id": "cassandra",
+      "name": "Apache Cassandra",
+      "dialect": "cassandra",
+      "port": 9042,
+      "distribution": "native"
+    },
+    {
+      "id": "derby_embedded",
+      "name": "Apache Derby (Embedded)",
+      "dialect": "derby",
+      "port": null,
+      "distribution": "maven",
+      "group": "org.apache.derby",
+      "artifact": "derby",
+      "version": "10.17.1.0",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/derby/derby/maven-metadata.xml"
+    },
+    {
+      "id": "derby_remote",
+      "name": "Apache Derby (Remote)",
+      "dialect": "derby",
+      "port": 1527,
+      "distribution": "maven",
+      "group": "org.apache.derby",
+      "artifact": "derbyclient",
+      "version": "10.17.1.0",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/derby/derbyclient/maven-metadata.xml"
+    },
+    {
+      "id": "hive",
+      "name": "Apache Hive",
+      "dialect": "hive",
+      "port": 10000,
+      "distribution": "maven",
+      "group": "org.apache.hive",
+      "artifact": "hive-jdbc",
+      "version": "4.2.1",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/hive/hive-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "ignite",
+      "name": "Apache Ignite",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "maven",
+      "group": "org.apache.ignite",
+      "artifact": "ignite-core",
+      "version": "2.17.0",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/ignite/ignite-core/maven-metadata.xml",
+      "note": "Ignite 2.x thin JDBC driver; Ignite 3 uses a different client package."
+    },
+    {
+      "id": "phoenix_thick",
+      "name": "Apache Phoenix",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "vendor",
+      "source": "https://phoenix.apache.org/download.html",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "phoenix_thin",
+      "name": "Apache Phoenix Thin",
+      "dialect": "jdbc",
+      "port": 8765,
+      "distribution": "maven",
+      "group": "org.apache.phoenix",
+      "artifact": "phoenix-queryserver-client",
+      "version": "6.0.0",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/phoenix/phoenix-queryserver-client/maven-metadata.xml"
+    },
+    {
+      "id": "spark",
+      "name": "Apache Spark",
+      "dialect": "spark",
+      "port": 10000,
+      "distribution": "maven",
+      "group": "org.apache.hive",
+      "artifact": "hive-jdbc",
+      "version": "4.2.1",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/hive/hive-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "azure_sql",
+      "name": "Azure SQL Database",
+      "dialect": "mssql",
+      "port": 1433,
+      "distribution": "native"
+    },
+    {
+      "id": "synapse",
+      "name": "Azure Synapse Analytics",
+      "dialect": "mssql",
+      "port": 1433,
+      "distribution": "native"
+    },
+    {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "dialect": "clickhouse",
+      "port": 8123,
+      "distribution": "native"
+    },
+    {
+      "id": "cockroach",
+      "name": "CockroachDB",
+      "dialect": "cockroach",
+      "port": 26257,
+      "distribution": "native"
+    },
+    {
+      "id": "couchbase",
+      "name": "Couchbase Server",
+      "dialect": "couchbase",
+      "port": 8093,
+      "distribution": "native"
+    },
+    {
+      "id": "databricks",
+      "name": "Databricks",
+      "dialect": "jdbc",
+      "port": 443,
+      "distribution": "maven",
+      "group": "com.databricks",
+      "artifact": "databricks-jdbc",
+      "version": "3.4.3",
+      "source": "https://repo.maven.apache.org/maven2/com/databricks/databricks-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "denodo",
+      "name": "Denodo",
+      "dialect": "jdbc",
+      "port": 9999,
+      "distribution": "vendor",
+      "source": "https://community.denodo.com/",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "maven",
+      "group": "org.duckdb",
+      "artifact": "duckdb_jdbc",
+      "version": "1.5.6.0",
+      "source": "https://repo.maven.apache.org/maven2/org/duckdb/duckdb_jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "elasticsearch",
+      "name": "Elasticsearch",
+      "dialect": "jdbc",
+      "port": 9200,
+      "distribution": "maven",
+      "group": "org.elasticsearch.plugin",
+      "artifact": "x-pack-sql-jdbc",
+      "version": "9.5.5",
+      "source": "https://repo.maven.apache.org/maven2/org/elasticsearch/plugin/x-pack-sql-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "exasol",
+      "name": "Exasol",
+      "dialect": "exasol",
+      "port": null,
+      "distribution": "maven",
+      "group": "com.exasol",
+      "artifact": "exasol-jdbc",
+      "version": "26.2.10",
+      "source": "https://repo.maven.apache.org/maven2/com/exasol/exasol-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "firebird",
+      "name": "Firebird",
+      "dialect": "jdbc",
+      "port": 3050,
+      "distribution": "maven",
+      "group": "org.firebirdsql.jdbc",
+      "artifact": "jaybird",
+      "version": "6.0.7",
+      "source": "https://repo.maven.apache.org/maven2/org/firebirdsql/jdbc/jaybird/maven-metadata.xml"
+    },
+    {
+      "id": "bigquery",
+      "name": "Google BigQuery",
+      "dialect": "bigquery",
+      "port": 443,
+      "distribution": "vendor",
+      "source": "https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "cloudspanner",
+      "name": "Google Cloud Spanner",
+      "dialect": "jdbc",
+      "port": 9200,
+      "distribution": "maven",
+      "group": "com.google.cloud",
+      "artifact": "google-cloud-spanner-jdbc",
+      "version": "2.46.0",
+      "source": "https://repo.maven.apache.org/maven2/com/google/cloud/google-cloud-spanner-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "greenplum",
+      "name": "Greenplum",
+      "dialect": "greenplum",
+      "port": 5432,
+      "distribution": "native"
+    },
+    {
+      "id": "h2",
+      "name": "H2",
+      "dialect": "h2",
+      "port": 5435,
+      "distribution": "native"
+    },
+    {
+      "id": "hsqldb_local",
+      "name": "HSQLDB (Local)",
+      "dialect": "hsqldb",
+      "port": null,
+      "distribution": "maven",
+      "group": "org.hsqldb",
+      "artifact": "hsqldb",
+      "version": "2.7.4",
+      "source": "https://repo.maven.apache.org/maven2/org/hsqldb/hsqldb/maven-metadata.xml"
+    },
+    {
+      "id": "hsqldb_remote",
+      "name": "HSQLDB (Remote)",
+      "dialect": "hsqldb",
+      "port": 9001,
+      "distribution": "maven",
+      "group": "org.hsqldb",
+      "artifact": "hsqldb",
+      "version": "2.7.4",
+      "source": "https://repo.maven.apache.org/maven2/org/hsqldb/hsqldb/maven-metadata.xml"
+    },
+    {
+      "id": "db2",
+      "name": "IBM Db2",
+      "dialect": "db2",
+      "port": 50000,
+      "distribution": "maven",
+      "group": "com.ibm.db2",
+      "artifact": "jcc",
+      "version": "12.1.5.0",
+      "source": "https://repo.maven.apache.org/maven2/com/ibm/db2/jcc/maven-metadata.xml"
+    },
+    {
+      "id": "db2_jtopen",
+      "name": "IBM Db2 for i (JTOpen)",
+      "dialect": "db2",
+      "port": 446,
+      "distribution": "maven",
+      "group": "net.sf.jt400",
+      "artifact": "jt400",
+      "version": "21.0.7",
+      "source": "https://repo.maven.apache.org/maven2/net/sf/jt400/jt400/maven-metadata.xml"
+    },
+    {
+      "id": "informix",
+      "name": "IBM Informix",
+      "dialect": "jdbc",
+      "port": 1526,
+      "distribution": "maven",
+      "group": "com.ibm.informix",
+      "artifact": "jdbc",
+      "version": "15.0.1.4",
+      "source": "https://repo.maven.apache.org/maven2/com/ibm/informix/jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "dialect": "jdbc",
+      "port": 8181,
+      "distribution": "maven",
+      "group": "org.apache.arrow",
+      "artifact": "flight-sql-jdbc-driver",
+      "version": "19.0.0",
+      "source": "https://repo.maven.apache.org/maven2/org/apache/arrow/flight-sql-jdbc-driver/maven-metadata.xml"
+    },
+    {
+      "id": "iris",
+      "name": "InterSystems IRIS",
+      "dialect": "jdbc",
+      "port": 9091,
+      "distribution": "maven",
+      "group": "com.intersystems",
+      "artifact": "intersystems-jdbc",
+      "version": "3.11.0",
+      "source": "https://repo.maven.apache.org/maven2/com/intersystems/intersystems-jdbc/maven-metadata.xml",
+      "note": "Pinned to the verified JDBC service package; upstream release metadata also lists a 2018 placeholder JAR."
+    },
+    {
+      "id": "mariadb",
+      "name": "MariaDB",
+      "dialect": "mariadb",
+      "port": 3306,
+      "distribution": "native"
+    },
+    {
+      "id": "sqlserver",
+      "name": "Microsoft SQL Server",
+      "dialect": "mssql",
+      "port": 1433,
+      "distribution": "native"
+    },
+    {
+      "id": "mimer",
+      "name": "Mimer SQL",
+      "dialect": "jdbc",
+      "port": 1360,
+      "distribution": "vendor",
+      "source": "https://developer.mimer.com/",
+      "note": "Obtain the JDBC driver and dependencies from Mimer."
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "dialect": "mongo",
+      "port": 27017,
+      "distribution": "native"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "dialect": "mysql",
+      "port": 3306,
+      "distribution": "native"
+    },
+    {
+      "id": "odbc",
+      "name": "ODBC",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "vendor",
+      "source": "https://www.easysoft.com/products/data_access/jdbc_odbc_bridge/",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "openedge",
+      "name": "OpenEdge",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "vendor",
+      "source": "https://www.progress.com/datadirect-connectors",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "dialect": "oracle",
+      "port": 1521,
+      "distribution": "maven",
+      "group": "com.oracle.database.jdbc",
+      "artifact": "ojdbc11",
+      "version": "23.26.3.0.0",
+      "source": "https://repo.maven.apache.org/maven2/com/oracle/database/jdbc/ojdbc11/maven-metadata.xml"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "dialect": "pg",
+      "port": 5432,
+      "distribution": "native"
+    },
+    {
+      "id": "presto",
+      "name": "Presto",
+      "dialect": "presto",
+      "port": 8080,
+      "distribution": "native"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "dialect": "redis",
+      "port": 6379,
+      "distribution": "native"
+    },
+    {
+      "id": "hana",
+      "name": "SAP HANA",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "maven",
+      "group": "com.sap.cloud.db.jdbc",
+      "artifact": "ngdbc",
+      "version": "2.30.11",
+      "source": "https://repo.maven.apache.org/maven2/com/sap/cloud/db/jdbc/ngdbc/maven-metadata.xml"
+    },
+    {
+      "id": "singlestore",
+      "name": "SingleStore",
+      "dialect": "mysql",
+      "port": 3306,
+      "distribution": "native"
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "dialect": "snowflake",
+      "port": 443,
+      "distribution": "maven",
+      "group": "net.snowflake",
+      "artifact": "snowflake-jdbc",
+      "version": "4.4.0",
+      "source": "https://repo.maven.apache.org/maven2/net/snowflake/snowflake-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "dialect": "sqlite",
+      "port": null,
+      "distribution": "native"
+    },
+    {
+      "id": "sybase",
+      "name": "Sybase ASE",
+      "dialect": "sybase",
+      "port": 5000,
+      "distribution": "vendor",
+      "source": "https://help.sap.com/docs/SAP_ASE",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "tarantool",
+      "name": "Tarantool",
+      "dialect": "jdbc",
+      "port": 3301,
+      "distribution": "vendor",
+      "source": "https://www.tarantool.io/en/doc/latest/connector/java/",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "teradata",
+      "name": "Teradata Vantage",
+      "dialect": "jdbc",
+      "port": null,
+      "distribution": "maven",
+      "group": "com.teradata.jdbc",
+      "artifact": "terajdbc",
+      "version": "20.00.00.62",
+      "source": "https://repo.maven.apache.org/maven2/com/teradata/jdbc/terajdbc/maven-metadata.xml"
+    },
+    {
+      "id": "tibero",
+      "name": "Tibero",
+      "dialect": "jdbc",
+      "port": 8629,
+      "distribution": "vendor",
+      "source": "https://docs.tmaxtibero.com/",
+      "note": "Obtain the matching driver and dependencies from the vendor; upload in Drivers. No automatic vendor download."
+    },
+    {
+      "id": "tidb",
+      "name": "TiDB",
+      "dialect": "mysql",
+      "port": 3306,
+      "distribution": "native"
+    },
+    {
+      "id": "trino",
+      "name": "Trino",
+      "dialect": "trino",
+      "port": 8080,
+      "distribution": "native"
+    },
+    {
+      "id": "vertica",
+      "name": "Vertica",
+      "dialect": "vertica",
+      "port": 5433,
+      "distribution": "maven",
+      "group": "com.vertica.jdbc",
+      "artifact": "vertica-jdbc",
+      "version": "25.3.0-0",
+      "source": "https://repo.maven.apache.org/maven2/com/vertica/jdbc/vertica-jdbc/maven-metadata.xml"
+    },
+    {
+      "id": "yugabyte",
+      "name": "YugabyteDB",
+      "dialect": "pg",
+      "port": 5433,
+      "distribution": "native"
+    }
+  ]
+}

@@ -178,6 +178,6 @@ Controls, selected rows, schema cards, and dialogs use the Retro theme’s zero-
 
 ## Tailwind implementation
 
-The frontend uses Tailwind v4 with the Vite plugin and `tw:` utility prefix. `apps/dg-desktop/src/styles.css` is the sole stylesheet entry. `styles/retro.css` contains the installed tweakcn Retro theme, customized with a blue primary; `styles/theme.css` maps workbench/editor roles to the shared tokens. `styles/components.css` composes shared and stateful styles with `@apply`; standalone layout utilities live in JSX. Preflight is intentionally omitted to preserve native dialog, form, and heading behavior. Tailwind v4 targets Safari 16.4 or newer.
+The frontend uses Tailwind v4 with the Vite plugin and `tw:` utility prefix. `apps/rowcraft-desktop/src/styles.css` is the sole stylesheet entry. `styles/retro.css` contains the installed tweakcn Retro theme, customized with a blue primary; `styles/theme.css` maps workbench/editor roles to the shared tokens. `styles/components.css` composes shared and stateful styles with `@apply`; standalone layout utilities live in JSX. Preflight is intentionally omitted to preserve native dialog, form, and heading behavior. Tailwind v4 targets Safari 16.4 or newer.
 
 `components.json` configures shadcn with the existing Radix icon family. All nine option pickers use `SelectField`, composed from `components/ui/select.tsx`. Avoid introducing native select controls. The theme’s malformed light sidebar color was corrected to the card surface.

@@ -1,8 +1,8 @@
 //! Reads `information_schema` of each catalog into a [`Catalog`]. With several catalogs a schema
 //! is named `catalog.schema`; with one (the session's) it is just the schema name.
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{Catalog, Column, Schema, Table, TableKind};
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{Catalog, Column, Schema, Table, TableKind};
 
 /// Catalogs that hold server internals rather than data.
 const SKIPPED: &[&str] = &["system", "jmx"];

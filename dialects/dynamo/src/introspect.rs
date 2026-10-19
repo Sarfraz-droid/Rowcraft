@@ -3,8 +3,8 @@
 //! DynamoDB is schemaless apart from the key attributes, so those are the only columns shown.
 //! The single schema is named after the region.
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{Catalog, Column, Constraint, ConstraintKind, Index, Schema, Table};
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{Catalog, Column, Constraint, ConstraintKind, Index, Schema, Table};
 
 /// Tables described in one introspection; the rest are listed with no key information.
 const DESCRIBE_LIMIT: usize = 200;

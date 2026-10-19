@@ -1,24 +1,24 @@
-//! Runs against a real server. Skipped unless `DG_TEST_PG_PORT` is set:
+//! Runs against a real server. Skipped unless `ROWCRAFT_TEST_PG_PORT` is set:
 //!
 //! ```sh
-//! DG_TEST_PG_PORT=5432 DG_TEST_PG_USER=postgres DG_TEST_PG_PASSWORD=... cargo test -p dg-dialect-pg
+//! ROWCRAFT_TEST_PG_PORT=5432 ROWCRAFT_TEST_PG_USER=postgres ROWCRAFT_TEST_PG_PASSWORD=... cargo test -p rowcraft-dialect-pg
 //! ```
-//! Optional: `DG_TEST_PG_HOST` (default `127.0.0.1`), `DG_TEST_PG_DB` (default `postgres`).
+//! Optional: `ROWCRAFT_TEST_PG_HOST` (default `127.0.0.1`), `ROWCRAFT_TEST_PG_DB` (default `postgres`).
 
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{Dialect, Error, Value};
-use dg_dialect_pg::PgDialect;
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{Dialect, Error, Value};
+use rowcraft_dialect_pg::PgDialect;
 
 fn config() -> Option<DataSourceConfig> {
-    let port = std::env::var("DG_TEST_PG_PORT").ok()?.parse().ok()?;
+    let port = std::env::var("ROWCRAFT_TEST_PG_PORT").ok()?.parse().ok()?;
     Some(DataSourceConfig {
         name: "live".into(),
         dialect: "pg".into(),
-        host: Some(std::env::var("DG_TEST_PG_HOST").unwrap_or_else(|_| "127.0.0.1".into())),
+        host: Some(std::env::var("ROWCRAFT_TEST_PG_HOST").unwrap_or_else(|_| "127.0.0.1".into())),
         port: Some(port),
-        database: Some(std::env::var("DG_TEST_PG_DB").unwrap_or_else(|_| "postgres".into())),
-        user: std::env::var("DG_TEST_PG_USER").ok(),
-        password: std::env::var("DG_TEST_PG_PASSWORD").ok(),
+        database: Some(std::env::var("ROWCRAFT_TEST_PG_DB").unwrap_or_else(|_| "postgres".into())),
+        user: std::env::var("ROWCRAFT_TEST_PG_USER").ok(),
+        password: std::env::var("ROWCRAFT_TEST_PG_PASSWORD").ok(),
         ssl_mode: SslMode::Disable,
         ..Default::default()
     })
@@ -29,7 +29,7 @@ macro_rules! live_config {
         match config() {
             Some(c) => c,
             None => {
-                eprintln!("skipped: DG_TEST_PG_PORT not set");
+                eprintln!("skipped: ROWCRAFT_TEST_PG_PORT not set");
                 return;
             }
         }
@@ -80,36 +80,36 @@ async fn bad_password_is_a_connect_error() {
 }
 
 mod introspection {
-    use dg_dialect::IntrospectScope;
-    use dg_model::{ConstraintKind, FkAction, Identity, RoutineKind, TableKind};
+    use rowcraft_dialect::IntrospectScope;
+    use rowcraft_model::{ConstraintKind, FkAction, Identity, RoutineKind, TableKind};
 
     use super::*;
 
     /// Creates a throwaway schema, runs `body`, and always drops the schema again.
     const SETUP: &str = "
-        drop schema if exists dg_intro cascade;
-        create schema dg_intro;
-        comment on schema dg_intro is 'introspection fixture';
-        create table dg_intro.people (
+        drop schema if exists rowcraft_intro cascade;
+        create schema rowcraft_intro;
+        comment on schema rowcraft_intro is 'introspection fixture';
+        create table rowcraft_intro.people (
             id integer generated always as identity primary key,
             name text not null,
             age integer default 18 check (age >= 0),
             doubled integer generated always as (age * 2) stored
         );
-        comment on table dg_intro.people is 'who';
-        comment on column dg_intro.people.name is 'full name';
-        create index people_name_idx on dg_intro.people (lower(name), age) where age > 0;
-        create table dg_intro.orders (
+        comment on table rowcraft_intro.people is 'who';
+        comment on column rowcraft_intro.people.name is 'full name';
+        create index people_name_idx on rowcraft_intro.people (lower(name), age) where age > 0;
+        create table rowcraft_intro.orders (
             id serial primary key,
-            person_id integer not null references dg_intro.people (id)
+            person_id integer not null references rowcraft_intro.people (id)
                 on delete cascade on update restrict,
             unique (id, person_id)
         );
-        create view dg_intro.adults as select * from dg_intro.people where age >= 18;
-        create materialized view dg_intro.adult_names as select name from dg_intro.people;
-        create function dg_intro.add(a integer, b integer) returns integer
+        create view rowcraft_intro.adults as select * from rowcraft_intro.people where age >= 18;
+        create materialized view rowcraft_intro.adult_names as select name from rowcraft_intro.people;
+        create function rowcraft_intro.add(a integer, b integer) returns integer
             language sql as 'select a + b';
-        create procedure dg_intro.noop() language sql as '';
+        create procedure rowcraft_intro.noop() language sql as '';
     ";
 
     #[tokio::test]
@@ -117,14 +117,14 @@ mod introspection {
         let cfg = live_config!();
         let mut conn = PgDialect.connect(&cfg).await.expect("connect");
         conn.query(SETUP).await.expect("setup");
-        let scope = IntrospectScope { schemas: Some(vec!["dg_intro".into()]) };
+        let scope = IntrospectScope { schemas: Some(vec!["rowcraft_intro".into()]) };
         let result = PgDialect.introspect(conn.as_mut(), &scope).await;
-        conn.query("drop schema dg_intro cascade").await.expect("cleanup");
+        conn.query("drop schema rowcraft_intro cascade").await.expect("cleanup");
         let catalog = result.expect("introspect");
 
         // Scope: only the requested schema, and never system schemas.
         assert_eq!(catalog.schemas.len(), 1);
-        let schema = catalog.schema("dg_intro").expect("schema");
+        let schema = catalog.schema("rowcraft_intro").expect("schema");
         assert_eq!(schema.comment.as_deref(), Some("introspection fixture"));
 
         let kinds: Vec<_> = schema.tables.iter().map(|t| (t.name.as_str(), t.kind)).collect();
@@ -165,7 +165,7 @@ mod introspection {
         let fk = orders.foreign_keys().next().expect("fk");
         assert_eq!(fk.columns, ["person_id"]);
         let target = fk.reference.as_ref().unwrap();
-        assert_eq!((target.schema.as_str(), target.table.as_str()), ("dg_intro", "people"));
+        assert_eq!((target.schema.as_str(), target.table.as_str()), ("rowcraft_intro", "people"));
         assert_eq!(target.columns, ["id"]);
         assert_eq!((target.on_update, target.on_delete), (FkAction::Restrict, FkAction::Cascade));
         let unique = orders.constraints.iter().find(|c| c.kind == ConstraintKind::Unique).unwrap();

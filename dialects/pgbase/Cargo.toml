@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-pgbase"
+name = "rowcraft-dialect-pgbase"
 description = "Shared Postgres wire/catalog helpers (pg, Redshift, Greenplum, CockroachDB, Vertica)"
 version.workspace = true
 edition.workspace = true
@@ -11,5 +11,5 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
-dg-dialect.workspace = true
-dg-model.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-model.workspace = true

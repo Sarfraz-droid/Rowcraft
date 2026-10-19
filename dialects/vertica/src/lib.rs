@@ -4,11 +4,11 @@
 //! client and fails with an authentication error. The catalog is read through `information_schema`.
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, IntrospectScope, Result,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct VerticaDialect;
@@ -40,7 +40,7 @@ impl Dialect for VerticaDialect {
     }
 
     async fn connect(&self, cfg: &DataSourceConfig) -> Result<Box<dyn Connection>> {
-        dg_dialect_pg::connect_wire(cfg, self.default_port()).await
+        rowcraft_dialect_pg::connect_wire(cfg, self.default_port()).await
     }
 
     async fn introspect(
@@ -48,6 +48,6 @@ impl Dialect for VerticaDialect {
         conn: &mut dyn Connection,
         scope: &IntrospectScope,
     ) -> Result<Catalog> {
-        dg_dialect_pgbase::introspect_information_schema(conn, scope).await
+        rowcraft_dialect_pgbase::introspect_information_schema(conn, scope).await
     }
 }

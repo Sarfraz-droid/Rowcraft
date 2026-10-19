@@ -1,6 +1,13 @@
 /* Published links come from config.js; unpublished commands are labeled previews. */
 (() => {
   const config = window.ROWCRAFT_CONFIG || {};
+  const snapshot = config.releaseSnapshot;
+  let releases = snapshot && window.RowcraftReleases
+    ? window.RowcraftReleases.catalog(snapshot.releases, snapshot.latestTag)
+    : { latestTag: config.version || 'current', releases: [{ tag: config.version || 'current', version: config.version || 'current', downloads: config.downloads || {}, url: `${config.repositoryUrl}/releases` }] };
+  let releaseSelection = 'latest';
+  let releaseOffline = false;
+  const selectedRelease = () => releases.releases.find(release => release.tag === (releaseSelection === 'latest' ? releases.latestTag : releaseSelection));
   const platforms = {
     macos: {
       name: 'macOS', note: 'macOS 11 or later. Choose your Mac’s processor.',
@@ -34,7 +41,7 @@
     try { const url = new URL(value); return url.protocol === 'https:' ? url.href : null; } catch { return null; }
   }
   function assetFilename(key) {
-    const configured = config.downloads?.[platform];
+    const configured = selectedRelease().downloads?.[platform];
     const url = https(typeof configured === 'string' ? configured : configured?.[key]);
     if (!url) return null;
     const filename = new URL(url).pathname.split('/').pop();
@@ -117,6 +124,12 @@
   }
   function renderPlatform() {
     const info = platforms[platform];
+    const release = selectedRelease();
+    const notes = query('#release-notes');
+    notes.href = https(release.url) || `${config.repositoryUrl}/releases`;
+    const published = Object.values(release.downloads || {}).some(files => typeof files === 'string' ? https(files) : Object.values(files).some(https));
+    const message = published ? `Version ${release.version}${release.prerelease ? ' · Pre-release' : ''}.` : `Version ${release.version} · Installers are not published yet. Choose another version or build from source.`;
+    query('#release-status').textContent = message + (releaseOffline ? ' Showing saved releases; check GitHub for updates.' : '');
     const platformKeys = Object.keys(platforms);
     query('#platform-tabs').querySelectorAll('[role="tab"]').forEach((tab, index) => {
       const active = platformKeys[index] === platform;
@@ -134,7 +147,7 @@
     query('#platform-title').textContent = `Download for ${info.name}`;
     query('#platform-note').textContent = info.note;
     query('#download-options').replaceChildren(...info.files.map(([key, label, description]) => {
-      const configured = config.downloads?.[platform];
+      const configured = release.downloads?.[platform];
       // Older sites can still supply one general download destination per OS.
       const url = https(typeof configured === 'string' ? configured : configured?.[key]);
       const row = document.createElement('div'); row.className = 'download-option';
@@ -145,11 +158,26 @@
       const action = document.createElement(url ? 'a' : 'button');
       action.className = url ? 'installer-link' : 'installer-unavailable';
       action.textContent = url ? 'Download' : 'Coming soon';
-      if (url) { action.href = url; action.setAttribute('aria-label', `Download Rowcraft for ${info.name}: ${label}`); }
+      if (url) { action.href = url; action.setAttribute('aria-label', `Download Rowcraft ${release.version} for ${info.name}: ${label}`); }
       else { action.type = 'button'; action.disabled = true; action.setAttribute('aria-label', `${label} download is not published yet`); }
       row.append(text, action); return row;
     }));
     query('#setup-commands').replaceChildren(...info.methods.filter(([key]) => key === installer[1] || (platform === 'macos' && key === 'quarantine')).map(([key, label]) => renderCommand(key, label)));
+  }
+  function renderReleases() {
+    const picker = query('#release-version');
+    const latest = releases.releases.find(release => release.tag === releases.latestTag);
+    const options = [['latest', `Latest · ${latest.version}`], ...releases.releases
+      .filter(release => release.tag !== releases.latestTag)
+      .map(release => [release.tag, `${release.version}${release.prerelease ? ' · Pre-release' : ''}`])];
+    if (!options.some(([value]) => value === releaseSelection)) releaseSelection = 'latest';
+    picker.replaceChildren(...options.map(([value, label]) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      return option;
+    }));
+    picker.value = releaseSelection;
   }
   function renderTabs(selector, labels, selected, prefix, panel, select) {
     query(selector).replaceChildren(...labels.map((label, index) => {
@@ -185,6 +213,21 @@
       installer = choices[platform] || installers.find(([os]) => os === platform);
       renderPlatform();
     });
+  renderReleases();
+  query('#release-version').addEventListener('change', event => {
+    releaseSelection = event.target.value;
+    renderPlatform();
+  });
   renderPlatform();
   query('#installer').hidden = false;
+  if (window.RowcraftReleases && config.repositoryUrl) {
+    window.RowcraftReleases.load(config.repositoryUrl).then(updated => {
+      releases = updated;
+      renderReleases();
+      renderPlatform();
+    }).catch(() => {
+      releaseOffline = true;
+      renderPlatform();
+    });
+  }
 })();

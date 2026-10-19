@@ -1,12 +1,12 @@
 //! Reads ClickHouse's `system` tables into a [`Catalog`]. A database is a schema.
 //!
 //! ClickHouse has no foreign keys. Its "primary key" only orders data and does not enforce
-//! uniqueness; it is still reported as the key because that is how DataGrip shows it.
+//! uniqueness; it is reported as key metadata without implying enforced uniqueness.
 
 use std::collections::HashMap;
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{
     Catalog, Column, Constraint, ConstraintKind, Index, Routine, RoutineKind, Schema, Table,
     TableKind,
 };

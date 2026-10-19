@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-drda"
+name = "rowcraft-wire-drda"
 description = "Wire protocol: DRDA (Db2, Derby)"
 version.workspace = true
 edition.workspace = true

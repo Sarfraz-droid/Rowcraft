@@ -1,5 +1,5 @@
 //! Shared MySQL-protocol code for MySQL and MariaDB (tier A, see SPEC.md §5), on `mysql_async`
-//! with rustls. Also serves the databases DataGrip lists that speak the same protocol (Aurora
+//! with rustls. Also serves databases that speak the same protocol (Aurora
 //! MySQL, TiDB, SingleStore): the driver catalog maps them to the `mysql` dialect.
 //!
 //! Statements run through the text protocol, so values arrive as text like in the pg dialect.
@@ -7,11 +7,11 @@
 mod introspect;
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{Connection, Error, IntrospectScope, Result, ResultSet, Value};
-use dg_model::Catalog;
 use futures_util::TryStreamExt;
 use mysql_async::{Conn, OptsBuilder, Row, SslOpts, prelude::Queryable};
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{Connection, Error, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::Catalog;
 
 /// The two servers differ in a handful of `information_schema` columns.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

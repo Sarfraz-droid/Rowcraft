@@ -1,10 +1,10 @@
 //! Reads `INFORMATION_SCHEMA` and `SHOW … KEYS` of the current database into a [`Catalog`].
-//! Snowflake's keys are informational (not enforced) but are what DataGrip shows.
+//! Snowflake's keys are informational (not enforced) and are reported as metadata.
 
 use std::collections::HashMap;
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{
     Catalog, Column, Constraint, ConstraintKind, FkAction, ForeignKeyTarget, Identity, Schema,
     Table, TableKind,
 };

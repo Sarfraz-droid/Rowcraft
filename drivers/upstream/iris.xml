@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.intersystems</groupId>
+  <artifactId>intersystems-jdbc</artifactId>
+  <versioning>
+    <latest>2018.1.2.609.0</latest>
+    <release>2018.1.2.609.0</release>
+    <versions>
+      <version>3.0.0</version>
+      <version>3.10.1</version>
+      <version>3.10.2</version>
+      <version>3.10.3</version>
+      <version>3.10.4</version>
+      <version>3.10.5</version>
+      <version>3.11.0</version>
+      <version>2018.1.2.609.0</version>
+    </versions>
+    <lastUpdated>20260608140313</lastUpdated>
+  </versioning>
+</metadata>

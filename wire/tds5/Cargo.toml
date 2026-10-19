@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-tds5"
+name = "rowcraft-wire-tds5"
 description = "Wire protocol: TDS 5.0 (Sybase ASE)"
 version.workspace = true
 edition.workspace = true

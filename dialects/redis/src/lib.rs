@@ -8,13 +8,13 @@
 //! before the first `:`), each with a single `key` column typed after the Redis type.
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use redis::aio::MultiplexedConnection;
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
-use dg_model::{Catalog, Column, Schema, Table};
-use redis::aio::MultiplexedConnection;
+use rowcraft_model::{Catalog, Column, Schema, Table};
 
 /// Keys looked at when building the explorer tree.
 const SCAN_LIMIT: usize = 10_000;

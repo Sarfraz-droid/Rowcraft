@@ -1380,601 +1380,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dg-cache"
-version = "0.0.3"
-dependencies = [
- "dg-model",
-]
-
-[[package]]
-name = "dg-cli"
-version = "0.0.3"
-dependencies = [
- "clap",
- "dg-config",
- "dg-core",
- "dg-dialect",
- "dg-drivers",
- "dg-io",
- "dg-model",
- "dg-registry",
- "dg-ssh",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "dg-config"
-version = "0.0.3"
-dependencies = [
- "dg-drivers",
- "regex",
- "security-framework",
- "serde",
- "thiserror 2.0.21",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-core"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-cache",
- "dg-config",
- "dg-dialect",
- "dg-grid",
- "dg-io",
- "dg-model",
- "dg-sql",
- "dg-ssh",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
-name = "dg-desktop"
-version = "0.0.3"
-dependencies = [
- "dg-config",
- "dg-core",
- "dg-model",
- "dg-registry",
- "dg-ui-model",
- "reqwest",
- "serde",
- "tauri",
- "tauri-build",
-]
-
-[[package]]
-name = "dg-dialect"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-model",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "dg-dialect-bigquery"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-cassandra"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "futures-util",
- "rustls",
- "scylla",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
- "webpki-roots",
-]
-
-[[package]]
-name = "dg-dialect-clickhouse"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "reqwest",
- "rustls",
- "serde_json",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-cockroach"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-pg",
- "dg-dialect-pgbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-couchbase"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "reqwest",
- "rustls",
- "serde_json",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-db2"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-derby"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-dynamo"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "base64 0.22.1",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "hmac 0.12.1",
- "reqwest",
- "rustls",
- "serde_json",
- "sha2 0.10.9",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-exasol"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-greenplum"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-pg",
- "dg-dialect-pgbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-h2"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-pg",
- "dg-dialect-pgbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-hive"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-hsqldb"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-http"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "reqwest",
- "rustls",
- "serde_json",
-]
-
-[[package]]
-name = "dg-dialect-jdbc"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "base64 0.22.1",
- "dg-config",
- "dg-dialect",
- "dg-drivers",
- "dg-model",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "dg-dialect-mariadb"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-mysqlbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-mongo"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "bson 3.1.0",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "mongodb",
- "rustls",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-mssql"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "chrono",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "futures-util",
- "rustls",
- "tiberius",
- "tokio",
- "tokio-util",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-mysql"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-mysqlbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-mysqlbase"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "futures-util",
- "mysql_async",
- "rustls",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-oracle"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-pg"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "futures-util",
- "rustls",
- "tokio",
- "tokio-postgres",
- "tokio-postgres-rustls",
-]
-
-[[package]]
-name = "dg-dialect-pgbase"
-version = "0.0.3"
-dependencies = [
- "dg-dialect",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-redis"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "redis",
- "rustls",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-redshift"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-pg",
- "dg-dialect-pgbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-dialect-snowflake"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "reqwest",
- "rustls",
- "serde_json",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-spark"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-sqlite"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "rusqlite",
- "tokio",
-]
-
-[[package]]
-name = "dg-dialect-sybase"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-dialect-trino"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-model",
- "reqwest",
- "rustls",
- "serde_json",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-dialect-vertica"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "dg-dialect",
- "dg-dialect-pg",
- "dg-dialect-pgbase",
- "dg-model",
-]
-
-[[package]]
-name = "dg-drivers"
-version = "0.0.3"
-
-[[package]]
-name = "dg-grid"
-version = "0.0.3"
-dependencies = [
- "dg-dialect",
-]
-
-[[package]]
-name = "dg-io"
-version = "0.0.3"
-dependencies = [
- "dg-dialect",
- "serde_json",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "dg-model"
-version = "0.0.3"
-dependencies = [
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "dg-registry"
-version = "0.0.3"
-dependencies = [
- "dg-dialect",
- "dg-dialect-bigquery",
- "dg-dialect-cassandra",
- "dg-dialect-clickhouse",
- "dg-dialect-cockroach",
- "dg-dialect-couchbase",
- "dg-dialect-db2",
- "dg-dialect-derby",
- "dg-dialect-dynamo",
- "dg-dialect-exasol",
- "dg-dialect-greenplum",
- "dg-dialect-h2",
- "dg-dialect-hive",
- "dg-dialect-hsqldb",
- "dg-dialect-http",
- "dg-dialect-jdbc",
- "dg-dialect-mariadb",
- "dg-dialect-mongo",
- "dg-dialect-mssql",
- "dg-dialect-mysql",
- "dg-dialect-oracle",
- "dg-dialect-pg",
- "dg-dialect-redis",
- "dg-dialect-redshift",
- "dg-dialect-snowflake",
- "dg-dialect-spark",
- "dg-dialect-sqlite",
- "dg-dialect-sybase",
- "dg-dialect-trino",
- "dg-dialect-vertica",
- "dg-drivers",
-]
-
-[[package]]
-name = "dg-script"
-version = "0.0.3"
-
-[[package]]
-name = "dg-sql"
-version = "0.0.3"
-dependencies = [
- "dg-model",
-]
-
-[[package]]
-name = "dg-ssh"
-version = "0.0.3"
-dependencies = [
- "async-trait",
- "dg-config",
- "rand 0.10.3",
- "russh",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
-name = "dg-ui-model"
-version = "0.0.3"
-dependencies = [
- "dg-config",
- "dg-core",
- "dg-dialect",
- "dg-dialect-jdbc",
- "dg-drivers",
- "dg-model",
- "dg-registry",
- "reqwest",
- "rusqlite",
- "rustls",
- "serde",
- "serde_json",
- "sqlparser",
- "tokio",
- "toml 1.1.8+spec-1.1.0",
-]
-
-[[package]]
-name = "dg-wire-drda"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-exasol"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-hs2"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-hsqldb"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-tds5"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-tns"
-version = "0.0.3"
-
-[[package]]
-name = "dg-wire-vertica"
-version = "0.0.3"
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5160,6 +4565,601 @@ dependencies = [
  "untrusted",
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "rowcraft-cache"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-cli"
+version = "0.0.3"
+dependencies = [
+ "clap",
+ "rowcraft-config",
+ "rowcraft-core",
+ "rowcraft-dialect",
+ "rowcraft-drivers",
+ "rowcraft-io",
+ "rowcraft-model",
+ "rowcraft-registry",
+ "rowcraft-ssh",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "rowcraft-config"
+version = "0.0.3"
+dependencies = [
+ "regex",
+ "rowcraft-drivers",
+ "security-framework",
+ "serde",
+ "thiserror 2.0.21",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-core"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-cache",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-grid",
+ "rowcraft-io",
+ "rowcraft-model",
+ "rowcraft-sql",
+ "rowcraft-ssh",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
+name = "rowcraft-desktop"
+version = "0.0.3"
+dependencies = [
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-core",
+ "rowcraft-model",
+ "rowcraft-registry",
+ "rowcraft-ui-model",
+ "serde",
+ "tauri",
+ "tauri-build",
+]
+
+[[package]]
+name = "rowcraft-dialect"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-model",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "rowcraft-dialect-bigquery"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-cassandra"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "futures-util",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "scylla",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+ "webpki-roots",
+]
+
+[[package]]
+name = "rowcraft-dialect-clickhouse"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-cockroach"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-pgbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-couchbase"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-db2"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-derby"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-dynamo"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "hmac 0.12.1",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-exasol"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-greenplum"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-pgbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-h2"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-pgbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-hive"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-hsqldb"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-http"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+]
+
+[[package]]
+name = "rowcraft-dialect-jdbc"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-drivers",
+ "rowcraft-model",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "rowcraft-dialect-mariadb"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-mysqlbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-mongo"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "bson 3.1.0",
+ "mongodb",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-mssql"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "futures-util",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "tiberius",
+ "tokio",
+ "tokio-util",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-mysql"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-mysqlbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-mysqlbase"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "futures-util",
+ "mysql_async",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-oracle"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-pg"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "futures-util",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "tokio",
+ "tokio-postgres",
+ "tokio-postgres-rustls",
+]
+
+[[package]]
+name = "rowcraft-dialect-pgbase"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-dialect",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-redis"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "redis",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-redshift"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-pgbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-dialect-snowflake"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-spark"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-sqlite"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rusqlite",
+ "tokio",
+]
+
+[[package]]
+name = "rowcraft-dialect-sybase"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-dialect-trino"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-model",
+ "rustls",
+ "serde_json",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-dialect-vertica"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rowcraft-config",
+ "rowcraft-dialect",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-pgbase",
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-drivers"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-grid"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-dialect",
+]
+
+[[package]]
+name = "rowcraft-io"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-dialect",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "rowcraft-model"
+version = "0.0.3"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "rowcraft-registry"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-dialect",
+ "rowcraft-dialect-bigquery",
+ "rowcraft-dialect-cassandra",
+ "rowcraft-dialect-clickhouse",
+ "rowcraft-dialect-cockroach",
+ "rowcraft-dialect-couchbase",
+ "rowcraft-dialect-db2",
+ "rowcraft-dialect-derby",
+ "rowcraft-dialect-dynamo",
+ "rowcraft-dialect-exasol",
+ "rowcraft-dialect-greenplum",
+ "rowcraft-dialect-h2",
+ "rowcraft-dialect-hive",
+ "rowcraft-dialect-hsqldb",
+ "rowcraft-dialect-http",
+ "rowcraft-dialect-jdbc",
+ "rowcraft-dialect-mariadb",
+ "rowcraft-dialect-mongo",
+ "rowcraft-dialect-mssql",
+ "rowcraft-dialect-mysql",
+ "rowcraft-dialect-oracle",
+ "rowcraft-dialect-pg",
+ "rowcraft-dialect-redis",
+ "rowcraft-dialect-redshift",
+ "rowcraft-dialect-snowflake",
+ "rowcraft-dialect-spark",
+ "rowcraft-dialect-sqlite",
+ "rowcraft-dialect-sybase",
+ "rowcraft-dialect-trino",
+ "rowcraft-dialect-vertica",
+ "rowcraft-drivers",
+]
+
+[[package]]
+name = "rowcraft-script"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-sql"
+version = "0.0.3"
+dependencies = [
+ "rowcraft-model",
+]
+
+[[package]]
+name = "rowcraft-ssh"
+version = "0.0.3"
+dependencies = [
+ "async-trait",
+ "rand 0.10.3",
+ "rowcraft-config",
+ "russh",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
+name = "rowcraft-ui-model"
+version = "0.0.3"
+dependencies = [
+ "reqwest",
+ "rowcraft-config",
+ "rowcraft-core",
+ "rowcraft-dialect",
+ "rowcraft-dialect-jdbc",
+ "rowcraft-drivers",
+ "rowcraft-model",
+ "rowcraft-registry",
+ "rusqlite",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sqlparser",
+ "tokio",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
+name = "rowcraft-wire-drda"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-exasol"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-hs2"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-hsqldb"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-tds5"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-tns"
+version = "0.0.3"
+
+[[package]]
+name = "rowcraft-wire-vertica"
+version = "0.0.3"
 
 [[package]]
 name = "rsa"

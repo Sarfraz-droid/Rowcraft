@@ -22,7 +22,7 @@ class Bridge {
         }
         return b.append('"').toString();
     }
-    static void send(String s) { protocol.println("DG:" + s); protocol.flush(); }
+    static void send(String s) { protocol.println("ROWCRAFT:" + s); protocol.flush(); }
     static String cell(ResultSet r, int i) throws SQLException {
         Object o = r.getObject(i);
         if (o == null) return "null";
@@ -52,7 +52,7 @@ class Bridge {
         String defaultSchema=null;
         try { defaultSchema=c.getSchema(); } catch(SQLException | AbstractMethodError ignored) {}
         if(defaultSchema==null && m.getDatabaseProductName().equalsIgnoreCase("SQLite"))defaultSchema="main";
-        s.append("[").append(quote(c.getCatalog())).append(',').append(quote(defaultSchema)).append(",\"DG_DATABASE\",null,null,true,null,0]");
+        s.append("[").append(quote(c.getCatalog())).append(',').append(quote(defaultSchema)).append(",\"ROWCRAFT_DATABASE\",null,null,true,null,0]");
         boolean first=false;
         try(ResultSet t=m.getTables(c.getCatalog(),null,"%",new String[]{"TABLE","VIEW","MATERIALIZED VIEW"})) {
             while(t.next()) {
@@ -84,9 +84,9 @@ class Bridge {
             String cls=decode(init[0]); if(!cls.isEmpty()) Class.forName(cls);
             Properties p=new Properties();
             for(int i=2;i+1<init.length;i+=2)p.setProperty(decode(init[i]),decode(init[i+1]));
-            boolean readOnly=Boolean.parseBoolean((String)p.remove("_dglite.readOnly"));
-            boolean manual=Boolean.parseBoolean((String)p.remove("_dglite.manual"));
-            String isolation=(String)p.remove("_dglite.isolation");
+            boolean readOnly=Boolean.parseBoolean((String)p.remove("_rowcraft.readOnly"));
+            boolean manual=Boolean.parseBoolean((String)p.remove("_rowcraft.manual"));
+            String isolation=(String)p.remove("_rowcraft.isolation");
             DriverManager.setLoginTimeout(30);
             try(Connection c=DriverManager.getConnection(decode(init[1]),p)) {
                 if(readOnly)c.setReadOnly(true);

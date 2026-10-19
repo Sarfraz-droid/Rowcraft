@@ -2,11 +2,38 @@
 
 Native database connectors run directly in Rust. The remaining database families use an isolated Java 11+ subprocess with vendor JDBC drivers. Driver files are not bundled.
 
+The complete app-owned database list is checked into [`drivers/catalog.json`](../drivers/catalog.json).
+It records native connectors, pinned Maven coordinates, and manual vendor downloads.
+Release lists fetched directly from Maven Central are saved in `drivers/upstream/`; runtime
+startup does not fetch or read another application's catalog.
+
+Install Apache Maven and an independent JDK, then run:
+
+```sh
+python3 scripts/download-drivers.py --list
+python3 scripts/download-drivers.py --all
+# Or select individual databases:
+python3 scripts/download-drivers.py duckdb oracle
+```
+
+The installer saves each package and its runtime dependencies under the app's own
+`<config-dir>/jdbc/<driver-id>/` directory. It follows `ROWCRAFT_CONFIG_DIR`, `XDG_CONFIG_HOME`,
+and the platform defaults used by the application. `--directory` changes the download
+destination; use the app's config directory for automatic discovery. Maven downloads go
+through Maven Central with strict checksum verification; each installed package also has
+a SHA-256 receipt. Existing packages are replaced only after resolution succeeds.
+Vendor-only entries print their download page and require manual installation.
+
+The bridge needs Java 11+, but each vendor package can require a newer Java release
+(for example, the pinned Derby package requires Java 21+). Select a suitable standalone
+JDK using `ROWCRAFT_JAVA` or `JAVA_HOME`. Downloaded JDBC files retain their upstream licenses;
+installing them locally does not add them to the application's distributable bundle.
+
 Create a custom JDBC driver in Drivers and enter its class, JAR files, and URL template. Templates support `{host}`, `{port}`, `{database}`, and `{user}`. Enter passwords through the data source password setting. For built-in families, Advanced properties `jdbc.class`, `jdbc.jars`, and `jdbc.url_template` override the defaults. `jdbc.jars` uses the operating system's path-list separator.
 
 Use **Upload JAR files…** to select one or more driver and dependency JARs (up to 256 MB each). The app copies them into persistent `jdbc-imports` storage beside the data source configuration and adds their absolute paths to Driver files. Click **Save Driver** to save the configuration. You can also enter local JAR paths manually. Uploaded copies remain independent of the original files.
 
-Built-in families also look for JAR files in the config directory under `jdbc/<driver-id>`. On macOS, downloaded drivers from an installed DataGrip profile can be reused. Set `DGLITE_JAVA` to select a runtime explicitly; otherwise a compatible `JAVA_HOME`, DataGrip's bundled runtime, or `java` on PATH is used.
+Built-in families also look for JAR files in the config directory under `jdbc/<driver-id>`. Set `ROWCRAFT_JAVA` to select a runtime explicitly; otherwise a compatible `JAVA_HOME` or `java` on PATH is used.
 
 ODBC uses the `jdbc:odbc:{database}` template, where Database contains the ODBC data source name. It requires a third-party JDBC/ODBC bridge JAR and the native ODBC driver. Modern JDKs do not include the old JDBC/ODBC bridge. Supply the bridge class and JARs in Advanced properties or create a custom JDBC driver using the bridge vendor's URL format.
 

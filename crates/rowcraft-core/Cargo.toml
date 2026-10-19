@@ -1,0 +1,24 @@
+[package]
+name = "rowcraft-core"
+description = "Engine shared by the CLI and the GUI: sessions, jobs, cancellation, history"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+async-trait.workspace = true
+rowcraft-cache.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-grid.workspace = true
+rowcraft-io.workspace = true
+rowcraft-model.workspace = true
+rowcraft-sql.workspace = true
+rowcraft-ssh.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+thiserror.workspace = true

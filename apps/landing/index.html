@@ -7,7 +7,7 @@
 <meta name="description" content="An open source database workbench, powered by Rust. Write SQL, explore schemas, and find your flow. See the Rowcraft desktop workspace.">
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <link rel="preload" href="assets/space-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css"><script src="config.js" defer></script><script src="main.js" defer></script><script src="benchmark-tabs.js" defer></script><script src="downloads.js" defer></script>
+<link rel="stylesheet" href="styles.css"><script src="config.js" defer></script><script src="main.js" defer></script><script src="benchmark-tabs.js" defer></script><script src="releases.js" defer></script><script src="downloads.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -24,44 +24,44 @@
 </section>
 <section class="database-section wrap" id="databases"><div class="database-heading"><p>Different databases.<br>The same familiar feeling.</p><span>Native connectors & a JDBC bridge.<br>Bring your databases together.</span></div><div class="database-logos"><span><svg class="db-symbol"><use href="#database-icon"/></svg> PostgreSQL</span><span class="mysql">MySQL</span><span><svg class="db-symbol mongo"><use href="#leaf"/></svg> MongoDB</span><span class="sqlite">SQLite</span><span class="redis"><svg class="db-symbol"><use href="#layers"/></svg> Redis</span></div><details id="database-list"><summary>Database compatibility & driver requirements</summary><p>Native connectors include PostgreSQL, SQLite, MySQL, MariaDB, Redis, MongoDB, Cassandra, and more. Other databases connect through JDBC, requiring Java 11+ and vendor driver JARs. Support and live testing vary by connector; see the project README for the full status.</p></details></section>
 <section class="benchmark wrap" id="benchmarks" aria-labelledby="benchmark-title">
-<div class="benchmark-intro"><div><h2 id="benchmark-title">Rust at the core.<br>Resource use at idle.</h2><p>A measured look at Rowcraft and DataGrip with a database connected and both apps idle.</p></div><span class="benchmark-platform"><em>Tested on Mac</em><span>macOS 26.6.2 · Apple Silicon</span></span></div>
+<div class="benchmark-intro"><div><h2 id="benchmark-title">Rust at the core.<br>Resource use at idle.</h2><p>Observed Rowcraft resource use with a database connected and the app idle.</p></div><span class="benchmark-platform"><em>Tested on Mac</em><span>macOS 26.6.2 · Apple Silicon</span></span></div>
 <div class="benchmark-tabs" role="tablist" aria-label="Benchmark metric" hidden>
 <button type="button" role="tab" id="memory-tab" aria-controls="memory-panel" aria-selected="true">Memory</button>
 <button type="button" role="tab" id="cpu-tab" aria-controls="cpu-panel" aria-selected="false" tabindex="-1">CPU</button>
 </div>
 <div id="memory-panel" data-benchmark-panel>
 <figure class="benchmark-chart" aria-labelledby="memory-heading" aria-describedby="memory-summary benchmark-caveat">
-<div class="benchmark-chart-heading"><h3 id="memory-heading">Average observed memory (RSS)</h3><span>Lower is better</span></div>
+<div class="benchmark-chart-heading"><h3 id="memory-heading">Observed memory (RSS)</h3><span>Average and peak</span></div>
 <svg class="memory-chart" viewBox="0 0 760 250" role="img" aria-labelledby="memory-chart-title memory-chart-desc">
-<title id="memory-chart-title">Rowcraft versus DataGrip: average observed memory (RSS)</title>
-<desc id="memory-chart-desc">In one connected-idle capture on Mac, average observed resident memory was 35.5 MiB for Rowcraft and 157.5 MiB for DataGrip. The axis runs from zero to 200 MiB. External WebKit helpers are excluded, so this is not total app memory.</desc>
+<title id="memory-chart-title">Rowcraft: observed memory (rss)</title>
+<desc id="memory-chart-desc">One connected-idle capture: average 35.5 MiB, peak 42.4 MiB. External WebKit helpers are excluded. These are observations of idle resource use, not query speed.</desc>
 <g class="chart-grid"><path d="M140 38V196M265 38V196M390 38V196M515 38V196M640 38V196"/></g>
-<g class="chart-label"><text x="0" y="82">Rowcraft</text><text x="0" y="160">DataGrip</text></g>
+<g class="chart-label"><text x="0" y="82">Average</text><text x="0" y="160">Peak</text></g>
 <rect class="chart-rowcraft" x="140" y="58" width="88.772" height="32"/>
-<rect class="chart-datagrip" x="140" y="136" width="393.648" height="32"/>
-<g class="chart-value"><text x="252.772" y="81">35.5 MiB</text><text x="557.648" y="159">157.5 MiB</text></g>
+<rect class="chart-peak" x="140" y="136" width="106.094" height="32"/>
+<g class="chart-value"><text x="252.772" y="81">35.5 MiB</text><text x="270.094" y="159">42.4 MiB</text></g>
 <g class="chart-tick"><text x="140" y="222">0</text><text x="265" y="222">50</text><text x="390" y="222">100</text><text x="515" y="222">150</text><text x="640" y="222">200 MiB</text></g>
 </svg>
-<figcaption id="memory-summary"><span>Rowcraft 0.0.1 <strong>35.5 MiB</strong></span><span>DataGrip 2026.2.5 <strong>157.5 MiB</strong></span></figcaption>
+<figcaption id="memory-summary"><span>Rowcraft 0.0.1 average <strong>35.5 MiB</strong></span><span>Observed peak <strong>42.4 MiB</strong></span></figcaption>
 </figure>
 </div>
 <div id="cpu-panel" data-benchmark-panel>
 <figure class="benchmark-chart" aria-labelledby="cpu-heading" aria-describedby="cpu-summary benchmark-caveat">
-<div class="benchmark-chart-heading"><h3 id="cpu-heading">Relative CPU usage · DataGrip = 100</h3><span>Lower is better</span></div>
+<div class="benchmark-chart-heading"><h3 id="cpu-heading">Observed CPU usage</h3><span>Average and peak</span></div>
 <svg class="memory-chart" viewBox="0 0 760 250" role="img" aria-labelledby="cpu-chart-title cpu-chart-desc">
-<title id="cpu-chart-title">Rowcraft versus DataGrip: relative CPU usage</title>
-<desc id="cpu-chart-desc">Average observed CPU usage indexed to DataGrip at 100: Rowcraft scores 3.9. Raw CPU averages were 0.1833 percent for Rowcraft and 4.6567 percent for DataGrip. This is connected-idle CPU usage, not query speed. External helpers are excluded.</desc>
+<title id="cpu-chart-title">Rowcraft: observed cpu usage</title>
+<desc id="cpu-chart-desc">One connected-idle capture: average 0.18% CPU, peak 2.75% CPU. External WebKit helpers are excluded. These are observations of idle resource use, not query speed.</desc>
 <g class="chart-grid"><path d="M140 38V196M265 38V196M390 38V196M515 38V196M640 38V196"/></g>
-<g class="chart-label"><text x="0" y="82">Rowcraft</text><text x="0" y="160">DataGrip</text></g>
-<rect class="chart-rowcraft" x="140" y="58" width="19.677" height="32"/>
-<rect class="chart-datagrip" x="140" y="136" width="500" height="32"/>
-<g class="chart-value"><text x="183.677" y="81">3.9</text><text x="664" y="159">100</text></g>
-<g class="chart-tick"><text x="140" y="222">0</text><text x="265" y="222">25</text><text x="390" y="222">50</text><text x="515" y="222">75</text><text x="640" y="222">100</text></g>
+<g class="chart-label"><text x="0" y="82">Average</text><text x="0" y="160">Peak</text></g>
+<rect class="chart-rowcraft" x="140" y="58" width="22.908" height="32"/>
+<rect class="chart-peak" x="140" y="136" width="344.291" height="32"/>
+<g class="chart-value"><text x="186.908" y="81">0.18% CPU</text><text x="508.291" y="159">2.75% CPU</text></g>
+<g class="chart-tick"><text x="140" y="222">0</text><text x="265" y="222">1</text><text x="390" y="222">2</text><text x="515" y="222">3</text><text x="640" y="222">4% CPU</text></g>
 </svg>
-<figcaption id="cpu-summary"><span>Rowcraft 0.0.1 <strong>0.18% CPU</strong></span><span>DataGrip 2026.2.5 <strong>4.66% CPU</strong></span><span>Index = average CPU ÷ DataGrip average CPU × 100</span></figcaption>
+<figcaption id="cpu-summary"><span>Rowcraft 0.0.1 average <strong>0.18% CPU</strong></span><span>Observed peak <strong>2.75% CPU</strong></span></figcaption>
 </figure>
 </div>
-<div class="benchmark-notes"><p id="benchmark-caveat">One 120-second capture after a 30-second warmup. Observed process trees only; external WebKit helpers are excluded, undercounting Rowcraft’s total memory. Memory values are not total app footprints. Relative CPU compares average idle CPU usage, not query or startup speed.</p><details><summary>Test conditions &amp; results <svg class="icon"><use href="#plus"/></svg></summary><div><p>Captured October 18, 2026 on macOS 26.6.2 (ARM64, 12 logical CPUs), with 98 samples over 120.04 seconds. Both app instances were sampled on the same Mac. Values show average resident set size (RSS), weighted by sampling interval, in MiB (1 MiB = 1,048,576 bytes).</p><p>Memory is the sum of RSS for each main process and observed descendants. Shared pages may be counted more than once; compressed or swapped allocations are not fully represented. No additional helper processes were attributed. Helpers launched outside the process tree, including macOS-managed WebKit helpers, are not included. This is not macOS physical footprint or JVM heap size. Relative CPU divides each app’s average CPU usage by DataGrip’s average and multiplies by 100; these index values are not percentages of system CPU. Raw CPU is calculated from elapsed process CPU time, with 100% representing one logical CPU fully occupied. Results vary with your workload and system.</p><a class="inline-link" href="assets/benchmarks/connected-idle.json" target="_blank" rel="noopener">View benchmark data <svg class="icon"><use href="#arrow-up"/></svg></a></div></details></div>
+<div class="benchmark-notes"><p id="benchmark-caveat">One 120-second shared-machine capture after a 30-second warmup. Observed process trees only; external WebKit helpers are excluded, undercounting Rowcraft’s total memory. Memory values are not total app footprints. Idle resource use does not measure query or startup speed.</p><details><summary>Test conditions &amp; results <svg class="icon"><use href="#plus"/></svg></summary><div><p>Captured October 18, 2026 on macOS 26.6.2 (ARM64, 12 logical CPUs), with 98 samples over 120.04 seconds. Memory averages are weighted by sampling interval, in MiB (1 MiB = 1,048,576 bytes).</p><p>Memory is the sum of RSS for the main process and observed descendants. Shared pages may be counted more than once; compressed or swapped allocations are not fully represented. No additional helper processes were attributed. Helpers launched outside the process tree, including macOS-managed WebKit helpers, are excluded. This is not macOS physical footprint or unique memory. CPU is calculated from elapsed process CPU time, with 100% representing one logical CPU fully occupied. Peaks represent the highest sampled interval. Results vary with your workload and system.</p><a class="inline-link" href="assets/benchmarks/connected-idle.json" target="_blank" rel="noopener">View benchmark data <svg class="icon"><use href="#arrow-up"/></svg></a></div></details></div>
 </section>
 <section class="intro wrap" id="workbench"><div><h2>Find your flow.<br>Keep your context.</h2><p>From the first connection to the final export, Rowcraft brings the tools you reach for into one considered workspace.</p></div></section>
 <section class="features wrap"><article class="feature feature-query"><div class="feature-copy"><h3>Good SQL.<br>Room to think.</h3><p>A focused SQL editor with completion, query history, and results right where you need them. Run a selection or the whole statement.</p><a class="inline-link demo-link" href="#demo">Find your next insight <svg class="icon"><use href="#arrow-right"/></svg></a></div><div class="query-art"><div class="art-tab"><span class="connection-dot"></span> a_little_clarity.sql <span>SQL</span></div><pre><span class="syntax-muted">-- Less friction. More discovery.</span>
@@ -76,6 +76,8 @@
 <section class="download wrap" id="download">
 <div class="download-intro"><div><h2>Make room for your<br>next discovery.</h2><p>A calmer workspace. A closer connection to your data.</p></div><a href="#demo" class="inline-link demo-link">See the workspace <svg class="icon"><use href="#arrow-right"/></svg></a></div>
 <div class="installer" id="installer" hidden>
+<div class="release-picker"><div class="release-field"><label for="release-version">Version</label><select id="release-version" aria-describedby="release-status"><option value="latest">Latest</option></select></div><a id="release-notes" class="inline-link" href="https://github.com/Sarfraz-droid/Rowcraft/releases" target="_blank" rel="noopener noreferrer">Release notes <svg class="icon"><use href="#arrow-up"/></svg></a></div>
+<p class="release-status" id="release-status" role="status" aria-live="polite"></p>
 <div class="platform-picker" id="platform-tabs" role="tablist" aria-label="Choose your operating system"></div>
 <div id="platform-panel" role="tabpanel">
 <div class="install-options">
@@ -84,8 +86,8 @@
 </div>
 </div>
 </div>
-<details class="source-guide" id="source-guide"><summary>Build Rowcraft from source</summary><p>To build the desktop app, install Rust, Node 24, pnpm 11, and your platform’s Tauri prerequisites. From your Rowcraft source checkout, run:</p><div class="copy-command"><pre><code>pnpm --dir apps/dg-desktop install --frozen-lockfile
-pnpm --dir apps/dg-desktop installer</code></pre><button id="copy-build" class="text-button">Copy commands <svg class="icon"><use href="#copy"/></svg></button></div><p id="source-note">Find setup details and connector compatibility in the project README.</p></details>
+<details class="source-guide" id="source-guide"><summary>Build Rowcraft from source</summary><p>To build the desktop app, install Rust, Node 24, pnpm 11, and your platform’s Tauri prerequisites. From your Rowcraft source checkout, run:</p><div class="copy-command"><pre><code>pnpm --dir apps/rowcraft-desktop install --frozen-lockfile
+pnpm --dir apps/rowcraft-desktop installer</code></pre><button id="copy-build" class="text-button">Copy commands <svg class="icon"><use href="#copy"/></svg></button></div><p id="source-note">Find setup details and connector compatibility in the project README.</p></details>
 </section>
 </main>
 <footer class="wrap footer"><a class="brand" href="#"><img src="assets/mark.svg" alt="" width="31" height="24">rowcraft</a><span>Crafted with intention. Built in the open.</span><a href="#main">Back to top <svg class="icon"><use href="#arrow-up"/></svg></a><div class="footer-bottom"><span>© <span id="year">2026</span> Rowcraft</span><span>A little closer to your data.</span></div></footer>

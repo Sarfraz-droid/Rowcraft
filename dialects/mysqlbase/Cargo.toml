@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-mysqlbase"
+name = "rowcraft-dialect-mysqlbase"
 description = "Shared MySQL-family helpers (MySQL, MariaDB)"
 version.workspace = true
 edition.workspace = true
@@ -12,9 +12,9 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
-dg-model.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-model.workspace = true
 mysql_async.workspace = true
 rustls.workspace = true
 tokio.workspace = true

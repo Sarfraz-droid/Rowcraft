@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
-use dg_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
-use dg_model::{
+use rowcraft_dialect::{Connection, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_model::{
     Catalog, Column, Constraint, ConstraintKind, FkAction, ForeignKeyTarget, Identity, Index,
     Schema, Table, TableKind,
 };

@@ -10,7 +10,7 @@ The desktop workbench groups each source's tools in the sidebar. Select a source
 | Databases | Searchable tables and views with a column, constraint, and index inspector | Filter by schema, select an object, open its data document |
 | Query history | Successful and failed statements for the selected source in this session | Search SQL or errors, load a statement into the console, clear this source's history |
 
-Use the sidebar's add menu to configure a server, import an existing SQLite file, or manage custom drivers. SQLite imports and real connections require the desktop app. The browser development preview uses a mock backend. Connection and driver details are described in [the README](../README.md#open-an-existing-sqlite-file) and [data source options](datagrip-datasource-options.md).
+Use the sidebar's add menu to configure a server, import an existing SQLite file, or manage custom drivers. SQLite imports and real connections require the desktop app. The browser development preview uses a mock backend. Connection and driver details are described in [the README](../README.md#open-an-existing-sqlite-file) and [data source options](data-source-options.md).
 
 Press Cmd+K on macOS or Ctrl+K elsewhere to reveal the sidebar and focus source search. Cmd/Ctrl+T creates another console for the selected source; Cmd/Ctrl+W closes the active document. The tab strip also supports arrow keys, Home, End, and Delete when focused. In the SQL console, Cmd+Enter or Ctrl+Enter runs the selected SQL, or the full editor contents when nothing is selected. Loading a statement from history opens a new console; press Run to execute it.
 

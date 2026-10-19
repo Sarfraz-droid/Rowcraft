@@ -1,12 +1,12 @@
-//! MySQL dialect (tier A, see SPEC.md §5): `dg-dialect-mysqlbase` on `mysql_async`.
+//! MySQL dialect (tier A, see SPEC.md §5): `rowcraft-dialect-mysqlbase` on `mysql_async`.
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, IntrospectScope, Result,
 };
-use dg_dialect_mysqlbase::Flavor;
-use dg_model::Catalog;
+use rowcraft_dialect_mysqlbase::Flavor;
+use rowcraft_model::Catalog;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct MysqlDialect;
@@ -38,7 +38,7 @@ impl Dialect for MysqlDialect {
     }
 
     async fn connect(&self, cfg: &DataSourceConfig) -> Result<Box<dyn Connection>> {
-        dg_dialect_mysqlbase::connect(cfg, 3306).await
+        rowcraft_dialect_mysqlbase::connect(cfg, 3306).await
     }
 
     async fn introspect(
@@ -46,6 +46,6 @@ impl Dialect for MysqlDialect {
         conn: &mut dyn Connection,
         scope: &IntrospectScope,
     ) -> Result<Catalog> {
-        dg_dialect_mysqlbase::introspect(conn, scope, Flavor::MySql).await
+        rowcraft_dialect_mysqlbase::introspect(conn, scope, Flavor::MySql).await
     }
 }

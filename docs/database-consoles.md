@@ -107,30 +107,3 @@ there is no universal driver that supports every database in the world.
 AI generates the selected native language. Its separate automatic read-only SQL execution tool
 remains restricted to its validated SQL backends; adding a console does not extend that tool's
 execution permissions.
-
-## Installed DataGrip reference
-
-Reference: `/Applications/DataGrip.app`, product metadata version **2026.2.5**, build **262.10315.132**.
-Read-only ZIP resource inspection observed separate dialect registrations, parsers, highlighting,
-introspection and result helpers for Redis and MongoDB. The implementation above follows that
-separation; it does not copy JetBrains code or claim feature parity.
-
-Examined resources under `Contents/plugins/DatabaseTools/lib/`:
-
-- `database-plugin.jar`: `META-INF/AllDatabaseDialectsCore.xml` lists individual SQL, Redis, MongoDB,
-  Cassandra, Couchbase and other dialect modules. SHA-256
-  `ccf114e712eb95f4c52142ed6402749856b8afdfe35ee6290c4c436a3e691714`.
-- `modules/intellij.database.dialects.redis.jar`: `intellij.database.dialects.redis.xml` registers a
-  Redis parser, highlighter, introspector, model, grid helpers and SCAN options;
-  `databaseDrivers/redis-drivers.xml` declares standalone and cluster URL templates. SHA-256
-  `a9cbe73d131e80b7c9dd92d221b98d850febddf02d8ff14efb55b2f34a5cb102`.
-- `modules/intellij.database.dialects.mongo.sql.jar`: `intellij.database.dialects.mongo.sql.xml`
-  registers a MongoDB parser and highlighter. SHA-256
-  `395ae84b0026ef550382fe1a880848f685caf2b7b902fb97e045562d8dc9650c`.
-
-REA `open_binary` recognized the Redis JAR as a ZIP and returned the matching digest. Its inventory
-operation reported an integrity mismatch even with record-and-continue; no inventory evidence from
-that operation is relied on. Independent Python ZIP parsing and SHA-256 checks before/after each read
-found stable bytes. These are static resource observations, not runtime UI tests or proof of vendor
-protocol behavior. The connector tests cover parsing, request filtering, response normalization,
-metadata-derived previews and the MongoDB regression. Neo4j and GraphQL have not been live-tested.

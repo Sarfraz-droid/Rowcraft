@@ -1,5 +1,5 @@
 [package]
-name = "dg-dialect-oracle"
+name = "rowcraft-dialect-oracle"
 description = "Oracle dialect (tier C)"
 version.workspace = true
 edition.workspace = true
@@ -12,5 +12,5 @@ workspace = true
 
 [dependencies]
 async-trait.workspace = true
-dg-config.workspace = true
-dg-dialect.workspace = true
+rowcraft-config.workspace = true
+rowcraft-dialect.workspace = true

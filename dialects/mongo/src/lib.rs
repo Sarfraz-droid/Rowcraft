@@ -9,17 +9,17 @@
 mod shell;
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
-    Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
-    ResultSet, Value, split_statements,
-};
-use dg_model::{Catalog, Column, Index, Schema, Table};
 use mongodb::{
     Client,
     bson::{Bson, Document, doc, oid::ObjectId},
     options::{ClientOptions, Credential, Tls, TlsOptions},
 };
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
+    Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
+    ResultSet, Value, split_statements,
+};
+use rowcraft_model::{Catalog, Column, Index, Schema, Table};
 use shell::{Statement, parse_statement};
 
 /// Collections sampled for fields in the explorer, and documents sampled per collection.

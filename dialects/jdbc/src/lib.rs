@@ -1,12 +1,12 @@
 //! Generic JDBC execution through an isolated Java runtime. No third-party JVM code is bundled.
 use async_trait::async_trait;
 use base64::{Engine, engine::general_purpose::STANDARD};
-use dg_config::{DataSourceConfig, DriverFile, drivers_path};
-use dg_dialect::{
+use rowcraft_config::{DataSourceConfig, DriverFile, drivers_path};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
-use dg_model::{Catalog, Column, Schema, Table, TableKind};
+use rowcraft_model::{Catalog, Column, Schema, Table, TableKind};
 use std::{
     io::{BufRead, BufReader, Write},
     path::{Path, PathBuf},
@@ -58,14 +58,14 @@ impl Dialect for JdbcDialect {
         conn: &mut dyn Connection,
         scope: &IntrospectScope,
     ) -> Result<Catalog> {
-        let result = conn.query_limited("\0DG_JDBC_METADATA", usize::MAX).await?;
+        let result = conn.query_limited("\0ROWCRAFT_JDBC_METADATA", usize::MAX).await?;
         let mut cat = Catalog::default();
         for row in result.rows {
             let text = |i: usize| match row.get(i) {
                 Some(Value::Text(s)) => Some(s.clone()),
                 _ => None,
             };
-            if text(2).as_deref() == Some("DG_DATABASE") {
+            if text(2).as_deref() == Some("ROWCRAFT_DATABASE") {
                 cat.database = text(0);
                 cat.default_schema = text(1).or_else(|| cat.database.clone());
                 continue;
@@ -124,7 +124,7 @@ impl Connection for JdbcConnection {
         tokio::task::spawn_blocking(move || {
             let mut p =
                 process.lock().map_err(|_| Error::Query("JDBC process lock poisoned".into()))?;
-            let op = if statement == "\0DG_JDBC_METADATA" { "M" } else { "Q" };
+            let op = if statement == "\0ROWCRAFT_JDBC_METADATA" { "M" } else { "Q" };
             writeln!(
                 p.input,
                 "{}\t{}\t{}",
@@ -209,7 +209,7 @@ impl Process {
             if self.output.read_line(&mut line).map_err(|e| Error::Query(e.to_string()))? == 0 {
                 return Err(Error::Query("JDBC runtime exited before returning a response; verify the Java runtime and driver JAR dependencies".into()));
             }
-            if let Some(json) = line.strip_prefix("DG:") {
+            if let Some(json) = line.strip_prefix("ROWCRAFT:") {
                 let data: serde_json::Value =
                     serde_json::from_str(json).map_err(|e| Error::Query(e.to_string()))?;
                 if let Some(error) = data["error"].as_str() {
@@ -241,15 +241,12 @@ impl Process {
             .map(|p| std::env::split_paths(p).collect::<Vec<_>>())
             .unwrap_or_else(|| custom.as_ref().map(|d| d.jdbc_jars.clone()).unwrap_or_default());
         if jars.is_empty() {
-            collect_jars(&dg_config::config_dir().join("jdbc").join(driver), &mut jars, 8);
-        }
-        if jars.is_empty() {
-            discover_datagrip_jars(driver, &mut jars);
+            collect_jars(&rowcraft_config::config_dir().join("jdbc").join(driver), &mut jars, 8);
         }
         if jars.is_empty() {
             return Err(Error::Connect(format!(
                 "No JDBC driver files for {driver}. Add driver JARs in Drivers, set jdbc.jars in Advanced, or place them in {}",
-                dg_config::config_dir().join("jdbc").join(driver).display()
+                rowcraft_config::config_dir().join("jdbc").join(driver).display()
             )));
         }
         for jar in &jars {
@@ -268,7 +265,7 @@ impl Process {
         let url = connection_url(cfg, template)?;
         static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
         let source_dir = std::env::temp_dir().join(format!(
-            "dglite-jdbc-{}-{}-{}",
+            "rowcraft-jdbc-{}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -289,7 +286,9 @@ impl Process {
             .stderr(Stdio::null())
             .spawn()
             .map_err(|e| {
-                Error::Connect(format!("Cannot start Java 11+: {e}. Set DGLITE_JAVA or JAVA_HOME."))
+                Error::Connect(format!(
+                    "Cannot start Java 11+: {e}. Set ROWCRAFT_JAVA or JAVA_HOME."
+                ))
             })?;
         let input =
             child.stdin.take().ok_or_else(|| Error::Connect("JDBC stdin unavailable".into()))?;
@@ -314,20 +313,20 @@ impl Process {
         if let Some(p) = &cfg.password {
             props.insert("password".into(), p.clone());
         }
-        props.insert("_dglite.readOnly".into(), cfg.read_only.to_string());
+        props.insert("_rowcraft.readOnly".into(), cfg.read_only.to_string());
         props.insert(
-            "_dglite.manual".into(),
-            (cfg.options.transaction == dg_config::TransactionMode::Manual).to_string(),
+            "_rowcraft.manual".into(),
+            (cfg.options.transaction == rowcraft_config::TransactionMode::Manual).to_string(),
         );
         let isolation = match cfg.options.isolation {
-            dg_config::Isolation::ReadUncommitted => Some(1),
-            dg_config::Isolation::ReadCommitted => Some(2),
-            dg_config::Isolation::RepeatableRead => Some(4),
-            dg_config::Isolation::Serializable => Some(8),
+            rowcraft_config::Isolation::ReadUncommitted => Some(1),
+            rowcraft_config::Isolation::ReadCommitted => Some(2),
+            rowcraft_config::Isolation::RepeatableRead => Some(4),
+            rowcraft_config::Isolation::Serializable => Some(8),
             _ => None,
         };
         if let Some(i) = isolation {
-            props.insert("_dglite.isolation".into(), i.to_string());
+            props.insert("_rowcraft.isolation".into(), i.to_string());
         }
         for (k, v) in props {
             write!(process.input, "\t{}\t{}", STANDARD.encode(k), STANDARD.encode(v))
@@ -346,12 +345,12 @@ impl Process {
     }
 }
 fn java_runtime() -> PathBuf {
-    if let Some(p) = std::env::var_os("DGLITE_JAVA") {
+    if let Some(p) = std::env::var_os("ROWCRAFT_JAVA") {
         return p.into();
     }
     if let Some(p) = std::env::var_os("JAVA_HOME") {
         let home = PathBuf::from(p);
-        let java = home.join("bin/java");
+        let java = home.join(if cfg!(windows) { "bin/java.exe" } else { "bin/java" });
         let release = std::fs::read_to_string(home.join("release")).unwrap_or_default();
         let major = release
             .lines()
@@ -362,8 +361,19 @@ fn java_runtime() -> PathBuf {
             return java;
         }
     }
-    let bundled = PathBuf::from("/Applications/DataGrip.app/Contents/jbr/Contents/Home/bin/java");
-    if bundled.is_file() { bundled } else { PathBuf::from("java") }
+    // macOS's PATH launcher can still select an old JDK. Ask the system for an
+    // independently installed compatible JDK rather than looking inside other apps.
+    #[cfg(target_os = "macos")]
+    if let Ok(output) = Command::new("/usr/libexec/java_home").args(["-v", "11+"]).output() {
+        if output.status.success() {
+            let home = String::from_utf8_lossy(&output.stdout);
+            let java = PathBuf::from(home.trim()).join("bin/java");
+            if java.is_file() {
+                return java;
+            }
+        }
+    }
+    PathBuf::from("java")
 }
 fn collect_jars(dir: &Path, out: &mut Vec<PathBuf>, depth: usize) {
     if depth == 0 {
@@ -376,47 +386,6 @@ fn collect_jars(dir: &Path, out: &mut Vec<PathBuf>, depth: usize) {
                 collect_jars(&path, out, depth - 1);
             } else if path.extension().is_some_and(|e| e == "jar") {
                 out.push(path);
-            }
-        }
-    }
-}
-fn discover_datagrip_jars(driver: &str, out: &mut Vec<PathBuf>) {
-    let Some(home) = std::env::var_os("HOME") else {
-        return;
-    };
-    let base = PathBuf::from(home).join("Library/Application Support/JetBrains");
-    let display = dg_drivers::find(driver).map(|d| d.name).unwrap_or(driver).to_lowercase();
-    let mut versions = std::fs::read_dir(base)
-        .into_iter()
-        .flatten()
-        .flatten()
-        .map(|e| e.path())
-        .filter(|p| p.file_name().is_some_and(|s| s.to_string_lossy().starts_with("DataGrip")))
-        .collect::<Vec<_>>();
-    versions.sort();
-    versions.reverse();
-    for version in versions {
-        if let Ok(entries) = std::fs::read_dir(version.join("jdbc-drivers")) {
-            for entry in entries.flatten() {
-                let name = entry.file_name().to_string_lossy().to_lowercase();
-                let matched = name == display
-                    || name.starts_with(&display)
-                    || (driver == "sqlite" && name.contains("sqlite"));
-                if matched {
-                    let mut releases = std::fs::read_dir(entry.path())
-                        .into_iter()
-                        .flatten()
-                        .flatten()
-                        .map(|e| e.path())
-                        .collect::<Vec<_>>();
-                    releases.sort();
-                    if let Some(release) = releases.pop() {
-                        collect_jars(&release, out, 12);
-                    }
-                }
-            }
-            if !out.is_empty() {
-                return;
             }
         }
     }
@@ -472,7 +441,7 @@ pub fn connection_url(cfg: &DataSourceConfig, template: Option<&str>) -> Result<
     }
     let port = cfg
         .port
-        .or_else(|| dg_drivers::find(driver).and_then(|d| d.port))
+        .or_else(|| rowcraft_drivers::find(driver).and_then(|d| d.port))
         .map(|p| p.to_string())
         .unwrap_or_default();
     if template.contains("{port}") && port.is_empty() {
@@ -507,7 +476,7 @@ mod tests {
     }
     #[test]
     fn vendor_templates_never_generate_empty_required_ports() {
-        for driver in dg_drivers::all().iter().filter(|d| !d.custom) {
+        for driver in rowcraft_drivers::all().iter().filter(|d| !d.custom) {
             let cfg = DataSourceConfig {
                 driver: Some(driver.id.into()),
                 database: Some("sample".into()),
@@ -557,7 +526,7 @@ mod tests {
     /// Opt-in real Java/JDBC test, independent of an external database server.
     #[tokio::test]
     async fn sqlite_jdbc_session_query_metadata_and_errors() {
-        let Ok(jar) = std::env::var("DGLITE_TEST_JDBC_JAR") else {
+        let Ok(jar) = std::env::var("ROWCRAFT_TEST_JDBC_JAR") else {
             return;
         };
         let mut cfg = DataSourceConfig {
@@ -580,5 +549,32 @@ mod tests {
         assert_eq!(conn.query("select 42").await.unwrap().rows[0], [Value::Int(42)]);
         let catalog = dialect.introspect(conn.as_mut(), &IntrospectScope::default()).await.unwrap();
         assert_eq!(catalog.table("main", "people").unwrap().columns.len(), 2);
+    }
+
+    /// Exercises the bridge with an independently downloaded embedded database.
+    #[tokio::test]
+    async fn standalone_hsqldb_query_and_metadata() {
+        let Ok(jar) = std::env::var("ROWCRAFT_TEST_HSQLDB_JAR") else {
+            return;
+        };
+        let mut cfg = DataSourceConfig {
+            dialect: "jdbc".into(),
+            url: Some("jdbc:hsqldb:mem:standalone".into()),
+            user: Some("SA".into()),
+            ..Default::default()
+        };
+        cfg.properties.insert("jdbc.jars".into(), jar);
+        let mut conn = JdbcDialect::default().connect(&cfg).await.unwrap();
+        conn.query("create table people(id integer, name varchar(100))").await.unwrap();
+        conn.query("insert into people values(1,'Ada'),(2,'Grace')").await.unwrap();
+        let result = conn.query_limited("select * from people order by id", 1).await.unwrap();
+        assert_eq!(result.rows, vec![vec![Value::Int(1), Value::Text("Ada".into())]]);
+        assert!(result.truncated);
+        assert!(conn.query("select * from missing_table").await.is_err());
+        let catalog = JdbcDialect::default()
+            .introspect(conn.as_mut(), &IntrospectScope::default())
+            .await
+            .unwrap();
+        assert_eq!(catalog.table("PUBLIC", "PEOPLE").unwrap().columns.len(), 2);
     }
 }

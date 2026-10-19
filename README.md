@@ -9,7 +9,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Sarfraz-droid/Rowcraft">
-    <img src="apps/dg-desktop/public/brand/svg/icon-blue.svg" alt="Rowcraft logo" width="80" height="80">
+    <img src="apps/rowcraft-desktop/public/brand/svg/icon-blue.svg" alt="Rowcraft logo" width="80" height="80">
   </a>
 
   <h1 align="center">Rowcraft</h1>
@@ -80,7 +80,9 @@ The desktop uses the system webview. Database operations run in Rust, and produc
 
 Rowcraft is in early development. Connector coverage and validation vary by database; a driver appearing in the catalog does not mean every vendor, version, or feature has been tested. See the [support table](#database-support) and [connector boundaries](docs/database-consoles.md) before choosing a connection.
 
-The project is independently developed and is not affiliated with JetBrains. Feature parity with DataGrip is not claimed. Performance comparisons require measurements against equivalent workloads.
+Rowcraft is an independently developed database workbench. Performance claims require measurements against equivalent workloads.
+
+Database packages come directly from upstream suppliers and are kept in Rowcraft's own storage; the complete download list is maintained in [the driver catalog](drivers/catalog.json).
 
 ### Built With
 
@@ -122,8 +124,8 @@ Follow the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisit
 2. Install frontend dependencies and start the desktop app:
 
    ```sh
-   pnpm --dir apps/dg-desktop install --frozen-lockfile
-   pnpm --dir apps/dg-desktop tauri dev
+   pnpm --dir apps/rowcraft-desktop install --frozen-lockfile
+   pnpm --dir apps/rowcraft-desktop tauri dev
    ```
 
 On macOS and Linux, the Makefile provides the same workflow:
@@ -170,21 +172,21 @@ Open `http://localhost:1420`. This development preview uses mock data. Real conn
 
 ### Command-line Interface
 
-The CLI binary is named `dg`. To build it:
+The CLI binary is named `rowcraft`. To build it:
 
 ```sh
-cargo build --release -p dg-cli
+cargo build --release -p rowcraft-cli
 ```
 
-The executable is `target/release/dg` on macOS/Linux and `target/release/dg.exe` on Windows. The examples below use `cargo run` so no PATH setup is required.
+The executable is `target/release/rowcraft` on macOS/Linux and `target/release/rowcraft.exe` on Windows. The examples below use `cargo run` so no PATH setup is required.
 
 #### Query a local SQLite database
 
 ```sh
-cargo run -p dg-cli -- ds add local-sqlite --dialect sqlite --database /absolute/path/to/example.sqlite
-cargo run -p dg-cli -- ds test local-sqlite
-cargo run -p dg-cli -- query -d local-sqlite "SELECT sqlite_version();"
-cargo run -p dg-cli -- introspect -d local-sqlite -f json
+cargo run -p rowcraft-cli -- ds add local-sqlite --dialect sqlite --database /absolute/path/to/example.sqlite
+cargo run -p rowcraft-cli -- ds test local-sqlite
+cargo run -p rowcraft-cli -- query -d local-sqlite "SELECT sqlite_version();"
+cargo run -p rowcraft-cli -- introspect -d local-sqlite -f json
 ```
 
 #### Connect to PostgreSQL
@@ -192,12 +194,12 @@ cargo run -p dg-cli -- introspect -d local-sqlite -f json
 Set `APP_PW` in your shell to the database password, then save a reference to that environment variable:
 
 ```sh
-cargo run -p dg-cli -- ds add local-pg \
+cargo run -p rowcraft-cli -- ds add local-pg \
   --host localhost --port 5432 --database app --user me --password-env APP_PW
 
-cargo run -p dg-cli -- ds test local-pg
-cargo run -p dg-cli -- query -d local-pg -f csv "SELECT * FROM people LIMIT 1000;" > people.csv
-cargo run -p dg-cli -- introspect -d local-pg -s public
+cargo run -p rowcraft-cli -- ds test local-pg
+cargo run -p rowcraft-cli -- query -d local-pg -f csv "SELECT * FROM people LIMIT 1000;" > people.csv
+cargo run -p rowcraft-cli -- introspect -d local-pg -s public
 ```
 
 The desktop app reads the same saved sources. When a source uses an environment-variable password, launch the desktop app from a shell where that variable is set.
@@ -205,11 +207,11 @@ The desktop app reads the same saved sources. When a source uses an environment-
 #### Discover commands and drivers
 
 ```sh
-cargo run -p dg-cli -- --help
-cargo run -p dg-cli -- dialects
-cargo run -p dg-cli -- drivers
-cargo run -p dg-cli -- ds --help
-cargo run -p dg-cli -- query --help
+cargo run -p rowcraft-cli -- --help
+cargo run -p rowcraft-cli -- dialects
+cargo run -p rowcraft-cli -- drivers
+cargo run -p rowcraft-cli -- ds --help
+cargo run -p rowcraft-cli -- query --help
 ```
 
 CLI exit codes are `0` for success, `1` for statement errors, `2` for connection/authentication errors, and `3` for usage/configuration errors.
@@ -240,15 +242,15 @@ Rowcraft uses Rust drivers, HTTP connectors, compatible wire protocols, and a JD
 | Neo4j, GraphQL APIs | HTTP | Unit tests; live-server verification pending |
 | Oracle, Db2, Derby, HSQLDB, Exasol, Hive, Spark, BigQuery, Athena, DuckDB, Databricks, Firebird, Informix, HANA, Teradata, and other catalog entries | JDBC | Java 11+, vendor JARs, and a reachable database required; coverage varies |
 
-For native query languages, endpoint configuration, introspection behavior, and unsupported features, read [database consoles and support boundaries](docs/database-consoles.md). Connection options that are implemented versus only stored are documented in [data source options](docs/datagrip-datasource-options.md).
+For native query languages, endpoint configuration, introspection behavior, and unsupported features, read [database consoles and support boundaries](docs/database-consoles.md). Connection options that are implemented versus only stored are documented in [data source options](docs/data-source-options.md).
 
 ### JDBC and custom drivers
 
 Create a driver under **+ Add → Drivers → + Custom driver**. A JDBC driver needs its JARs, a driver class when auto-discovery is unavailable, and a URL template. Templates support `{host}`, `{port}`, `{database}`, and `{user}`.
 
-For built-in JDBC entries, place JARs under `<config-dir>/jdbc/<driver-id>/` or configure `jdbc.jars`, `jdbc.class`, and `jdbc.url_template` in Advanced. Vendor JARs are not bundled or automatically downloaded. Existing DataGrip driver downloads can be reused when detected on macOS.
+For built-in JDBC entries, place JARs under `<config-dir>/jdbc/<driver-id>/` or configure `jdbc.jars`, `jdbc.class`, and `jdbc.url_template` in Advanced. Driver downloads and their pinned upstream coordinates are maintained in [our driver catalog](drivers/catalog.json). Run `python3 scripts/download-drivers.py --all` to install the available JDBC packages directly from Maven Central. See [driver setup](docs/jdbc-drivers.md) for vendor-only packages and Java setup. The app never searches another application for drivers or Java.
 
-Use `DGLITE_JAVA` to select a Java executable or set `JAVA_HOME`. See [JDBC setup](docs/jdbc-drivers.md) for details.
+Use `ROWCRAFT_JAVA` to select a Java executable or set `JAVA_HOME`. See [JDBC setup](docs/jdbc-drivers.md) for details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -258,14 +260,14 @@ Desktop and CLI sources share the same configuration directory:
 
 | Platform | Default directory |
 | --- | --- |
-| macOS / Linux | `~/.config/dglite/` |
-| Windows | `%APPDATA%\dglite\` |
+| macOS / Linux | `~/.config/rowcraft/` |
+| Windows | `%APPDATA%\rowcraft\` |
 
-`XDG_CONFIG_HOME` overrides the default base directory when set. `DGLITE_CONFIG_DIR` overrides the entire configuration path on every platform. The `dglite` directory name is retained for compatibility.
+`XDG_CONFIG_HOME` overrides the default base directory when set. `ROWCRAFT_CONFIG_DIR` overrides the entire configuration path on every platform.
 
 Sources live in `datasources.toml`, custom drivers in `drivers.toml`, and shared SSH configurations in `ssh.toml`. Database passwords can be resolved from environment variables; desktop credential storage also uses references to the operating system credential store.
 
-TLS is enabled by default for non-loopback SQL connections through the default connection policy. Connector-specific rules apply: for example, MongoDB Auto follows MongoDB URI defaults. Use verified TLS and database-side permissions appropriate to your environment; see the [connection options](docs/datagrip-datasource-options.md).
+TLS is enabled by default for non-loopback SQL connections through the default connection policy. Connector-specific rules apply: for example, MongoDB Auto follows MongoDB URI defaults. Use verified TLS and database-side permissions appropriate to your environment; see the [connection options](docs/data-source-options.md).
 
 SSH tunnels support password, key-pair, and agent authentication through Rust, without requiring an external `ssh` command. Unknown hosts are refused by default; `accept-new` can explicitly trust new hosts, while changed host keys remain rejected.
 
@@ -288,7 +290,7 @@ make gui
 Build installers for your current operating system:
 
 ```sh
-pnpm --dir apps/dg-desktop installer
+pnpm --dir apps/rowcraft-desktop installer
 # Or, on macOS/Linux:
 make installer
 ```
@@ -323,18 +325,18 @@ See [installer builds and signing](docs/installers.md) for native dependencies, 
 | `make landing` | Serve the static landing page on port 4321 |
 | `make landing-check` | Check landing-page JavaScript and run its tests |
 
-The PostgreSQL fixture needs local PostgreSQL tools; the SSH fixture needs OpenSSH server tools. Both use `.dev/`. Live PostgreSQL tests are skipped unless `DG_TEST_PG_PORT` is configured; `make test-live` configures it for the fixture.
+The PostgreSQL fixture needs local PostgreSQL tools; the SSH fixture needs OpenSSH server tools. Both use `.dev/`. Live PostgreSQL tests are skipped unless `ROWCRAFT_TEST_PG_PORT` is configured; `make test-live` configures it for the fixture.
 
 Direct commands are useful on Windows or when working on one part of the project:
 
 ```sh
 cargo fmt --all -- --check
-cargo clippy --workspace --exclude dg-desktop --all-targets -- -D warnings
-cargo test --workspace --exclude dg-desktop
-pnpm --dir apps/dg-desktop typecheck
-pnpm --dir apps/dg-desktop test
-cargo test -p dg-ui-model
-cargo check -p dg-desktop
+cargo clippy --workspace --exclude rowcraft-desktop --all-targets -- -D warnings
+cargo test --workspace --exclude rowcraft-desktop
+pnpm --dir apps/rowcraft-desktop typecheck
+pnpm --dir apps/rowcraft-desktop test
+cargo test -p rowcraft-ui-model
+cargo check -p rowcraft-desktop
 ```
 
 The [CI workflow](.github/workflows/ci.yml) defines the checks run on pushes to `main` and pull requests.
@@ -343,24 +345,24 @@ The [CI workflow](.github/workflows/ci.yml) defines the checks run on pushes to 
 
 ## Architecture
 
-The desktop and CLI share the Rust database engine. The Tauri shell exposes commands to React through IPC; reusable workbench logic lives in `dg-ui-model`. Database-specific behavior is implemented behind the `dg-dialect` traits.
+The desktop and CLI share the Rust database engine. The Tauri shell exposes commands to React through IPC; reusable workbench logic lives in `rowcraft-ui-model`. Database-specific behavior is implemented behind the `rowcraft-dialect` traits.
 
 ```text
-apps/dg-desktop/src          React, TypeScript, CodeMirror, result views
+apps/rowcraft-desktop/src          React, TypeScript, CodeMirror, result views
            │ Tauri IPC
-apps/dg-desktop/src-tauri    Desktop shell and command bridge
+apps/rowcraft-desktop/src-tauri    Desktop shell and command bridge
            │
-crates/dg-ui-model           Workbench services and validation
+crates/rowcraft-ui-model           Workbench services and validation
            │
-apps/dg-cli ──────────────── Shared Rust engine and configuration
+apps/rowcraft-cli ──────────────── Shared Rust engine and configuration
                             │
                          dialects/* → Drivers, HTTP APIs, JDBC, wire/*
 ```
 
 | Path | Contents |
 | --- | --- |
-| `apps/dg-desktop/` | Desktop frontend and Tauri shell |
-| `apps/dg-cli/` | The `dg` command-line application |
+| `apps/rowcraft-desktop/` | Desktop frontend and Tauri shell |
+| `apps/rowcraft-cli/` | The `rowcraft` command-line application |
 | `apps/landing/` | Static product website and download configuration |
 | `crates/` | Shared engine, configuration, catalog models, SQL helpers, I/O, and SSH |
 | `dialects/` | Database connector implementations and shared protocol bases |
@@ -443,7 +445,7 @@ For bugs and feature ideas, [open an issue](https://github.com/Sarfraz-droid/Row
 - [Product specification](SPEC.md)
 - [Desktop visual system](DESIGN.md)
 - [Database consoles and support boundaries](docs/database-consoles.md)
-- [Data source options](docs/datagrip-datasource-options.md)
+- [Data source options](docs/data-source-options.md)
 - [JDBC drivers](docs/jdbc-drivers.md)
 - [Installer builds and signing](docs/installers.md)
 - [Package distribution](docs/package-distribution.md)

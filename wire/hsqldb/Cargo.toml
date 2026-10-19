@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-hsqldb"
+name = "rowcraft-wire-hsqldb"
 description = "Wire protocol: HSQLDB native protocol"
 version.workspace = true
 edition.workspace = true

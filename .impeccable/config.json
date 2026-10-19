@@ -7,7 +7,7 @@
         "rule": "design-system-color",
         "value": "#123456",
         "files": [
-          "apps/dg-desktop/src/components/AddSourceDialog.test.tsx"
+          "apps/rowcraft-desktop/src/components/AddSourceDialog.test.tsx"
         ],
         "createdAt": "2026-10-18T11:40:59.339Z",
         "reason": "Agent: arbitrary color-picker test input; verifies user-selected colors, not a UI palette token."
@@ -16,7 +16,7 @@
         "rule": "design-system-color",
         "value": "#d1242f",
         "files": [
-          "apps/dg-desktop/src/mock.ts"
+          "apps/rowcraft-desktop/src/mock.ts"
         ],
         "createdAt": "2026-10-18T11:40:59.609Z",
         "reason": "Agent: existing demo datasource color represents a user-selected connection color, not a UI palette token."
@@ -25,7 +25,7 @@
         "rule": "design-system-font-size",
         "value": "13px",
         "files": [
-          "apps/dg-desktop/src/components/Editor.tsx"
+          "apps/rowcraft-desktop/src/components/Editor.tsx"
         ],
         "createdAt": "2026-10-18T13:00:14.305Z",
         "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
@@ -34,7 +34,7 @@
         "rule": "design-system-font-size",
         "value": "9px",
         "files": [
-          "apps/dg-desktop/src/components/Editor.tsx"
+          "apps/rowcraft-desktop/src/components/Editor.tsx"
         ],
         "createdAt": "2026-10-18T13:00:14.515Z",
         "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
@@ -43,10 +43,298 @@
         "rule": "design-system-font-size",
         "value": "10px",
         "files": [
-          "apps/dg-desktop/src/components/Editor.tsx"
+          "apps/rowcraft-desktop/src/components/Editor.tsx"
         ],
         "createdAt": "2026-10-18T13:00:14.739Z",
         "reason": "Preserve existing CodeMirror editor and completion typography during the session-persistence change; no typography was changed."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#1d4ed8",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.722Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#2d2d31",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.790Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#323235",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.835Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#333337",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.878Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#626267",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.922Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#747477",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:35.967Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#80abff",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.012Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#86b0ff",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.063Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#8c8c92",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.113Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#a8c6ff",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.164Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#e4c58f",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.213Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#fff",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.259Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "10px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.303Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "11px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.344Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "12px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.390Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "14px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.433Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "15px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.478Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "16px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.523Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "17px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.570Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "18px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.632Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "22px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.693Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "24px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.739Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "26px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.784Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "27px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.829Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "28px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.876Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "34px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.922Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "40px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:36.971Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "7px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:37.075Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "8px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:37.157Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "9px",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:21:37.202Z",
+        "reason": "Agent: inherited landing stylesheet value preserved for the version-picker addition; apps/landing/DESIGN.md owns this surface, separately from the root desktop design system."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "spacemono",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:23:01.542Z",
+        "reason": "Agent: existing Space Mono font face in apps/landing/DESIGN.md; landing type system is separate from the desktop root."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "space",
+        "files": [
+          "apps/landing/styles.css"
+        ],
+        "createdAt": "2026-10-19T12:23:01.691Z",
+        "reason": "Agent: existing Space Grotesk brand alias documented in apps/landing/DESIGN.md; landing type system is separate from the desktop root."
       }
     ]
   }

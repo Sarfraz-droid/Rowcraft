@@ -98,7 +98,7 @@ References: [Tauri Debian packaging](https://v2.tauri.app/distribute/debian/), [
 
 For each version, publish and test the installers first, then update package URLs/checksums and registry manifests, then update the landing page config. Keep package IDs empty until their channel works. A future release job can generate checksums and propose tap/manifest updates once the public repository and publisher identities are established.
 
-These channels install the Rowcraft desktop app. To distribute the separate headless `dg` CLI, build its binaries and package a Homebrew formula or equivalent CLI package separately; the desktop cask does not automatically expose `dg` on PATH.
+These channels install the Rowcraft desktop app. To distribute the separate headless `rowcraft` CLI, build its binaries and package a Homebrew formula or equivalent CLI package separately; the desktop cask does not automatically expose `rowcraft` on PATH.
 
 ## Connect the published channels to the website
 

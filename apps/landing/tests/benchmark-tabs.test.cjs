@@ -52,13 +52,17 @@ test('arrow keys wrap and Home/End move selection and keyboard focus', () => {
   }
 });
 
-test('CPU index and bar widths agree with the measured averages', () => {
+test('memory and CPU bars agree with the recorded Rowcraft averages and peaks', () => {
   const html = readFileSync(`${__dirname}/../index.html`, 'utf8');
-  const { summary } = JSON.parse(readFileSync(`${__dirname}/../assets/benchmarks/connected-idle.json`, 'utf8'));
-  const cpuPanel = html.split('id="cpu-panel"')[1].split('</figure>')[0];
-  const ratio = summary.Rowcraft.average_cpu_percent / summary.DataGrip.average_cpu_percent;
-  const width = Number(cpuPanel.match(/class="chart-rowcraft"[^>]*width="([\d.]+)"/)[1]);
-  assert.ok(Math.abs(width - ratio * 500) < 0.001);
-  assert.ok(cpuPanel.includes(`>${(ratio * 100).toFixed(1)}</text>`));
-  assert.ok(cpuPanel.includes('>100</text>'));
+  const { summary: { Rowcraft: metrics } } = JSON.parse(readFileSync(`${__dirname}/../assets/benchmarks/connected-idle.json`, 'utf8'));
+  for (const [metric, scale, average, peak] of [
+    ['memory', 200, metrics.average_rss_mib, metrics.peak_rss_mib],
+    ['cpu', 4, metrics.average_cpu_percent, metrics.peak_cpu_percent],
+  ]) {
+    const panel = html.split(`id="${metric}-panel"`)[1].split('</figure>')[0];
+    const averageWidth = Number(panel.match(/class="chart-rowcraft"[^>]*width="([\d.]+)"/)[1]);
+    const peakWidth = Number(panel.match(/class="chart-peak"[^>]*width="([\d.]+)"/)[1]);
+    assert.ok(Math.abs(averageWidth - average / scale * 500) < 0.001);
+    assert.ok(Math.abs(peakWidth - peak / scale * 500) < 0.001);
+  }
 });

@@ -1,5 +1,5 @@
 [package]
-name = "dg-wire-vertica"
+name = "rowcraft-wire-vertica"
 description = "Wire protocol: Vertica frontend/backend protocol"
 version.workspace = true
 edition.workspace = true

@@ -1,0 +1,81 @@
+[package]
+name = "rowcraft-registry"
+description = "Wires every dialect crate into a Registry behind cargo features"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rowcraft-dialect.workspace = true
+rowcraft-dialect-http = { workspace = true, optional = true }
+rowcraft-drivers.workspace = true
+rowcraft-dialect-jdbc = { workspace = true, optional = true }
+rowcraft-dialect-pg = { workspace = true, optional = true }
+rowcraft-dialect-redshift = { workspace = true, optional = true }
+rowcraft-dialect-greenplum = { workspace = true, optional = true }
+rowcraft-dialect-cockroach = { workspace = true, optional = true }
+rowcraft-dialect-mysql = { workspace = true, optional = true }
+rowcraft-dialect-mariadb = { workspace = true, optional = true }
+rowcraft-dialect-sqlite = { workspace = true, optional = true }
+rowcraft-dialect-mssql = { workspace = true, optional = true }
+rowcraft-dialect-clickhouse = { workspace = true, optional = true }
+rowcraft-dialect-cassandra = { workspace = true, optional = true }
+rowcraft-dialect-mongo = { workspace = true, optional = true }
+rowcraft-dialect-redis = { workspace = true, optional = true }
+rowcraft-dialect-dynamo = { workspace = true, optional = true }
+rowcraft-dialect-h2 = { workspace = true, optional = true }
+rowcraft-dialect-snowflake = { workspace = true, optional = true }
+rowcraft-dialect-bigquery = { workspace = true, optional = true }
+rowcraft-dialect-couchbase = { workspace = true, optional = true }
+rowcraft-dialect-exasol = { workspace = true, optional = true }
+rowcraft-dialect-hive = { workspace = true, optional = true }
+rowcraft-dialect-spark = { workspace = true, optional = true }
+rowcraft-dialect-vertica = { workspace = true, optional = true }
+rowcraft-dialect-sybase = { workspace = true, optional = true }
+rowcraft-dialect-db2 = { workspace = true, optional = true }
+rowcraft-dialect-derby = { workspace = true, optional = true }
+rowcraft-dialect-oracle = { workspace = true, optional = true }
+rowcraft-dialect-hsqldb = { workspace = true, optional = true }
+rowcraft-dialect-trino = { workspace = true, optional = true }
+
+[features]
+default = ["all"]
+all = ["http", "jdbc", "pg", "redshift", "greenplum", "cockroach", "mysql", "mariadb", "sqlite", "mssql", "clickhouse", "cassandra", "mongo", "redis", "dynamo", "h2", "snowflake", "bigquery", "couchbase", "exasol", "hive", "spark", "vertica", "sybase", "db2", "derby", "oracle", "hsqldb", "trino"]
+http = ["dep:rowcraft-dialect-http"]
+jdbc = ["dep:rowcraft-dialect-jdbc"]
+tier-a = ["pg", "redshift", "greenplum", "cockroach", "mysql", "mariadb", "sqlite", "mssql", "clickhouse", "cassandra", "mongo", "redis", "dynamo", "h2"]
+tier-b = ["snowflake", "bigquery", "couchbase", "exasol", "hive", "spark"]
+tier-c = ["vertica", "sybase", "db2", "derby", "oracle", "hsqldb"]
+pg = ["dep:rowcraft-dialect-pg"]
+redshift = ["dep:rowcraft-dialect-redshift"]
+greenplum = ["dep:rowcraft-dialect-greenplum"]
+cockroach = ["dep:rowcraft-dialect-cockroach"]
+mysql = ["dep:rowcraft-dialect-mysql"]
+mariadb = ["dep:rowcraft-dialect-mariadb"]
+sqlite = ["dep:rowcraft-dialect-sqlite"]
+mssql = ["dep:rowcraft-dialect-mssql"]
+clickhouse = ["dep:rowcraft-dialect-clickhouse"]
+cassandra = ["dep:rowcraft-dialect-cassandra"]
+mongo = ["dep:rowcraft-dialect-mongo"]
+redis = ["dep:rowcraft-dialect-redis"]
+dynamo = ["dep:rowcraft-dialect-dynamo"]
+h2 = ["dep:rowcraft-dialect-h2"]
+snowflake = ["dep:rowcraft-dialect-snowflake"]
+bigquery = ["dep:rowcraft-dialect-bigquery"]
+couchbase = ["dep:rowcraft-dialect-couchbase"]
+exasol = ["dep:rowcraft-dialect-exasol"]
+hive = ["dep:rowcraft-dialect-hive"]
+spark = ["dep:rowcraft-dialect-spark"]
+vertica = ["dep:rowcraft-dialect-vertica"]
+sybase = ["dep:rowcraft-dialect-sybase"]
+db2 = ["dep:rowcraft-dialect-db2"]
+derby = ["dep:rowcraft-dialect-derby"]
+oracle = ["dep:rowcraft-dialect-oracle"]
+hsqldb = ["dep:rowcraft-dialect-hsqldb"]
+# Registers both Trino and Presto.
+trino = ["dep:rowcraft-dialect-trino"]

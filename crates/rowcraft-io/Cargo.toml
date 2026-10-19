@@ -1,0 +1,16 @@
+[package]
+name = "rowcraft-io"
+description = "Export and import: CSV, TSV, JSON, XML, Markdown, HTML, SQL INSERT, XLSX"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rowcraft-dialect.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

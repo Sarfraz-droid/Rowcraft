@@ -7,13 +7,13 @@
 mod introspect;
 
 use async_trait::async_trait;
-use dg_config::{DataSourceConfig, SslMode};
-use dg_dialect::{
+use futures_util::{StreamExt, pin_mut};
+use rowcraft_config::{DataSourceConfig, SslMode};
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
-use dg_model::Catalog;
-use futures_util::{StreamExt, pin_mut};
+use rowcraft_model::Catalog;
 use tokio_postgres::{Client, Config, NoTls, SimpleQueryMessage};
 use tokio_postgres_rustls::MakeRustlsConnect;
 

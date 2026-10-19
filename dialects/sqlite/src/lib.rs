@@ -8,12 +8,12 @@ mod introspect;
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use dg_config::DataSourceConfig;
-use dg_dialect::{
+use rowcraft_config::DataSourceConfig;
+use rowcraft_dialect::{
     Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
-use dg_model::Catalog;
+use rowcraft_model::Catalog;
 use rusqlite::{OpenFlags, fallible_iterator::FallibleIterator, types::ValueRef};
 
 #[derive(Debug, Default, Clone, Copy)]
