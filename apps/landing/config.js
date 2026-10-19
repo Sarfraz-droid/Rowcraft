@@ -20,6 +20,10 @@ window.ROWCRAFT_CONFIG = {
   // Empty IDs show labeled command previews, never an active package claim.
   // Homebrew: 'owner/tap/rowcraft'; WinGet: 'Publisher.Rowcraft'; Chocolatey: 'rowcraft'.
   packages: { homebrew: '', winget: '', chocolatey: '' },
+  posthog: {
+    projectToken: window.ROWCRAFT_POSTHOG_PROJECT_TOKEN,
+    host: window.ROWCRAFT_POSTHOG_HOST,
+  },
 };
 
 // Saved public release catalog; refreshed from GitHub when the page opens.

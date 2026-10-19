@@ -8,6 +8,7 @@
   let releaseSelection = 'latest';
   let releaseOffline = false;
   const selectedRelease = () => releases.releases.find(release => release.tag === (releaseSelection === 'latest' ? releases.latestTag : releaseSelection));
+  const capture = (event, properties) => window.RowcraftAnalytics?.capture(event, properties);
   const platforms = {
     macos: {
       name: 'macOS', note: 'macOS 11 or later. Choose your Mac’s processor.',
@@ -116,6 +117,8 @@
     copy.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(code.textContent);
+        capture('installation_command_copied', { platform, setup_method: key, is_preview: preview });
+        window.RowcraftAnalytics?.logInfo('installation command copied', { platform, setup_method: key, is_preview: preview });
         feedback.textContent = 'Commands copied.';
       } catch { feedback.textContent = 'Clipboard unavailable. Select the commands and copy them manually.'; }
     });
@@ -158,7 +161,19 @@
       const action = document.createElement(url ? 'a' : 'button');
       action.className = url ? 'installer-link' : 'installer-unavailable';
       action.textContent = url ? 'Download' : 'Coming soon';
-      if (url) { action.href = url; action.setAttribute('aria-label', `Download Rowcraft ${release.version} for ${info.name}: ${label}`); }
+      if (url) {
+        action.href = url;
+        action.setAttribute('aria-label', `Download Rowcraft ${release.version} for ${info.name}: ${label}`);
+        action.addEventListener('click', () => {
+          const attributes = {
+            platform,
+            installer_type: key,
+            release_version: release.version,
+          };
+          capture('installer_download_started', attributes);
+          window.RowcraftAnalytics?.logInfo('installer download started', attributes);
+        });
+      }
       else { action.type = 'button'; action.disabled = true; action.setAttribute('aria-label', `${label} download is not published yet`); }
       row.append(text, action); return row;
     }));
@@ -211,11 +226,16 @@
       choices[platform] = installer;
       platform = platformKeys[index];
       installer = choices[platform] || installers.find(([os]) => os === platform);
+      capture('download_platform_selected', { platform });
       renderPlatform();
     });
   renderReleases();
   query('#release-version').addEventListener('change', event => {
     releaseSelection = event.target.value;
+    const release = selectedRelease();
+    const attributes = { release_version: release.version, is_prerelease: release.prerelease };
+    capture('release_version_selected', attributes);
+    window.RowcraftAnalytics?.logInfo('release version selected', attributes);
     renderPlatform();
   });
   renderPlatform();

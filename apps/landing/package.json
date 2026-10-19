@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "python3 -m http.server 4321 --bind 127.0.0.1",
-    "check": "node --check demo-query.js && node --check main.js && node --check benchmark-tabs.js && node --check config.js && node --check releases.js && node --check downloads.js",
+    "check": "node --check demo-query.js && node --check main.js && node --check benchmark-tabs.js && node --check config.js && node --check posthog-init.js && node --check releases.js && node --check downloads.js",
     "test": "node --test tests/*.test.cjs"
+  },
+  "dependencies": {
+    "posthog-js": "^1.438.12"
   }
 }

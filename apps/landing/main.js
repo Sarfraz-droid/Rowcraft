@@ -1,5 +1,5 @@
 'use strict';
-document.querySelector('#copy-build').addEventListener('click', async event => { const button = event.currentTarget; try { await navigator.clipboard.writeText(document.querySelector('#copy-build').previousElementSibling.textContent); button.textContent = 'Copied!'; setTimeout(() => button.textContent = 'Copy commands', 2000); } catch { button.textContent = 'Select the commands to copy'; } });
+document.querySelector('#copy-build').addEventListener('click', async event => { const button = event.currentTarget; try { await navigator.clipboard.writeText(document.querySelector('#copy-build').previousElementSibling.textContent); window.RowcraftAnalytics?.capture('source_build_instructions_copied'); button.textContent = 'Copied!'; setTimeout(() => button.textContent = 'Copy commands', 2000); } catch { button.textContent = 'Select the commands to copy'; } });
 const config = window.ROWCRAFT_CONFIG || {};
 function verifiedUrl(value) { try {const url = new URL(value); return url.protocol === 'https:' ? url.href : null;} catch {return null;} }
 const repo = verifiedUrl(config.repositoryUrl);
