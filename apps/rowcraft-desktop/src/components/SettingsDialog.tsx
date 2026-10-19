@@ -5,8 +5,9 @@ import { Check, Field, Note, TextArea, TextField } from "./form";
 import { Icon } from "./Icon";
 import { SelectField } from "./SelectField";
 import { EDITOR_FONT_SIZES, type EditorPreferences } from "../preferences";
+import { DownloadedDrivers } from "./DownloadedDrivers";
 
-export type SettingsSection = "general" | "ai";
+export type SettingsSection = "general" | "ai" | "drivers";
 export function SettingsDialog({ onClose, initialSection, theme, editorPreferences, onSaveGeneral }: {
   onClose(): void;
   initialSection: SettingsSection;
@@ -75,10 +76,12 @@ export function SettingsDialog({ onClose, initialSection, theme, editorPreferenc
       <div className="settings-layout">
         <nav className="settings-nav" aria-label="Settings sections">
           <button type="button" aria-current={section === "general" ? "page" : undefined} disabled={!!busy} onClick={() => { setSection("general"); setMessage(""); setError(""); }}><Icon name="settings" />General</button>
+          <button type="button" aria-current={section === "drivers" ? "page" : undefined} disabled={!!busy} onClick={() => { setSection("drivers"); setMessage(""); setError(""); }}><Icon name="download" />Drivers</button>
           <button type="button" aria-current={section === "ai" ? "page" : undefined} disabled={!!busy} onClick={() => { setSection("ai"); setMessage(""); setError(""); }}><Icon name="ai" />AI</button>
         </nav>
         <div className="settings-content">
       <div className="dialog-body settings-body">
+        {section === "drivers" && <DownloadedDrivers onBusyChange={value => setBusy(value ? "Updating drivers…" : null)} />}
         <section hidden={section !== "general"} aria-labelledby="general-settings-heading" className="general-settings">
           <div><h3 id="general-settings-heading">General</h3><Note>Personalize your workbench and SQL editor.</Note></div>
           <Field label="Theme"><SelectField aria-label="Theme" value={general.theme} onValueChange={theme => updateGeneral({ ...general, theme: theme as "light" | "dark" })} options={[{ value: "dark", label: "Dark" }, { value: "light", label: "Light" }]} /></Field>

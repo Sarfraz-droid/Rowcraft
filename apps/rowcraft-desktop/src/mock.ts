@@ -7,6 +7,7 @@ import { mockIPC } from "@tauri-apps/api/mocks";
 import type { AddedSource, Bootstrap, Catalog, Cell, Draft, DriverInfo, FormDefaults, QueryOutput, SourceSummary, CustomDriverConfig } from "./api";
 
 import catalog from "./driver-catalog.json";
+import downloadCatalog from "../../../drivers/catalog.json";
 
 // Snapshot of rowcraft-drivers' built-in catalog, for the explicitly labeled browser demo only.
 let DRIVERS: DriverInfo[] = catalog;
@@ -97,6 +98,22 @@ export function installMock(): void {
         return { sources: [...sources], startup_error: "Browser demo — database connections require the desktop app." } satisfies Bootstrap;
       case "drivers":
         return DRIVERS;
+      case "driver_package": {
+        const driver = downloadCatalog.drivers.find(driver => driver.id === args.id);
+        if (!driver) throw "Unknown built-in driver.";
+        return { distribution: driver.distribution, version: "version" in driver ? driver.version : null,
+          source: "source" in driver ? driver.source : null, installed: driver.distribution === "native", files: [] };
+      }
+      case "download_driver":
+      case "open_driver_vendor":
+        throw "Driver downloads require the desktop app. Open Rowcraft to install this driver.";
+      case "downloaded_drivers":
+        return { directory: "Available in the desktop app", packages: [], native: downloadCatalog.drivers
+          .filter(driver => driver.distribution === "native").map(driver => ({ id: driver.id, name: driver.name, version: null })), available: downloadCatalog.drivers
+          .filter(driver => driver.distribution === "maven")
+          .map(driver => ({ id: driver.id, name: driver.name, version: "version" in driver ? driver.version : null })) };
+      case "remove_downloaded_driver":
+        throw "Driver management requires the desktop app.";
       case "driver_settings":
         return { custom: [...customDrivers], dialects: DIALECTS };
       case "save_driver": {

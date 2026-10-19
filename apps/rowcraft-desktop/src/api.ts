@@ -4,7 +4,33 @@ export { errorText } from "./errors";
 // Typed wrappers over the Tauri commands in src-tauri/src/lib.rs. The shapes mirror the serde
 // types of the `rowcraft-ui-model` crate (enums are kebab-case there, field names snake_case).
 
-import { invoke } from "@tauri-apps/api/core";
+import { Channel, invoke } from "@tauri-apps/api/core";
+
+export interface DriverPackage {
+  distribution: "native" | "maven" | "vendor";
+  version: string | null;
+  source: string | null;
+  installed: boolean;
+  files: string[];
+}
+
+export interface DownloadedDriver {
+  id: string;
+  name: string;
+  version: string;
+  available_version: string | null;
+  verified: boolean;
+  directory: string;
+  files: { name: string; path: string; size: number }[];
+  size: number;
+}
+
+export interface DownloadInventory {
+  directory: string;
+  packages: DownloadedDriver[];
+  available: { id: string; name: string; version: string | null }[];
+  native: { id: string; name: string; version: string | null }[];
+}
 
 export type AuthType = "user-password" | "no-auth" | "windows-credentials";
 export type TransactionMode = "auto" | "manual";
@@ -269,6 +295,15 @@ export const api = {
   },
   bootstrap: () => call<Bootstrap>("bootstrap"),
   drivers: () => call<DriverInfo[]>("drivers"),
+  driverPackage: (id: string) => call<DriverPackage>("driver_package", { id }),
+  downloadedDrivers: () => call<DownloadInventory>("downloaded_drivers"),
+  removeDownloadedDriver: (id: string) => call<void>("remove_downloaded_driver", { id }),
+  openDriverVendor: (id: string) => call<void>("open_driver_vendor", { id }),
+  downloadDriver: (id: string, onProgress: (message: string) => void) => {
+    const channel = new Channel<string>();
+    channel.onmessage = onProgress;
+    return call<DriverPackage>("download_driver", { id, onProgress: channel });
+  },
   driverSettings: () => call<DriverSettings>("driver_settings"),
   saveDriver: (driver: CustomDriverConfig) => call<DriverInfo[]>("save_driver", { driver }),
   removeDriver: (id: string) => call<DriverInfo[]>("remove_driver", { id }),

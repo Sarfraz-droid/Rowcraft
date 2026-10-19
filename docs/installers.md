@@ -42,7 +42,7 @@ The installers are also retained in the run's **Artifacts** section as a backup.
 For a versioned release:
 
 1. Set the same version in `apps/rowcraft-desktop/src-tauri/tauri.conf.json`, `apps/rowcraft-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
-2. Commit the source and push a matching tag, for example `v0.0.4` for the current version.
+2. Commit the source and push a matching tag, for example `v0.0.5` for the current version.
 3. Wait for all four installer jobs. Review the installers in the GitHub release's **Assets** section, then publish the release when ready if it is still a draft. You can also run the workflow manually to create or add installers to the version's release.
 
 The workflow needs permission to create releases and upload assets with its `GITHUB_TOKEN`; the installer job requests `contents: write`. If organization policy restricts that token, allow repository content write access for this workflow.

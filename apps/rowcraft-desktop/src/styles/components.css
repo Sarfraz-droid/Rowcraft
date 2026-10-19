@@ -803,6 +803,23 @@
   .settings-body .ai-settings-body { @apply tw:h-auto tw:min-h-0 tw:max-h-none; }
   .settings-body section[hidden] { display: none; }
   .settings-content .dialog-foot { @apply tw:shrink-0; }
+  .downloaded-drivers { @apply tw:flex tw:min-w-0 tw:flex-col tw:gap-[16px]; }
+  .native-drivers { @apply tw:min-w-0 tw:border-b tw:border-border tw:pb-[16px]; }
+  .native-drivers summary { @apply tw:cursor-pointer tw:py-[4px] tw:text-ui tw:font-medium; }
+  .native-driver-list { @apply tw:m-0 tw:flex tw:list-none tw:flex-col tw:gap-[8px] tw:p-0 tw:pt-[12px]; }
+  .native-driver-list li { @apply tw:flex tw:justify-between tw:gap-[12px] tw:text-label; }
+  .downloaded-drivers-summary { @apply tw:flex tw:flex-wrap tw:items-center tw:justify-between tw:gap-[8px] tw:text-label tw:text-muted-foreground; }
+  .downloaded-drivers-empty { @apply tw:flex tw:flex-col tw:gap-[8px] tw:border-y tw:border-border tw:py-[24px]; }
+  .downloaded-driver { @apply tw:min-w-0 tw:border-b tw:border-border tw:pb-[12px]; }
+  .downloaded-driver-row { @apply tw:flex tw:flex-wrap tw:items-center tw:gap-[12px]; }
+  .downloaded-driver-toggle { @apply tw:flex tw:min-w-0 tw:flex-1 tw:items-center tw:gap-[8px] tw:border-0 tw:bg-transparent tw:p-0 tw:text-left tw:text-foreground; }
+  .downloaded-driver-toggle strong { @apply tw:block tw:break-words tw:text-ui tw:font-medium; }
+  .downloaded-driver-confirm, .downloaded-driver-details { @apply tw:flex tw:min-w-0 tw:flex-col tw:gap-[12px] tw:pt-[16px]; }
+  .downloaded-driver-files { @apply tw:m-0 tw:flex tw:list-none tw:flex-col tw:gap-[8px] tw:p-0; }
+  .downloaded-driver-files li { @apply tw:flex tw:items-start tw:justify-between tw:gap-[16px] tw:text-label; }
+  .downloaded-driver-files li > span:first-child { @apply tw:min-w-0 tw:break-all; }
+  .downloaded-driver-files li > span:last-child { @apply tw:shrink-0; }
+  .downloaded-driver-install { @apply tw:flex tw:flex-col tw:gap-[12px] tw:border-t tw:border-border tw:pt-[16px]; }
   @media (max-width: 600px) {
     .settings-layout { @apply tw:flex-col tw:h-[min(580px,calc(var(--app-viewport-height,100dvh)_-_100px))]; }
     .settings-nav { @apply tw:flex-row tw:w-auto tw:p-[8px] tw:border-r-0 tw:border-b; }

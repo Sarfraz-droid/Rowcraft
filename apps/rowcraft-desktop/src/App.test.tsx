@@ -11,7 +11,7 @@ vi.mock("./ai-harness", () => ({ runSqlAssistance: vi.fn() }));
 
 vi.mock("./api", async (original) => {
   const actual = await original<typeof import("./api")>();
-  return { ...actual, api: { editSource: vi.fn(), updateSource: vi.fn(), drivers: vi.fn(), driverSettings: vi.fn(), aiSettings: vi.fn(), aiRouterStatus: vi.fn(), stopAiRouter: vi.fn(), bootstrap: vi.fn(), connect: vi.fn(), introspect: vi.fn(), runQuery: vi.fn(), previewStatement: vi.fn(), removeSource: vi.fn() } };
+  return { ...actual, api: { editSource: vi.fn(), updateSource: vi.fn(), drivers: vi.fn(), driverSettings: vi.fn(), driverPackage: vi.fn().mockResolvedValue({ distribution: "native", installed: true, files: [], version: null, source: null }), aiSettings: vi.fn(), aiRouterStatus: vi.fn(), stopAiRouter: vi.fn(), bootstrap: vi.fn(), connect: vi.fn(), introspect: vi.fn(), runQuery: vi.fn(), previewStatement: vi.fn(), removeSource: vi.fn() } };
 });
 vi.mock("./components/Editor", async () => {
   const { useEffect, useRef } = await import("react");

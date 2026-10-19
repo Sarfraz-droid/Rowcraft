@@ -248,7 +248,7 @@ For native query languages, endpoint configuration, introspection behavior, and 
 
 Create a driver under **+ Add → Drivers → + Custom driver**. A JDBC driver needs its JARs, a driver class when auto-discovery is unavailable, and a URL template. Templates support `{host}`, `{port}`, `{database}`, and `{user}`.
 
-For built-in JDBC entries, place JARs under `<config-dir>/jdbc/<driver-id>/` or configure `jdbc.jars`, `jdbc.class`, and `jdbc.url_template` in Advanced. Driver downloads and their pinned upstream coordinates are maintained in [our driver catalog](drivers/catalog.json). Run `python3 scripts/download-drivers.py --all` to install the available JDBC packages directly from Maven Central. See [driver setup](docs/jdbc-drivers.md) for vendor-only packages and Java setup. The app never searches another application for drivers or Java.
+For built-in JDBC entries, click **Download driver** in connection setup or the Drivers view to install the driver and its dependencies directly from Maven Central. No Python or Maven is needed for UI downloads; a standalone Java runtime is required for JDBC connections. You can also place JARs under `<config-dir>/jdbc/<driver-id>/` or configure `jdbc.jars`, `jdbc.class`, and `jdbc.url_template` in Advanced. Downloads and pinned upstream coordinates are maintained in [our driver catalog](drivers/catalog.json). See [driver setup](docs/jdbc-drivers.md) for vendor-only packages, Java setup, and terminal installation. The app never searches another application for drivers or Java.
 
 Use `ROWCRAFT_JAVA` to select a Java executable or set `JAVA_HOME`. See [JDBC setup](docs/jdbc-drivers.md) for details.
 

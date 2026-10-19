@@ -29,4 +29,7 @@ rowcraft-registry.workspace = true
 rowcraft-ui-model.workspace = true
 tauri.workspace = true
 serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
 reqwest.workspace = true
+rustls.workspace = true

@@ -7,7 +7,25 @@ It records native connectors, pinned Maven coordinates, and manual vendor downlo
 Release lists fetched directly from Maven Central are saved in `drivers/upstream/`; runtime
 startup does not fetch or read another application's catalog.
 
-Install Apache Maven and an independent JDK, then run:
+In **Data Sources and Drivers**, select a database and click **Download driver** in
+the General tab. The same action is available when configuring a built-in driver
+in the Drivers view. Rowcraft downloads the pinned driver and its runtime dependencies
+directly from Maven Central, verifies their sizes and SHA-256 checksums, and installs
+them in its own storage. Progress appears beside the action; failed downloads can be
+retried. No Python or Maven installation is needed for UI downloads. Install a standalone
+Java runtime to use JDBC connections.
+
+Already installed packages show their version and a **Download again** action.
+Open **Settings → Drivers** to see downloaded packages, versions, storage use,
+and individual JAR files. Expand a package to download it again or repair it;
+**Remove** asks for confirmation before deleting its downloaded files. Connection
+settings and manually uploaded JARs are kept. The same page lists built-in native
+connectors, including PostgreSQL, separately; those are compiled into the app and
+need no JDBC download. You can also download another JDBC package from Settings.
+Vendor-only packages show **Get driver from vendor** instead; download those files
+from the supplier and use **Upload JAR files…** in driver configuration.
+
+For terminal installation, install Apache Maven and an independent JDK, then run:
 
 ```sh
 python3 scripts/download-drivers.py --list
@@ -23,6 +41,11 @@ destination; use the app's config directory for automatic discovery. Maven downl
 through Maven Central with strict checksum verification; each installed package also has
 a SHA-256 receipt. Existing packages are replaced only after resolution succeeds.
 Vendor-only entries print their download page and require manual installation.
+
+The desktop app embeds `drivers/downloads.lock.json`, containing complete resolved
+classpaths and checksums, alongside `drivers/catalog.json`. After updating Maven
+coordinates in the catalog, maintainers run `scripts/download-drivers.py --all` and
+then `python3 scripts/lock-driver-downloads.py` to refresh the lock file before building.
 
 The bridge needs Java 11+, but each vendor package can require a newer Java release
 (for example, the pinned Derby package requires Java 21+). Select a suitable standalone

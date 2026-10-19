@@ -8,6 +8,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { type AddedSource, type Draft, type DriverInfo, type DriverSettings, type CustomDriverConfig, api, errorText } from "../api";
 import { DriverEditor } from "./DriverEditor";
+import { DriverDownload } from "./DriverDownload";
 import { Check, Choice, Field, Heading, Note, TextArea, TextField } from "./form";
 import { connectionUrl, parseConnectionUrl } from "../connection-url";
 
@@ -42,6 +43,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
   const [settings, setSettings] = useState<DriverSettings>({ custom: [], dialects: [] });
   const [editedDriver, setEditedDriver] = useState<CustomDriverConfig | null>(null);
   const [driverBusy, setDriverBusy] = useState(false);
+  const [downloadDriverId, setDownloadDriverId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<Tab>("general");
   const [status, setStatus] = useState<Status>({ kind: "none", text: "" });
@@ -169,6 +171,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
 
   const editDriver = (driver: DriverInfo) => {
     if (driverBusy) return;
+    setDownloadDriverId(driver.custom ? null : driver.id);
     setEditedDriver(settings.custom.find((d) => d.id === driver.id) ?? {
       id: `${driver.id}_custom`, name: `${driver.name} (custom)`, dialect: driver.jdbc_url_template ? "jdbc" : (driver.dialect ?? "jdbc"),
       port: driver.port, target: driver.file ? "file" : "network", jdbc_class: null, jdbc_jars: [], jdbc_url_template: driver.jdbc_url_template ?? null,
@@ -176,6 +179,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
   };
   const newDriver = () => {
     if (driverBusy) return;
+    setDownloadDriverId(null);
     setMode("drivers");
     setEditedDriver({ id: "", name: "", dialect: "jdbc", port: null, target: "network", jdbc_class: null, jdbc_jars: [], jdbc_url_template: null });
     setStatus({ kind: "none", text: "" });
@@ -227,6 +231,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
     <>
       <div className="selected-driver"><span>Driver: <strong>{current?.name ?? "Select a database"}</strong></span><button type="button" className="text-button" onClick={() => { setMode("drivers"); if (current) editDriver(current); }}>Configure driver…</button></div>
       {current?.caveat && <Note>{current.caveat}</Note>}
+      {current && !current.custom && <DriverDownload key={current.id} id={current.id} />}
       {text("name", "Name", "my-database")}
       {sqlite && <div className="field sqlite-file-field">
         <label className="field-label" htmlFor="sqlite-database-path">Database file</label>
@@ -540,7 +545,10 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
             <div className="database-sidebar-foot"><button type="button" className="btn" onClick={newDriver}>Add Custom Driver…</button><span>{drivers.length} drivers</span></div>
           </aside>
           <div className="dialog-body" role={mode === "sources" ? "tabpanel" : undefined}>
-            {mode === "sources" ? bodies[tab] : editedDriver ? <DriverEditor driver={editedDriver} settings={settings} existing={drivers.find((d) => d.id === editedDriver.id)} busy={driverBusy} onChange={setEditedDriver} onSave={() => void saveDriver()} onRemove={() => void removeDriver()} onUpload={(files) => void uploadDriverJars(files)} /> : <Note>Select a driver to configure, or add a custom driver.</Note>}
+            {mode === "sources" ? bodies[tab] : editedDriver ? <>
+              {downloadDriverId && <DriverDownload key={downloadDriverId} id={downloadDriverId} onInstalled={files => setEditedDriver(before => before ? { ...before, jdbc_jars: [...new Set([...before.jdbc_jars.map(path => path.trim()).filter(Boolean), ...files])] } : before)} />}
+              <DriverEditor driver={editedDriver} settings={settings} existing={drivers.find((d) => d.id === editedDriver.id)} busy={driverBusy} onChange={setEditedDriver} onSave={() => void saveDriver()} onRemove={() => void removeDriver()} onUpload={(files) => void uploadDriverJars(files)} />
+            </> : <Note>Select a driver to configure, or add a custom driver.</Note>}
           </div>
         </div>
         {status.kind === "error" && <ErrorNotice error={status.text} title="Data source operation failed" context={draft.name || current?.name} />}

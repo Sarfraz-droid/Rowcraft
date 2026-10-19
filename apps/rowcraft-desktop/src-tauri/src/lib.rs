@@ -15,6 +15,52 @@ use rowcraft_ui_model::{
 use tauri::{Manager, State};
 
 mod ai_router;
+mod driver_download;
+
+#[tauri::command]
+async fn downloaded_drivers() -> Result<driver_download::DownloadInventory, String> {
+    tauri::async_runtime::spawn_blocking(|| {
+        driver_download::inventory(&rowcraft_config::config_dir())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn remove_downloaded_driver(id: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        driver_download::remove(&id, &rowcraft_config::config_dir())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn open_driver_vendor(id: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || driver_download::open_vendor(&id))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn driver_package(id: String) -> Result<driver_download::PackageStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        driver_download::status(&id, &rowcraft_config::config_dir())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn download_driver(
+    id: String,
+    on_progress: tauri::ipc::Channel<String>,
+) -> Result<driver_download::PackageStatus, String> {
+    driver_download::install(&id, &rowcraft_config::config_dir(), |message| {
+        let _ = on_progress.send(message);
+    })
+    .await
+}
 
 #[tauri::command]
 async fn import_jdbc_jar(
@@ -373,6 +419,11 @@ pub fn run() {
             import_sqlite,
             import_jdbc_jar,
             drivers,
+            driver_package,
+            downloaded_drivers,
+            remove_downloaded_driver,
+            download_driver,
+            open_driver_vendor,
             driver_settings,
             save_driver,
             remove_driver,

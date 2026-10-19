@@ -1,0 +1,687 @@
+{
+  "cloudspanner": {
+    "files": [
+      {
+        "path": "org/codehaus/mojo/animal-sniffer-annotations/1.27/animal-sniffer-annotations-1.27.jar",
+        "sha256": "cfd7e51a828fe6b98bc0dbb99e34900c9e9012322cb9ddd57fd8dd0b02da5e27",
+        "size": 3194
+      },
+      {
+        "path": "com/google/android/annotations/4.1.1.4/annotations-4.1.1.4.jar",
+        "sha256": "ba734e1e84c09d615af6a09d33034b4f0442f8772dec120efb376d86a565ae15",
+        "size": 3120
+      },
+      {
+        "path": "com/google/api/api-common/2.70.0/api-common-2.70.0.jar",
+        "sha256": "18477eead80b20e0c3a747f084d8a0b10cd123d6349b7e989ae176c7854efaf5",
+        "size": 51403
+      },
+      {
+        "path": "com/google/auto/value/auto-value-annotations/1.11.0/auto-value-annotations-1.11.0.jar",
+        "sha256": "5a055ce4255333b3346e1a8703da5bf8ff049532286fdcd31712d624abe111dd",
+        "size": 7491
+      },
+      {
+        "path": "org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar",
+        "sha256": "e8ad209f8c58d291a37ca9750e9e9fac60596956c983e49dd8282381dd8b3249",
+        "size": 8682747
+      },
+      {
+        "path": "dev/cel/common/0.13.0/common-0.13.0.jar",
+        "sha256": "d4ccdb74ce41ddf06c53d13750eafda6a0ce500c36df15280b3d0e4cd9bf7a21",
+        "size": 278889
+      },
+      {
+        "path": "commons-codec/commons-codec/1.18.0/commons-codec-1.18.0.jar",
+        "sha256": "ba005f304cef92a3dede24a38ad5ac9b8afccf0d8f75839d6c1338634cf7f6e4",
+        "size": 373045
+      },
+      {
+        "path": "org/conscrypt/conscrypt-openjdk-uber/2.6.2/conscrypt-openjdk-uber-2.6.2.jar",
+        "sha256": "f8a8f5020c66abc53a3d33cbc855ef8fc06187fa652fb3c0eda6c94e4335b2e9",
+        "size": 7548583
+      },
+      {
+        "path": "com/google/cloud/opentelemetry/detector-resources-support/0.33.0/detector-resources-support-0.33.0.jar",
+        "sha256": "94b0def27754083ceaa67b56a4d483d294e9f17066493df3ef7e81ec5c3bb2c0",
+        "size": 18021
+      },
+      {
+        "path": "com/google/errorprone/error_prone_annotations/2.50.0/error_prone_annotations-2.50.0.jar",
+        "sha256": "4667724877f1d37a689202da191e23efa7657c62eef93ccdac406eccfe5cdd0a",
+        "size": 20252
+      },
+      {
+        "path": "com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar",
+        "sha256": "cbfc3906b19b8f55dd7cfd6dfe0aa4532e834250d7f080bd8d211a3e246b59cb",
+        "size": 10763
+      },
+      {
+        "path": "com/google/api/gax/2.87.0/gax-2.87.0.jar",
+        "sha256": "10bde9666f7e7b68a12907b1ba9f82b27b0347dc7d9e21d134791e4e6b83755e",
+        "size": 561326
+      },
+      {
+        "path": "com/google/api/gax-grpc/2.87.0/gax-grpc-2.87.0.jar",
+        "sha256": "b6314159e4aab7e0ba6d94635418d4b3119eca51428e4aa50c44722bd1452e16",
+        "size": 164349
+      },
+      {
+        "path": "com/google/api/gax-httpjson/2.87.0/gax-httpjson-2.87.0.jar",
+        "sha256": "4ff68de3b2c15844860c8dd82377c83103196d4a4e01949c2beebfbc77730b0e",
+        "size": 201963
+      },
+      {
+        "path": "com/google/auth/google-auth-library-credentials/1.54.0/google-auth-library-credentials-1.54.0.jar",
+        "sha256": "47c36c6201c4c0336e0275aecfbba155a46d63aa07d416176a790774c9ecdca9",
+        "size": 8979
+      },
+      {
+        "path": "com/google/auth/google-auth-library-oauth2-http/1.54.0/google-auth-library-oauth2-http-1.54.0.jar",
+        "sha256": "03cb8e07cd40b20307494b640abb08c0a91d455b96681e55bc7cf817634d91d4",
+        "size": 345087
+      },
+      {
+        "path": "com/google/cloud/google-cloud-core/2.77.0/google-cloud-core-2.77.0.jar",
+        "sha256": "4c966d696939f33970ceec79a2cb00a5004c15da97ae0fb0ec469b8bab7d90a4",
+        "size": 141172
+      },
+      {
+        "path": "com/google/cloud/google-cloud-core-grpc/2.77.0/google-cloud-core-grpc-2.77.0.jar",
+        "sha256": "53a0930a1eb4670c9a7cf297c6ca2bbed011f6b04f68822c6dde88ff3fbf3c48",
+        "size": 16947
+      },
+      {
+        "path": "com/google/cloud/google-cloud-monitoring/3.100.0/google-cloud-monitoring-3.100.0.jar",
+        "sha256": "9f93340ca06c3c13adf6c49686d73c4db9c72f352ad53148e9e58d531c2c2492",
+        "size": 269007
+      },
+      {
+        "path": "com/google/cloud/google-cloud-spanner/6.124.0/google-cloud-spanner-6.124.0.jar",
+        "sha256": "87d0b11a428512fcabeac4b2640bc48c4ce9df34217a5a584b9cd8cebd18f928",
+        "size": 1955738
+      },
+      {
+        "path": "com/google/cloud/google-cloud-spanner-jdbc/2.46.0/google-cloud-spanner-jdbc-2.46.0.jar",
+        "sha256": "82853b700346ac5298250cd329564c732cd93a66766d8bd84e758df6ae0509d4",
+        "size": 210176
+      },
+      {
+        "path": "com/google/http-client/google-http-client/2.2.0/google-http-client-2.2.0.jar",
+        "sha256": "36cea7079c550aeb12fa7366a1ae65d503eaf15bcfc4f50124fde2a8f784e568",
+        "size": 299773
+      },
+      {
+        "path": "com/google/http-client/google-http-client-gson/2.2.0/google-http-client-gson-2.2.0.jar",
+        "sha256": "3242dc7e91d355d118a355c5d586271bedfeb84c3f2f6fa2f3b9b42503a4dc59",
+        "size": 12827
+      },
+      {
+        "path": "io/grpc/grpc-alts/1.83.0/grpc-alts-1.83.0.jar",
+        "sha256": "423d2932b6dbdf5022b3edabd6784e36135282196c337d04ecb6fd078a6e318e",
+        "size": 324010
+      },
+      {
+        "path": "io/grpc/grpc-api/1.83.0/grpc-api-1.83.0.jar",
+        "sha256": "c6c4df7de641a26f02993c176a27158584c3d4628e40b54ac7d750e7e6a1bceb",
+        "size": 345005
+      },
+      {
+        "path": "io/grpc/grpc-auth/1.83.0/grpc-auth-1.83.0.jar",
+        "sha256": "1111a6f70ba238c80649dbc25bcf6bbf72798198020a817975f059faa0072e2c",
+        "size": 14758
+      },
+      {
+        "path": "io/grpc/grpc-context/1.83.0/grpc-context-1.83.0.jar",
+        "sha256": "c781b317eba2867d14221ce63702997ccfa5f8ae65a72a911745a09fb1c32596",
+        "size": 293
+      },
+      {
+        "path": "io/grpc/grpc-core/1.83.0/grpc-core-1.83.0.jar",
+        "sha256": "d69fee3874ba1af9cb55dc06bd678567b3d90dff2ba2d0fd65f5224085246f59",
+        "size": 657191
+      },
+      {
+        "path": "com/google/cloud/grpc-gcp/1.17.0/grpc-gcp-1.17.0.jar",
+        "sha256": "b1ef18c32e1d7868d08fcd6980610348cf76ce9d3ed7d96b4ce769e18b200142",
+        "size": 201241
+      },
+      {
+        "path": "com/google/api/grpc/grpc-google-cloud-spanner-admin-database-v1/6.124.0/grpc-google-cloud-spanner-admin-database-v1-6.124.0.jar",
+        "sha256": "31d9bc175edb93578577ca104b7f518ff22fd3032236cd13587993b5d87c1f2c",
+        "size": 34984
+      },
+      {
+        "path": "com/google/api/grpc/grpc-google-cloud-spanner-admin-instance-v1/6.124.0/grpc-google-cloud-spanner-admin-instance-v1-6.124.0.jar",
+        "sha256": "b4af29b94e3a00dcc3d81482643c37ee4a2cc32b483becc1d2d4b298d9da96d4",
+        "size": 31033
+      },
+      {
+        "path": "com/google/api/grpc/grpc-google-cloud-spanner-v1/6.124.0/grpc-google-cloud-spanner-v1-6.124.0.jar",
+        "sha256": "28016bb2bb5578222098818529baf4d1c89c8ed98a5c8f7ecc53cd7c502f5ef8",
+        "size": 27464
+      },
+      {
+        "path": "com/google/api/grpc/grpc-google-common-protos/2.78.0/grpc-google-common-protos-2.78.0.jar",
+        "sha256": "703c9996cab455493e30d02dc7fecf564dee54de569a13453d6fed6e0e986711",
+        "size": 34446
+      },
+      {
+        "path": "io/grpc/grpc-googleapis/1.83.0/grpc-googleapis-1.83.0.jar",
+        "sha256": "bb08c1e456cf9829a42451405f36be0c97a77249470bccacf06283132811556d",
+        "size": 15113
+      },
+      {
+        "path": "io/grpc/grpc-inprocess/1.83.0/grpc-inprocess-1.83.0.jar",
+        "sha256": "2be7fd8a079f6e04bae3b8ce4ae874d1846f0ea253b001fce149f7e5130f1985",
+        "size": 39597
+      },
+      {
+        "path": "io/grpc/grpc-netty-shaded/1.83.0/grpc-netty-shaded-1.83.0.jar",
+        "sha256": "c84635f7ab38d7efc57dbd5274349f776f5ac88d69e2ec2405b20d420f77ae6c",
+        "size": 10837690
+      },
+      {
+        "path": "io/grpc/grpc-opentelemetry/1.83.0/grpc-opentelemetry-1.83.0.jar",
+        "sha256": "79941f76555f5fb0297d2412918f97849b26eb42c2bb4eaaafd197b426405893",
+        "size": 74948
+      },
+      {
+        "path": "io/grpc/grpc-protobuf/1.83.0/grpc-protobuf-1.83.0.jar",
+        "sha256": "a471cee26a10c46e9ce186854bfc7c300db0b8aef4e35a5a2ff30d93faf34f67",
+        "size": 5204
+      },
+      {
+        "path": "io/grpc/grpc-protobuf-lite/1.83.0/grpc-protobuf-lite-1.83.0.jar",
+        "sha256": "af588bc8046963b6d56770a7804303a6815b0e6cf1efb3f4a2f4f951209e7a3b",
+        "size": 7815
+      },
+      {
+        "path": "io/grpc/grpc-rls/1.83.0/grpc-rls-1.83.0.jar",
+        "sha256": "6b48a2f1ee08b3ebfbbb0e0ffab87346fe6700116e82c2a3296d8efaea5f9914",
+        "size": 255742
+      },
+      {
+        "path": "io/grpc/grpc-services/1.83.0/grpc-services-1.83.0.jar",
+        "sha256": "d52fee092b21842a0387222cf9dead2bcd314347deb134982c910889fa9557be",
+        "size": 951302
+      },
+      {
+        "path": "io/grpc/grpc-stub/1.83.0/grpc-stub-1.83.0.jar",
+        "sha256": "b51b11f4cf48e413a676cb39345b1a9db88943fc64db081bf8e711e16e25680b",
+        "size": 61670
+      },
+      {
+        "path": "io/grpc/grpc-util/1.83.0/grpc-util-1.83.0.jar",
+        "sha256": "a69e1545047b350627b314dd74e989b7035e0db8e67fb7c519b57d664711a92d",
+        "size": 108748
+      },
+      {
+        "path": "io/grpc/grpc-xds/1.83.0/grpc-xds-1.83.0.jar",
+        "sha256": "bf9621a87ccdb45dd42c3770dcdb42635a5b0a011b3302f67d17e8d1e82b6ede",
+        "size": 12310552
+      },
+      {
+        "path": "com/google/code/gson/gson/2.14.0/gson-2.14.0.jar",
+        "sha256": "2cbd119bf1961c28788310963dc80ba65f58cdeec1dd139c8bdb1240faa2c36f",
+        "size": 313604
+      },
+      {
+        "path": "com/google/guava/guava/33.6.0-jre/guava-33.6.0-jre.jar",
+        "sha256": "dc573e1fca4fd5454f4a5fd3d7da2df03002876a4175bafc14a95980dd7713b3",
+        "size": 3064793
+      },
+      {
+        "path": "org/apache/httpcomponents/httpclient/4.5.14/httpclient-4.5.14.jar",
+        "sha256": "c8bc7e1c51a6d4ce72f40d2ebbabf1c4b68bfe76e732104b04381b493478e9d6",
+        "size": 785639
+      },
+      {
+        "path": "org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar",
+        "sha256": "6c9b3dd142a09dc468e23ad39aad6f75a0f2b85125104469f026e52a474e464f",
+        "size": 327891
+      },
+      {
+        "path": "com/google/j2objc/j2objc-annotations/3.1/j2objc-annotations-3.1.jar",
+        "sha256": "84d3a150518485f8140ea99b8a985656749629f6433c92b80c75b36aba3b099b",
+        "size": 16762
+      },
+      {
+        "path": "com/fasterxml/jackson/core/jackson-core/2.18.3/jackson-core-2.18.3.jar",
+        "sha256": "056bc4d3e5e53ce821450fa97b3f9e0f8dde125cf6da6884353bb1f09582e1d9",
+        "size": 598026
+      },
+      {
+        "path": "javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar",
+        "sha256": "e04ba5195bcd555dc95650f7cc614d151e4bcd52d29a10b8aa2197f3ab89ab9b",
+        "size": 26586
+      },
+      {
+        "path": "org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar",
+        "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+        "size": 3819
+      },
+      {
+        "path": "com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+        "sha256": "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
+        "size": 19936
+      },
+      {
+        "path": "com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
+        "sha256": "b372a037d4230aa57fbeffdef30fd6123f9c0c2db85d0aced00c91b974f33f99",
+        "size": 2199
+      },
+      {
+        "path": "io/opencensus/opencensus-api/0.31.1/opencensus-api-0.31.1.jar",
+        "sha256": "f1474d47f4b6b001558ad27b952e35eda5cc7146788877fc52938c6eba24b382",
+        "size": 355405
+      },
+      {
+        "path": "io/opencensus/opencensus-contrib-grpc-util/0.31.1/opencensus-contrib-grpc-util-0.31.1.jar",
+        "sha256": "c4663c6b860b1f0b325b572117821f07abe5bf7d556a7e22e869277066e39c44",
+        "size": 4263
+      },
+      {
+        "path": "io/opencensus/opencensus-contrib-http-util/0.31.1/opencensus-contrib-http-util-0.31.1.jar",
+        "sha256": "3ea995b55a4068be22989b70cc29a4d788c2d328d1d50613a7a9afd13fdd2d0a",
+        "size": 23415
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-api/1.62.0/opentelemetry-api-1.62.0.jar",
+        "sha256": "d58143928c049233653e6bf1282ff8a767ebdd5e6a82b3f336158c30e40b431d",
+        "size": 175114
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-common/1.62.0/opentelemetry-common-1.62.0.jar",
+        "sha256": "d6310bebde67d65c1519696728d8604005315ed08ab14071956fc0826fd71815",
+        "size": 4458
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-context/1.62.0/opentelemetry-context-1.62.0.jar",
+        "sha256": "8ec86c3609222b9b6307bf40154c1f1c288d1f18ada0155409e7797adbdbe517",
+        "size": 50758
+      },
+      {
+        "path": "io/opentelemetry/contrib/opentelemetry-gcp-resources/1.45.0-alpha/opentelemetry-gcp-resources-1.45.0-alpha.jar",
+        "sha256": "216060204afe44e55584b97e3e2707ec020ce43f3735b3c98cfc0ce3a827cfd3",
+        "size": 8876
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk/1.62.0/opentelemetry-sdk-1.62.0.jar",
+        "sha256": "99d421ea0e5a1ca8e45cb67f1d5db7f0e8a718dd55eeb86c1323597e1f10aed3",
+        "size": 13010
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk-common/1.62.0/opentelemetry-sdk-common-1.62.0.jar",
+        "sha256": "bf9d13df9a50e49a5db664ba8ebfad79f73f03219d2ac6f6709d432f6896eba0",
+        "size": 85065
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.62.0/opentelemetry-sdk-extension-autoconfigure-spi-1.62.0.jar",
+        "sha256": "220c22bcf420faae59b7225c789f572eaa22e7af2304d55508aaf2a3efcfecf8",
+        "size": 20581
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk-logs/1.62.0/opentelemetry-sdk-logs-1.62.0.jar",
+        "sha256": "51c94329bc8e335ed79027d29d49c075c11b91b39e48679edf590e784a392406",
+        "size": 79362
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk-metrics/1.62.0/opentelemetry-sdk-metrics-1.62.0.jar",
+        "sha256": "50b057fbf063f6801f623212f4b51b6a3fefc77837314a1316b2f54894c8b5d4",
+        "size": 365132
+      },
+      {
+        "path": "io/opentelemetry/opentelemetry-sdk-trace/1.62.0/opentelemetry-sdk-trace-1.62.0.jar",
+        "sha256": "fb6c0953b229a6da1db813135ae11a621bf9da56b7356c1e93049ed4b088c232",
+        "size": 145227
+      },
+      {
+        "path": "io/perfmark/perfmark-api/0.27.0/perfmark-api-0.27.0.jar",
+        "sha256": "c7b478503ec524e55df19b424d46d27c8a68aeb801664fadd4f069b71f52d0f6",
+        "size": 6954
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-cloud-monitoring-v3/3.100.0/proto-google-cloud-monitoring-v3-3.100.0.jar",
+        "sha256": "87612a30db7e00fe4fe72bc00f6fe4258beed4417bb4d4e766842cddf130c4a7",
+        "size": 2036851
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-cloud-spanner-admin-database-v1/6.124.0/proto-google-cloud-spanner-admin-database-v1-6.124.0.jar",
+        "sha256": "dbe47900a8805040256d5c9c481bc30d13a38b541d6265af788ddfd5b09a9103",
+        "size": 788033
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-cloud-spanner-admin-instance-v1/6.124.0/proto-google-cloud-spanner-admin-instance-v1-6.124.0.jar",
+        "sha256": "4b3689d61b8757b6ecc6654e7b7af0ae1d0452e8a5ff01757b387341532b3a95",
+        "size": 619115
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-cloud-spanner-v1/6.124.0/proto-google-cloud-spanner-v1-6.124.0.jar",
+        "sha256": "8057123b13e2ea1707d4b977b8b13099e957ffa93a1e82b35844642ce7acf7ff",
+        "size": 1166326
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-common-protos/2.78.0/proto-google-common-protos-2.78.0.jar",
+        "sha256": "31048b6ce4bf3e68776e3e7adb4c7a133964fa170c135fea0a9d4e09ea33b221",
+        "size": 2830165
+      },
+      {
+        "path": "com/google/api/grpc/proto-google-iam-v1/1.73.0/proto-google-iam-v1-1.73.0.jar",
+        "sha256": "be52dd77ab76333d4a6e46bbe7ffdff5d1c8666e8faa2673dc18aace343a27db",
+        "size": 178150
+      },
+      {
+        "path": "dev/cel/protobuf/0.13.0/protobuf-0.13.0.jar",
+        "sha256": "d343b22e4d1507c636fca5d61c8272f2394a3fd0c1e1729568a8f575a9002143",
+        "size": 409263
+      },
+      {
+        "path": "com/google/protobuf/protobuf-java/4.33.6/protobuf-java-4.33.6.jar",
+        "sha256": "c24b2464ecfe9ac1d44e3a8fe281fca09e6ad2ca73dbd689dd7d6d719df987b5",
+        "size": 1886534
+      },
+      {
+        "path": "com/google/protobuf/protobuf-java-util/4.33.6/protobuf-java-util-4.33.6.jar",
+        "sha256": "8e40de8e522770e83eb445bfad0fb55ede64648faf70367f27e62c4a578b90b4",
+        "size": 77259
+      },
+      {
+        "path": "com/google/re2j/re2j/1.8/re2j-1.8.jar",
+        "sha256": "7b52c72156dd7f98b3237a5b35c1d34fba381b21048c89208913ad80a45dfbd7",
+        "size": 114335
+      },
+      {
+        "path": "dev/cel/runtime/0.13.0/runtime-0.13.0.jar",
+        "sha256": "3deaba45e430e26370953c6982d0c4f6421a1fac575f9be06f5687e0f982d005",
+        "size": 513361
+      },
+      {
+        "path": "org/threeten/threeten-extra/1.8.0/threeten-extra-1.8.0.jar",
+        "sha256": "51e4d21edc4e9447f7760c050e0baee75d7d973f387ba605a17abdc4d24fd6d8",
+        "size": 280525
+      },
+      {
+        "path": "org/threeten/threetenbp/1.7.0/threetenbp-1.7.0.jar",
+        "sha256": "857917d2319a4e92dc1c5e3aeb75a0dac84445ed315e7ac3d82bb8d2b298977f",
+        "size": 514668
+      },
+      {
+        "path": "com/google/crypto/tink/tink/1.16.0/tink-1.16.0.jar",
+        "sha256": "7f5e380dde874cd44613952f374723da1f8636526c6a574945bceb0e65571d0a",
+        "size": 2469561
+      }
+    ],
+    "version": "2.46.0"
+  },
+  "databricks": {
+    "files": [
+      {
+        "path": "com/databricks/databricks-jdbc/3.4.3/databricks-jdbc-3.4.3.jar",
+        "sha256": "191917c5a45629d33f4734ff599f9a4d4f4bdfc82f159ed7dc9f2b285a1d35d2",
+        "size": 41479811
+      }
+    ],
+    "version": "3.4.3"
+  },
+  "db2": {
+    "files": [
+      {
+        "path": "com/ibm/db2/jcc/12.1.5.0/jcc-12.1.5.0.jar",
+        "sha256": "04150111a29370247d162c3f05b8e938bf1314f19a63ad9a5302d88dd478e8e8",
+        "size": 6630167
+      }
+    ],
+    "version": "12.1.5.0"
+  },
+  "db2_jtopen": {
+    "files": [
+      {
+        "path": "net/sf/jt400/jt400/21.0.7/jt400-21.0.7.jar",
+        "sha256": "d2c06bba78d20b4733a3fabc9fe6ccabac337f7298bea95c6766108fa0b420f8",
+        "size": 6346900
+      }
+    ],
+    "version": "21.0.7"
+  },
+  "derby_embedded": {
+    "files": [
+      {
+        "path": "org/apache/derby/derby/10.17.1.0/derby-10.17.1.0.jar",
+        "sha256": "764e4c133f860a8876e835ef2306efecad27a742d27f05bc4bce669432c6b397",
+        "size": 3544643
+      },
+      {
+        "path": "org/apache/derby/derbyshared/10.17.1.0/derbyshared-10.17.1.0.jar",
+        "sha256": "fb68bab30785375c1f8cb5e9583b349750f8904d6f7ee15ce8e1c30b6be30ef4",
+        "size": 88762
+      }
+    ],
+    "version": "10.17.1.0"
+  },
+  "derby_remote": {
+    "files": [
+      {
+        "path": "org/apache/derby/derbyclient/10.17.1.0/derbyclient-10.17.1.0.jar",
+        "sha256": "8f3e7a1f2eec23faf8c1c0fb21767b37c4d60d32223362a1f82a740b39b3726a",
+        "size": 600922
+      },
+      {
+        "path": "org/apache/derby/derbyshared/10.17.1.0/derbyshared-10.17.1.0.jar",
+        "sha256": "fb68bab30785375c1f8cb5e9583b349750f8904d6f7ee15ce8e1c30b6be30ef4",
+        "size": 88762
+      }
+    ],
+    "version": "10.17.1.0"
+  },
+  "duckdb": {
+    "files": [
+      {
+        "path": "org/duckdb/duckdb_jdbc/1.5.6.0/duckdb_jdbc-1.5.6.0.jar",
+        "sha256": "04ae3375d7c40dc88dc9bf0014b82ba5e66715564584af4e3abea39c7ba144d3",
+        "size": 85178546
+      }
+    ],
+    "version": "1.5.6.0"
+  },
+  "elasticsearch": {
+    "files": [
+      {
+        "path": "org/elasticsearch/plugin/x-pack-sql-jdbc/9.5.5/x-pack-sql-jdbc-9.5.5.jar",
+        "sha256": "a4081f78add03858db7b655174d38f18bc05ed165e063ae9560f12030a25c6bb",
+        "size": 904026
+      }
+    ],
+    "version": "9.5.5"
+  },
+  "exasol": {
+    "files": [
+      {
+        "path": "com/exasol/exasol-jdbc/26.2.10/exasol-jdbc-26.2.10.jar",
+        "sha256": "91b11bd846b0c447a1e9fed86541bc2c1b4c9272f9a2d0f169e9ff0bca222d19",
+        "size": 9525280
+      }
+    ],
+    "version": "26.2.10"
+  },
+  "firebird": {
+    "files": [
+      {
+        "path": "org/firebirdsql/jdbc/jaybird/6.0.7/jaybird-6.0.7.jar",
+        "sha256": "c0186747e4d56c6083095b722a6da2ae513735c9e6f53c17e48a42f4c4a12158",
+        "size": 1603885
+      },
+      {
+        "path": "org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar",
+        "sha256": "1fad6e6be7557781e4d33729d49ae1cdc8fdda6fe477bb0cc68ce351eafdfbab",
+        "size": 3819
+      }
+    ],
+    "version": "6.0.7"
+  },
+  "hana": {
+    "files": [
+      {
+        "path": "com/sap/cloud/db/jdbc/ngdbc/2.30.11/ngdbc-2.30.11.jar",
+        "sha256": "38654a00df1ea9616f9f4cea745f1f8a5a923a1c98acbd10ce4962ba4a2c1fb8",
+        "size": 1588075
+      }
+    ],
+    "version": "2.30.11"
+  },
+  "hive": {
+    "files": [
+      {
+        "path": "org/apache/hive/hive-jdbc/4.2.1/hive-jdbc-4.2.1.jar",
+        "sha256": "8c8cb08c01bfefe424a3d16647b7301b6e0bb883b6d341239113cfb9f7e0783d",
+        "size": 171345
+      },
+      {
+        "path": "org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar",
+        "sha256": "cdba07964d1bb40a0761485c6b1e8c2f8fd9eb1d19c53928ac0d7f9510105c57",
+        "size": 41472
+      }
+    ],
+    "version": "4.2.1"
+  },
+  "hsqldb_local": {
+    "files": [
+      {
+        "path": "org/hsqldb/hsqldb/2.7.4/hsqldb-2.7.4.jar",
+        "sha256": "5fab2bb4384ac06b762638c8fa2740c944b8d080e4796c0c6c2af8b90dd4e5ad",
+        "size": 1662185
+      }
+    ],
+    "version": "2.7.4"
+  },
+  "hsqldb_remote": {
+    "files": [
+      {
+        "path": "org/hsqldb/hsqldb/2.7.4/hsqldb-2.7.4.jar",
+        "sha256": "5fab2bb4384ac06b762638c8fa2740c944b8d080e4796c0c6c2af8b90dd4e5ad",
+        "size": 1662185
+      }
+    ],
+    "version": "2.7.4"
+  },
+  "ignite": {
+    "files": [
+      {
+        "path": "org/jetbrains/annotations/16.0.3/annotations-16.0.3.jar",
+        "sha256": "04b16e8d2309bf7771fbee16187b76f63af6ccd023cf664ec846e4e8e65c5b3f",
+        "size": 18587
+      },
+      {
+        "path": "javax/cache/cache-api/1.0.0/cache-api-1.0.0.jar",
+        "sha256": "d2836213144722e2eb1d7461f6e2ea3349d6fbbf9cd5f345c7133bc29bd39ca1",
+        "size": 49789
+      },
+      {
+        "path": "org/apache/ignite/ignite-core/2.17.0/ignite-core-2.17.0.jar",
+        "sha256": "99eb9daa15208b6aaf39adb11403b5f6a6380ace134a5100b9be349bc81901da",
+        "size": 14057221
+      }
+    ],
+    "version": "2.17.0"
+  },
+  "influxdb": {
+    "files": [
+      {
+        "path": "org/apache/arrow/flight-sql-jdbc-driver/19.0.0/flight-sql-jdbc-driver-19.0.0.jar",
+        "sha256": "d3beee43c613c457789825343368f652d570d76c08799dad38a43a10e569b57f",
+        "size": 47259660
+      }
+    ],
+    "version": "19.0.0"
+  },
+  "informix": {
+    "files": [
+      {
+        "path": "org/mongodb/bson/3.8.0/bson-3.8.0.jar",
+        "sha256": "d30b5aeba3ae9b7c68c8a6103b41918c5f7318972007b9b92033ee861762d87e",
+        "size": 479203
+      },
+      {
+        "path": "com/ibm/informix/jdbc/15.0.1.4/jdbc-15.0.1.4.jar",
+        "sha256": "152fe3380e414261266d7bde6bacae348c94b6db0cf16f969d1094368449cec7",
+        "size": 1195494
+      }
+    ],
+    "version": "15.0.1.4"
+  },
+  "iris": {
+    "files": [
+      {
+        "path": "com/intersystems/intersystems-jdbc/3.11.0/intersystems-jdbc-3.11.0.jar",
+        "sha256": "08469804eadbfe62f8139b42cd81af814180300f006d5132dd1ab11c8f9d80ce",
+        "size": 607851
+      }
+    ],
+    "version": "3.11.0"
+  },
+  "oracle": {
+    "files": [
+      {
+        "path": "com/oracle/database/jdbc/ojdbc11/23.26.3.0.0/ojdbc11-23.26.3.0.0.jar",
+        "sha256": "764cc3f88454d1be117e155d01ed617467b984c9c68f13090dd6083799d2bb8c",
+        "size": 7779716
+      }
+    ],
+    "version": "23.26.3.0.0"
+  },
+  "phoenix_thin": {
+    "files": [
+      {
+        "path": "org/apache/phoenix/phoenix-queryserver-client/6.0.0/phoenix-queryserver-client-6.0.0.jar",
+        "sha256": "94e634ded958525f1dee090999c77ab1d0e7e022ea2767b0c73416cc67c8ebcf",
+        "size": 6294972
+      }
+    ],
+    "version": "6.0.0"
+  },
+  "snowflake": {
+    "files": [
+      {
+        "path": "net/snowflake/snowflake-jdbc/4.4.0/snowflake-jdbc-4.4.0.jar",
+        "sha256": "eeabc114d2fd429365f8bdde0cb5dd00f0cf529b22aab754751bab1b09fc65c0",
+        "size": 98569339
+      }
+    ],
+    "version": "4.4.0"
+  },
+  "spark": {
+    "files": [
+      {
+        "path": "org/apache/hive/hive-jdbc/4.2.1/hive-jdbc-4.2.1.jar",
+        "sha256": "8c8cb08c01bfefe424a3d16647b7301b6e0bb883b6d341239113cfb9f7e0783d",
+        "size": 171345
+      },
+      {
+        "path": "org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar",
+        "sha256": "cdba07964d1bb40a0761485c6b1e8c2f8fd9eb1d19c53928ac0d7f9510105c57",
+        "size": 41472
+      }
+    ],
+    "version": "4.2.1"
+  },
+  "teradata": {
+    "files": [
+      {
+        "path": "com/teradata/jdbc/terajdbc/20.00.00.62/terajdbc-20.00.00.62.jar",
+        "sha256": "e3264b00355f8e4030f21459e9ef635582b2dd91ddf62e0c5cb0f7fbe6873544",
+        "size": 1305372
+      }
+    ],
+    "version": "20.00.00.62"
+  },
+  "vertica": {
+    "files": [
+      {
+        "path": "com/vertica/jdbc/vertica-jdbc/25.3.0-0/vertica-jdbc-25.3.0-0.jar",
+        "sha256": "f43c4ed61a9639d95214e00c888fd21c4ea283d60ca2ce06c6855a774ff5e583",
+        "size": 1850793
+      }
+    ],
+    "version": "25.3.0-0"
+  }
+}
