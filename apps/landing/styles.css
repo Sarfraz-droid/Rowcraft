@@ -39,6 +39,10 @@ svg.icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-w
 .header { height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; align-items: center; gap: 12px; font: 600 25px/1 Space, sans-serif; letter-spacing: -.025em; }
 .brand img { object-fit: contain; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid #747477; color: var(--text); transition: background .15s; }
+.icon-button:hover { background: #323235; }
+.icon-button .icon { width: 18px; height: 18px; }
 .header nav { display: flex; align-self: stretch; gap: 28px; color: var(--muted); font-size: 12px; }
 .header nav a { display: inline-flex; gap: 6px; align-items: center; border-bottom: 2px solid transparent; padding-top: 2px; transition: color .15s, border-color .15s; }
 .header nav a:hover { color: var(--text); border-color: var(--blue); }
@@ -73,9 +77,6 @@ h2 { font-size: clamp(30px, 3.25vw, 46px); line-height: 1.3; letter-spacing: -.0
 .hero-actions { display: flex; align-items: center; gap: 26px; }
 .hero-actions .text-button { font-size: 11px; }
 .hero-actions .text-button > .icon:first-child { width: 13px; }
-.hero-github { gap: 12px; }
-.hero-github .icon { width: 16px; height: 16px; }
-.hero-stars { display: inline-flex; }
 .platform-note { font-size: 10px; line-height: 1.8; color: var(--muted); }
 .product-preview { margin: 0; scroll-margin-top: 32px; min-width: 0; }
 .preview-stage { border: 1px solid var(--line); }
