@@ -3,7 +3,7 @@ document.querySelector('#copy-build').addEventListener('click', async event => {
 const config = window.ROWCRAFT_CONFIG || {};
 function verifiedUrl(value) { try {const url = new URL(value); return url.protocol === 'https:' ? url.href : null;} catch {return null;} }
 const repo = verifiedUrl(config.repositoryUrl);
-if (repo) { const github = document.querySelector('#github-link'); github.href = repo; github.target = '_blank'; github.rel = 'noopener noreferrer'; const source = document.querySelector('#source-link');source.href=repo;source.target='_blank';source.rel='noopener noreferrer'; const note = document.querySelector('#source-note'); const readme = document.createElement('a');readme.href=`${repo.replace(/\/$/,'')}`;readme.textContent='Read setup instructions in the source repository →';note.replaceChildren(readme); }
+if (repo) { const github = document.querySelector('#github-link'); github.href = repo; github.target = '_blank'; github.rel = 'noopener noreferrer'; const heroGithub = document.querySelector('#hero-github'); heroGithub.href = repo; const source = document.querySelector('#source-link');source.href=repo;source.target='_blank';source.rel='noopener noreferrer'; const note = document.querySelector('#source-note'); const readme = document.createElement('a');readme.href=`${repo.replace(/\/$/,'')}`;readme.textContent='Read setup instructions in the source repository →';note.replaceChildren(readme); }
 document.querySelectorAll('a[href="#source-guide"]').forEach(link => link.addEventListener('click', () => document.querySelector('#source-guide').open = true));
 if (location.hash === '#source-guide') document.querySelector('#source-guide').open = true;
 document.querySelector('#year').textContent = new Date().getFullYear();
