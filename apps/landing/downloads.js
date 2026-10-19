@@ -8,7 +8,7 @@
   let releaseSelection = 'latest';
   let releaseOffline = false;
   const selectedRelease = () => releases.releases.find(release => release.tag === (releaseSelection === 'latest' ? releases.latestTag : releaseSelection));
-  const capture = (event, properties) => window.RowcraftAnalytics?.capture(event, properties);
+  const capture = (event, properties, options) => window.RowcraftAnalytics?.capture(event, properties, options);
   const platforms = {
     macos: {
       name: 'macOS', note: 'macOS 11 or later. Choose your Mac’s processor.',
@@ -144,6 +144,7 @@
     renderTabs('#installer-tabs', options.map(entry => platforms[platform].files.find(([key]) => key === entry[1])[1]),
       options.indexOf(installer), 'installer-tab', 'installer-panel', index => {
         installer = options[index];
+        capture('download_installer_selected', { platform, installer_type: installer[1] });
         renderPlatform();
       });
     query('#installer-panel').setAttribute('aria-labelledby', `installer-tab-${options.indexOf(installer)}`);
@@ -170,7 +171,7 @@
             installer_type: key,
             release_version: release.version,
           };
-          capture('installer_download_started', attributes);
+          capture('installer_download_started', attributes, { transport: 'sendBeacon', send_instantly: true });
           window.RowcraftAnalytics?.logInfo('installer download started', attributes);
         });
       }

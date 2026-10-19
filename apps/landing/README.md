@@ -1,6 +1,6 @@
 # Rowcraft landing page
 
-Standalone, dependency-free marketing site. The desktop app is unchanged.
+Standalone static marketing site with PostHog analytics.
 
 ## Preview
 
@@ -14,7 +14,7 @@ Open http://127.0.0.1:4321. Press Ctrl+C to stop. Requires Python 3; no dependen
 
 Run `make landing-check` from the repository root to check JavaScript syntax and run the sample-query tests (requires Node/npm).
 
-From this directory, `npm run dev` also starts the preview. Any static host can serve this directory directly.
+From this directory, `npm run dev` generates the public analytics configuration and starts the preview. Requires Node 20.12+ and Python 3. Run `npm run build` before deploying to any static host; include the generated `runtime-config.js` in the published files.
 
 ## Configure downloads
 
@@ -52,8 +52,56 @@ The landing page uses `assets/ui.jpg`, copied unchanged from the supplied root `
 
 A brief perspective entrance introduces the screenshot, with two recessed backplates for depth. Once the entrance finishes, the image has no transform. On devices with a fine pointer, only the recessed layers follow the pointer with rotation capped at 2.5 degrees vertically and 3 degrees horizontally. The screenshot stays on a flat, untransformed image layer to preserve text clarity. A separate rounded clip contains the image corners; depth layers remain outside it. A single requestAnimationFrame loop smooths the movement and stops at rest. Pointer exit settles it flat; keyboard focus, window blur, and reduced-motion changes reset it immediately. Touch devices keep a flat preview; mobile disables the entrance animation. Existing section reveals remain in place.
 
-No analytics, third-party scripts, external font requests, or animation dependencies are included. The legacy `demo-query.js` utility and its tests are retained but are no longer loaded by the landing page.
+PostHog loads asynchronously when configured. Fonts are served locally. The legacy `demo-query.js` utility and its tests are retained but are no longer loaded by the landing page.
 
 ## Checks
 
-`npm run check` validates JavaScript syntax. `npm test` checks the retained sample SQL utility. Browser testing is excluded at the user's request; motion and layout have not been visually verified.
+`npm run check` validates JavaScript syntax. `npm test` checks analytics event ordering and payloads, release selection, benchmark tabs, and the sample SQL utility. Browser testing is excluded at the user's request; motion and layout have not been visually verified.
+
+
+## Analytics
+
+Set `POSTHOG_PROJECT_TOKEN` (public `phc_` project token) and `POSTHOG_HOST` in
+`.env` or the deployment build environment, then run `npm run build`.
+Only those two public values are emitted into ignored `runtime-config.js`;
+never use a personal API key. `npm run dev` runs this build automatically.
+When using `make landing`, generate the configuration first with
+`npm --prefix apps/landing run build`. Without configuration, analytics stays disabled.
+
+[Rowcraft Landing Performance](https://us.posthog.com/project/674086/dashboard/2230246)
+contains daily page views, unique visitors and sessions, installer clicks, CTA and
+download conversion trends, a visit → download section → installer click funnel,
+OS and CTA-placement breakdowns, and referrers. The default is the last 30 days,
+using the project's UTC timezone. Filters require `app = rowcraft-landing` and
+`environment = production`; localhost traffic is tagged `development`.
+These are project-specific definitions, not approved Data Catalog metrics.
+
+Click rate is the percentage of unique page visitors who click a download CTA
+within one day. Download rate is the percentage who click a published installer
+link within one day. Rates use ordered funnels, attributed to the day of entry;
+the most recent day can still gain conversions. The detailed funnel also measures
+visibility of the download section. Visitors can scroll or deep-link there without
+clicking a CTA or changing OS. A download event confirms a link click, not a
+completed transfer or an installed app. Unique visitors represent browser identities.
+
+| Event | Trigger / properties |
+| --- | --- |
+| `$pageview` / `$pageleave` | One page view on initialization, page exit through the SDK |
+| `download_cta_clicked` | Download anchor click; `surface`: header, hero, content, footer |
+| `download_section_viewed` | Download section at least 10% visible, once per page load |
+| `installer_download_started` | Published installer link click; `platform`, `installer_type`, `release_version` |
+| `download_platform_selected` | Explicit OS tab selection; `platform` |
+| `download_installer_selected` | Setup installer tab selection; `platform`, `installer_type` |
+| `release_version_selected` | Release picker change; `release_version`, `is_prerelease` |
+| `installation_command_copied` | Successful clipboard copy; `platform`, `setup_method`, `is_preview` |
+| `source_build_instructions_copied` | Successful source build clipboard copy |
+| `repository_link_clicked` | Repository link click; `surface` |
+| `source_guide_opened` / `faq_opened` | Expanded details; stable `item_index` |
+
+Custom events never send command text or form values. Autocapture is disabled;
+existing exception and log capture remain enabled. SDK loading queues up to 100
+actions and emits the page view before draining them, so fast interactions preserve
+funnel ordering. Installer clicks use sendBeacon without delaying navigation.
+Blocked analytics does not prevent downloads or other page actions.
+
+SDK reference: [PostHog JavaScript usage](https://posthog.com/docs/libraries/js/usage).
