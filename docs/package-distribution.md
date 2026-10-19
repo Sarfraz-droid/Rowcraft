@@ -4,15 +4,15 @@ The landing page is ready for installers and package-manager commands. No public
 
 ## 1. Publish installers
 
-Follow [installer builds and signing](installers.md). Push the matching `app-v<VERSION>` tag, wait for all four jobs, review the draft release, then publish it. Use signed/notarized macOS installers for distribution and configure Windows signing. Download and test each architecture on its intended OS.
+Follow [installer builds and signing](installers.md). Push the matching `v<VERSION>` tag, wait for all four jobs, review the draft release, then publish it. Use signed/notarized macOS installers for distribution and configure Windows signing. Download and test each architecture on its intended OS.
 
 Copy the actual public HTTPS asset URLs into `apps/landing/config.js`: the two macOS DMGs, Windows EXE/MSI, and Linux AppImage/DEB/RPM. Use versioned URLs from the published release, with the exact filenames produced by Tauri. Workflow artifacts and draft releases are not public download links. Do not guess release asset names.
 
 For the current version (`0.0.1`), once the source and workflow are committed to your public GitHub repository:
 
 ```sh
-git tag app-v0.0.1
-git push origin app-v0.0.1
+git tag v0.0.1
+git push origin v0.0.1
 ```
 
 Run these yourself when ready to trigger the release build. Publishing the resulting draft is a separate action in GitHub Releases. Set the version consistently before tagging a later release; see the installer guide for all version files.
@@ -37,12 +37,12 @@ cask "rowcraft" do
 
   on_arm do
     sha256 "APPLE_SILICON_DMG_SHA256"
-    url "https://github.com/YOUR_OWNER/YOUR_REPO/releases/download/app-v#{version}/EXACT_ARM_DMG_FILENAME"
+    url "https://github.com/YOUR_OWNER/YOUR_REPO/releases/download/v#{version}/EXACT_ARM_DMG_FILENAME"
   end
 
   on_intel do
     sha256 "INTEL_DMG_SHA256"
-    url "https://github.com/YOUR_OWNER/YOUR_REPO/releases/download/app-v#{version}/EXACT_INTEL_DMG_FILENAME"
+    url "https://github.com/YOUR_OWNER/YOUR_REPO/releases/download/v#{version}/EXACT_INTEL_DMG_FILENAME"
   end
 
   name "Rowcraft"
@@ -108,7 +108,7 @@ Edit `apps/landing/config.js` with the real repository URL, public asset URLs, a
 | --- | --- | --- |
 | Apple Silicon DMG | `downloads.macos.arm64` | Actual public ARM DMG URL |
 | Intel DMG | `downloads.macos.x64` | Actual public Intel DMG URL |
-| Windows EXE/MSI | `downloads.windows.exe` / `msi` | Actual public installer URLs |
+| Windows EXE | `downloads.windows.exe` | Actual public installer URLs |
 | Linux packages | `downloads.linux.appimage` / `deb` / `rpm` | Actual public package URLs |
 | Homebrew | `packages.homebrew` | `YOUR_OWNER/tap/rowcraft` with your real owner |
 | WinGet | `packages.winget` | Identifier accepted by the WinGet registry |

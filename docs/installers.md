@@ -6,7 +6,7 @@ The Tauri build produces native packages using the existing Rowcraft icon and ap
 | --- | --- | --- | --- |
 | macOS 11+ | Apple Silicon, Intel (separate downloads) | `.dmg`, `.app` | Open the DMG and drag Rowcraft into Applications. |
 | Linux | x86_64 | `.AppImage`, `.deb`, `.rpm` | Run the AppImage, or install the package for your distribution. |
-| Windows | x64 | NSIS `-setup.exe`, WiX `.msi` | Run either installer. EXE installs for the current user. |
+| Windows | x64 | NSIS `-setup.exe` | Run the installer. It installs for the current user. |
 
 Windows installers download WebView2 if it is missing, so that first installation requires internet access. Linux packages depend on system WebKitGTK 4.1; their package managers install the declared dependencies. The AppImage needs a compatible Linux system and may require FUSE 2. Builds use Ubuntu 22.04 as the Linux baseline; older distributions are not supported.
 
@@ -40,7 +40,7 @@ Add this project to a GitHub repository and push the workflow with the source. I
 For a versioned release:
 
 1. Set the same version in `apps/dg-desktop/src-tauri/tauri.conf.json`, `apps/dg-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
-2. Commit the source and push a matching tag, for example `app-v0.0.1` for the current version.
+2. Commit the source and push a matching tag, for example `v0.0.1` for the current version.
 3. Wait for all four installer jobs. Review the generated **draft** GitHub release, then publish it when ready. Manual runs do not create a release.
 
 The workflow needs permission to create releases with its `GITHUB_TOKEN`. If organization policy restricts that token, allow repository content write access for this workflow. No GitHub remote is configured automatically by this setup.

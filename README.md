@@ -298,10 +298,10 @@ Builds run the frontend production build and embed its assets. Output goes under
 | Platform | Configured outputs |
 | --- | --- |
 | macOS Apple Silicon / Intel | `.app`, `.dmg` |
-| Windows x64 | NSIS `.exe`, WiX `.msi` |
+| Windows x64 | NSIS `.exe` |
 | Linux x64 | `.AppImage`, `.deb`, `.rpm` |
 
-The [Desktop installers workflow](.github/workflows/installers.yml) builds all four OS/architecture combinations on a manual run. Pushing an `app-v<VERSION>` tag creates a draft GitHub release. macOS builds use ad-hoc signing unless distribution credentials are provided; Windows signing is not configured by default.
+The [Desktop installers workflow](.github/workflows/installers.yml) builds all four OS/architecture combinations on a manual run. Pushing an `v<VERSION>` tag creates a draft GitHub release. macOS builds use ad-hoc signing unless distribution credentials are provided; Windows signing is not configured by default.
 
 See [installer builds and signing](docs/installers.md) for native dependencies, versioning, signing secrets, and release steps. See [package distribution](docs/package-distribution.md) for website downloads and package-manager publishing.
 
