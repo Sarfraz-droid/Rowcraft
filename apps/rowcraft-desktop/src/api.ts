@@ -283,6 +283,8 @@ export const api = {
   startAiRouter: (baseUrl: string) => call<RouterStatus>("start_ai_router", { baseUrl }),
   stopAiRouter: (baseUrl: string) => call<RouterStatus>("stop_ai_router", { baseUrl }),
   openAiDashboard: (settings: AiSettings) => call<void>("open_ai_dashboard", { settings }),
+  saveExport: (fileName: string, contents: string) => call<string>("save_export", { fileName, contents }),
+  revealFile: (path: string) => call<void>("reveal_file", { path }),
   importSqlite,
   importJdbcJar: async (file: File): Promise<string> => {
     if (!/\.jar$/i.test(file.name)) throw new Error("Choose a JDBC driver JAR file (.jar).");

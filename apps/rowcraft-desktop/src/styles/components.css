@@ -827,3 +827,10 @@
     .settings-body { @apply tw:p-[16px]; }
   }
 }
+
+@layer components {
+  .export-toast { @apply tw:fixed tw:z-[50] tw:right-[16px] tw:bottom-[40px] tw:flex tw:items-center tw:gap-[10px] tw:max-w-[min(520px,calc(100vw_-_32px))] tw:bg-panel tw:text-foreground tw:text-ui tw:[border:1px_solid_var(--border)] tw:rounded-control tw:shadow-md tw:[padding:10px_12px]; }
+  .export-toast-icon { @apply tw:flex tw:items-center tw:justify-center tw:shrink-0 tw:w-[24px] tw:h-[24px] tw:rounded-full tw:[color:var(--success,#80b99c)] tw:[background:color-mix(in_srgb,var(--success,#80b99c)_18%,transparent)]; }
+  .export-toast-body { @apply tw:flex tw:flex-col tw:gap-[2px] tw:min-w-0; }
+  .export-toast-path { @apply tw:text-label tw:text-muted-foreground tw:font-mono tw:truncate tw:select-text; }
+}

@@ -390,6 +390,74 @@ async fn open_ai_dashboard(settings: rowcraft_ui_model::ai::AiSettings) -> Resul
     .map_err(|e| e.to_string())?
 }
 
+/// The webview ignores `<a download>`, so exports are written here: into the user's Downloads
+/// folder, never overwriting an earlier export. Returns the saved path for the frontend toast.
+#[tauri::command]
+async fn save_export(file_name: String, contents: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let directory = downloads_dir();
+        std::fs::create_dir_all(&directory)
+            .map_err(|e| format!("Could not create {}: {e}", directory.display()))?;
+        let path = unique_path(&directory, &safe_file_name(&file_name));
+        std::fs::write(&path, contents)
+            .map_err(|e| format!("Could not save {}: {e}", path.display()))?;
+        Ok(path.display().to_string())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+/// Selects a saved file in Finder / Explorer, or opens its folder elsewhere.
+#[tauri::command]
+async fn reveal_file(path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        #[cfg(target_os = "macos")]
+        let status = std::process::Command::new("open").args(["-R", &path]).status();
+        #[cfg(target_os = "windows")]
+        let status = std::process::Command::new("explorer").arg(format!("/select,{path}")).status();
+        #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+        let status = std::process::Command::new("xdg-open")
+            .arg(std::path::Path::new(&path).parent().unwrap_or(std::path::Path::new("/")))
+            .status();
+        status.map(|_| ()).map_err(|e| format!("Could not show {path}: {e}"))
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+fn downloads_dir() -> std::path::PathBuf {
+    let home = std::env::var_os("HOME")
+        .or_else(|| std::env::var_os("USERPROFILE"))
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(std::env::temp_dir);
+    home.join("Downloads")
+}
+
+fn safe_file_name(name: &str) -> String {
+    let cleaned: String = name
+        .chars()
+        .map(|c| if c.is_control() || r#"/\:*?"<>|"#.contains(c) { '_' } else { c })
+        .collect();
+    let cleaned = cleaned.trim().trim_start_matches('.');
+    if cleaned.is_empty() { "results.csv".to_owned() } else { cleaned.to_owned() }
+}
+
+/// `name.csv`, then `name (1).csv`, `name (2).csv`, … — the first one that does not exist.
+fn unique_path(directory: &std::path::Path, name: &str) -> std::path::PathBuf {
+    let candidate = directory.join(name);
+    if !candidate.exists() {
+        return candidate;
+    }
+    let (stem, extension) = match name.rsplit_once('.') {
+        Some((stem, ext)) if !stem.is_empty() => (stem, format!(".{ext}")),
+        _ => (name, String::new()),
+    };
+    (1..)
+        .map(|n| directory.join(format!("{stem} ({n}){extension}")))
+        .find(|path| !path.exists())
+        .unwrap_or(candidate)
+}
+
 pub fn run() {
     let engine = Arc::new(Engine::new(rowcraft_registry::default_registry()));
     // Before anything reads the driver catalog.
@@ -437,6 +505,8 @@ pub fn run() {
             remove_source,
             introspect,
             preview_statement,
+            save_export,
+            reveal_file,
         ])
         .build(tauri::generate_context!())
         .expect("failed to build the Rowcraft desktop app")

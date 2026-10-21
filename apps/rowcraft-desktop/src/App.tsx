@@ -4,6 +4,7 @@ import { SettingsDialog, type SettingsSection } from "./components/SettingsDialo
 import { getAppScale, DEFAULT_EDITOR_PREFERENCES, EDITOR_FONT_SIZES, EDITOR_PREFERENCES_KEY, loadEditorPreferences } from "./preferences";
 import { SqlAssistant } from "./components/SqlAssistant";
 import { ErrorNotice } from "./components/ErrorNotice";
+import { ExportToast } from "./components/ExportToast";
 import { SelectField } from "./components/SelectField";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type AddedSource, type Catalog, type SourceSummary, api, errorText } from "./api";
@@ -54,6 +55,7 @@ export function App() {
   const [activity, setActivity] = useState<Activity>("idle");
   const [runningTab, setRunningTab] = useState<string | null>(null);
   const [message, setMessage] = useState<Message>({ kind: "none", text: "" });
+  const [exportedPath, setExportedPath] = useState<string | null>(null);
   const [aiSettingsVersion, setAiSettingsVersion] = useState(0);
   const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
   const [editorPreferences, setEditorPreferences] = useState(loadEditorPreferences);
@@ -326,12 +328,13 @@ export function App() {
     }
     setMessage({ kind: "info", text: `Removed ${name}.` });
   });
-  const exportTab = (tab: WorkspaceTab) => {
+  // The Tauri webview ignores `<a download>`, so the backend writes the file into Downloads.
+  const exportTab = async (tab: WorkspaceTab) => {
     if (!tab.result) return;
-    const url = URL.createObjectURL(new Blob([resultToCsv(tab.result)], { type: "text/csv;charset=utf-8" }));
-    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${tab.title}-results.csv`;
-    anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    try { setExportedPath(await api.saveExport(`${tab.title}-results.csv`, resultToCsv(tab.result))); }
+    catch (e) { setMessage({ kind: "error", text: `Export failed: ${errorText(e)}` }); }
   };
+  const closeExportToast = useCallback(() => setExportedPath(null), []);
   const openInlineForTab = (tab: WorkspaceTab) => {
       const editor = editorHandle(tab.id).current;
       if (!editor) return;
@@ -443,10 +446,10 @@ export function App() {
                   if (editor.replaceRange) editor.replaceRange(from, to, sql);
                   else editor.setText(inlineTarget.fullSql.slice(0, from) + sql + inlineTarget.fullSql.slice(to));
                   patchTab(tab.id, { sql: editor.text(), error: undefined }); setInlineTarget(null); return true;
-                }} />}</div>{hasResults && <><Splitter container={paneHandle(tab.id)} value={tab.split} onChange={(split) => patchTab(tab.id, { split })} /><div className="pane result-pane" style={{ flex: `${1 - tab.split} 1 0` }}><div className="result-toolbar"><div className="result-switch"><button className={tab.resultView === "table" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "table" })}><Icon name="table" size={13} /> Results <span>{tab.result!.rows.length.toLocaleString()}</span></button>{profile.documentView && <button className={tab.resultView === "json" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "json" })}>JSON</button>}<button className={tab.resultView === "chart" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "chart" })}><Icon name="chart" size={13} /> Chart</button></div><div className="result-actions tw:flex tw:items-center tw:gap-[10px] tw:min-w-0"><span className="result-summary" title={tab.result!.summary}>{tab.result!.summary}</span>{tab.result!.row_limit && <button type="button" className="btn ghost" disabled={busy} onClick={() => void showAllRows(tab.id)}>Run full query</button>}<button className="icon-button" aria-label="Export displayed results as CSV" onClick={() => exportTab(tab)}><Icon name="download" size={14} /></button></div></div><div className="result-body tw:[flex:1] tw:min-h-0 tw:overflow-hidden">{tab.resultView === "json" && tab.result ? <ResultDocuments result={tab.result} /> : tab.resultView === "table" ? <ResultGrid result={tab.result} /> : <ResultChart result={tab.result} />}</div></div></>}</div>
+                }} />}</div>{hasResults && <><Splitter container={paneHandle(tab.id)} value={tab.split} onChange={(split) => patchTab(tab.id, { split })} /><div className="pane result-pane" style={{ flex: `${1 - tab.split} 1 0` }}><div className="result-toolbar"><div className="result-switch"><button className={tab.resultView === "table" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "table" })}><Icon name="table" size={13} /> Results <span>{tab.result!.rows.length.toLocaleString()}</span></button>{profile.documentView && <button className={tab.resultView === "json" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "json" })}>JSON</button>}<button className={tab.resultView === "chart" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "chart" })}><Icon name="chart" size={13} /> Chart</button></div><div className="result-actions tw:flex tw:items-center tw:gap-[10px] tw:min-w-0"><span className="result-summary" title={tab.result!.summary}>{tab.result!.summary}</span>{tab.result!.row_limit && <button type="button" className="btn ghost" disabled={busy} onClick={() => void showAllRows(tab.id)}>Run full query</button>}<button className="icon-button" aria-label="Export displayed results as CSV" onClick={() => void exportTab(tab)}><Icon name="download" size={14} /></button></div></div><div className="result-body tw:[flex:1] tw:min-h-0 tw:overflow-hidden">{tab.resultView === "json" && tab.result ? <ResultDocuments result={tab.result} /> : tab.resultView === "table" ? <ResultGrid result={tab.result} /> : <ResultChart result={tab.result} />}</div></div></>}</div>
               {tab.error && <ErrorNotice error={tab.error} title="Query failed" context={tab.source} onRetry={() => void runTab(tab.id)} busy={busy} />}{!hasResults && <div className="results-idle"><Icon name="table" size={13} /><span>Results appear here after you run a query.</span><kbd>{RUN_SHORTCUT}</kbd></div>}
             </div>}
-            {tab.kind === "table" && <TableWorkspace dialect={tabSource?.dialect} tab={tab} metadata={tabCatalog?.schemas.find((item) => item.name === tab.schema)?.tables.find((item) => item.name === tab.table) ?? null} connected={liveConnections.includes(tab.source)} busy={busy} onRefresh={() => void runTab(tab.id)} onShowAll={() => void showAllRows(tab.id)} onOpenConsole={() => void openView(tab.source, "console", { sql: tab.sql, schema: tab.schema }, true)} onExport={() => exportTab(tab)} onResultView={(resultView) => patchTab(tab.id, { resultView })} />}
+            {tab.kind === "table" && <TableWorkspace dialect={tabSource?.dialect} tab={tab} metadata={tabCatalog?.schemas.find((item) => item.name === tab.schema)?.tables.find((item) => item.name === tab.table) ?? null} connected={liveConnections.includes(tab.source)} busy={busy} onRefresh={() => void runTab(tab.id)} onShowAll={() => void showAllRows(tab.id)} onOpenConsole={() => void openView(tab.source, "console", { sql: tab.sql, schema: tab.schema }, true)} onExport={() => void exportTab(tab)} onResultView={(resultView) => patchTab(tab.id, { resultView })} />}
             {tab.kind === "dashboard" && <SourceDashboard {...props} history={history.filter((entry) => entry.source === tab.source)} onNavigate={(kind) => void openView(tab.source, kind)} />}
             {tab.kind === "schema-map" && <SchemaMap {...props} />}
             {(tab.kind === "databases" || tab.kind === "schema") && <DatabaseBrowser {...props} initialSchema={tab.kind === "schema" ? tab.schema : undefined} />}
@@ -457,6 +460,7 @@ export function App() {
       {assistantOpen ? <SqlAssistant settingsVersion={aiSettingsVersion} key={active?.id ?? "empty"} sql={active?.sql ?? ""} getSql={() => active ? editorHandle(active.id).current?.text() ?? active.sql : ""} enabled={active?.kind === "console"} source={active?.source ?? selected ?? ""} onOpenConsole={() => { const name = active?.source ?? selected; if (name) void openView(name, "console"); else setAdding("source"); }} title={active?.title ?? "SQL console"} dialect={sources.find(item => item.name === active?.source)?.dialect ?? ""} schema={active ? consoleSchema(active.schema, catalogs[active.source] ?? null) : ""} catalog={active ? catalogs[active.source] ?? null : null} error={active?.error} onClose={() => setAssistantOpen(false)} onSettings={() => setSettingsSection("ai")} onUse={sql => { if (!active || active.kind !== "console") return; editorHandle(active.id).current?.setText(sql); patchTab(active.id, { sql, error: undefined }); }} /> : <div className="ai-assistant-rail"><button type="button" className="icon-button" aria-label="Open AI assistant sidebar" title="AI assistant" onClick={() => setAssistantOpen(true)}><Icon name="ai" size={17} /></button></div>}
     </div>
     {message.kind === "error" && message.text !== active?.error && <ErrorNotice error={message.text} />}
+    {exportedPath && <ExportToast path={exportedPath} onClose={closeExportToast} onReveal={() => void api.revealFile(exportedPath).catch((e: unknown) => setMessage({ kind: "error", text: errorText(e) }))} />}
     <footer className="statusbar"><span className="connection"><span className={`connection-dot${connected && sources.some((item) => item.name === connected) ? " online" : ""}`} />{connected && sources.some((item) => item.name === connected) ? connected : "No active connection"}</span><span className={`message ${message.kind}`} role="status" title={message.text || "Ready"}>{message.text || "Ready"}</span><span className="status-end">{tabs.length} tabs{catalog ? ` · ${catalog.schemas.reduce((n, item) => n + item.tables.length, 0)} objects` : ""}</span></footer>
     {settingsSection && <SettingsDialog initialSection={settingsSection} theme={theme} editorPreferences={editorPreferences} onSaveGeneral={(nextTheme, preferences) => {
       localStorage.setItem(EDITOR_PREFERENCES_KEY, JSON.stringify(preferences));

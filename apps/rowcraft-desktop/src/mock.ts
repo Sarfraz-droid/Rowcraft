@@ -194,6 +194,10 @@ export function installMock(): void {
         if (/error/i.test(statement)) throw `query failed: syntax error near "error" in ${statement}`;
         return sampleResult(statement);
       }
+      case "save_export":
+        return `~/Downloads/${String(args.fileName)}`;
+      case "reveal_file":
+        return null;
       default:
         throw `unknown command ${cmd}`;
     }
