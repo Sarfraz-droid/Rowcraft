@@ -156,7 +156,7 @@
   .result-readonly { @apply tw:whitespace-nowrap tw:cursor-help tw:[border:1px_solid_var(--border)] tw:rounded-control tw:[padding:1px_6px]; }
   .result-page-controls { @apply tw:ml-auto; }
   .result-page-controls > span { @apply tw:whitespace-nowrap tw:mr-[4px] tw:tabular-nums; }
-  .ai-assistant-sidebar { @apply tw:flex tw:flex-col tw:w-[350px] tw:min-w-[280px] tw:max-w-[45vw] tw:shrink-0 tw:min-h-0 tw:border-l tw:border-border tw:bg-panel; }
+  .ai-assistant-sidebar { @apply tw:flex tw:flex-col tw:w-[300px] tw:min-w-[260px] tw:max-w-[40vw] tw:shrink-0 tw:min-h-0 tw:border-l tw:border-border tw:bg-panel; }
   .ai-assistant-header { @apply tw:flex tw:items-center tw:justify-between tw:h-[38px] tw:min-h-[38px] tw:border-b tw:border-border tw:px-[10px]; }
   .ai-assistant-header h2 { @apply tw:flex tw:items-center tw:gap-[7px] tw:m-0 tw:px-[2px] tw:text-ui tw:font-medium; }
   .ai-assistant-header h2 > svg { @apply tw:text-action; }
@@ -164,12 +164,12 @@
   .ai-assistant-context > span { @apply tw:min-w-0 tw:flex-1 tw:truncate; }
   .ai-assistant-context small { @apply tw:max-w-[100px] tw:truncate tw:font-mono tw:text-caption; }
   .ai-assistant-scroll { @apply tw:flex tw:flex-col tw:flex-1 tw:min-h-0 tw:overflow-auto tw:p-[14px] tw:gap-[18px]; scrollbar-gutter: stable; }
-  .ai-assistant-intro { @apply tw:pt-[32px] tw:pb-[20px] tw:px-[2px] tw:text-muted-foreground; }
-  .ai-assistant-intro > svg { @apply tw:text-action tw:mb-[16px]; }
+  .ai-assistant-intro { @apply tw:pt-[16px] tw:pb-[12px] tw:px-[2px] tw:text-muted-foreground; }
+  .ai-assistant-intro > svg { @apply tw:text-action tw:mb-[10px]; }
   .ai-assistant-intro h2 { @apply tw:mt-0 tw:mb-[8px] tw:text-title tw:tracking-[-.02em] tw:font-medium tw:text-foreground; }
   .ai-assistant-intro p { @apply tw:mt-0 tw:mb-[20px] tw:text-label tw:leading-[1.7] tw:max-w-[30ch]; }
   .ai-prompt-starters { @apply tw:flex tw:flex-col tw:gap-[2px]; }
-  .ai-prompt-starters button { @apply tw:flex tw:items-center tw:gap-[10px] tw:w-full tw:border-0 tw:border-b tw:border-border tw:bg-transparent tw:px-[2px] tw:py-[11px] tw:text-left tw:text-label tw:text-foreground; }
+  .ai-prompt-starters button { @apply tw:flex tw:items-center tw:gap-[10px] tw:w-full tw:border-0 tw:border-b tw:border-border tw:bg-transparent tw:px-[2px] tw:py-[8px] tw:text-left tw:text-label tw:text-foreground; }
   .ai-prompt-starters button > span { @apply tw:flex-1; }
   .ai-prompt-starters button > svg { @apply tw:text-muted-foreground; }
   .ai-prompt-starters button:hover { @apply tw:bg-hover; }
@@ -231,8 +231,8 @@
   .inline-ai footer { @apply tw:flex tw:items-center tw:gap-[6px]; }
   .inline-ai footer > small { @apply tw:flex-1; }
   .inline-ai-preview { @apply tw:max-h-[180px] tw:mt-0; }
-  @media (max-width: 1000px) { .ai-assistant-sidebar { @apply tw:w-[290px] tw:min-w-[250px]; } }
-  @media (max-width: 700px) { .ai-assistant-sidebar { @apply tw:absolute tw:right-0 tw:top-0 tw:bottom-[23px] tw:z-20 tw:w-[min(350px,90vw)] tw:max-w-[90vw] tw:shadow-md; } }
+  @media (max-width: 1000px) { .ai-assistant-sidebar { @apply tw:w-[260px] tw:min-w-[230px]; } }
+  @media (max-width: 700px) { .ai-assistant-sidebar { @apply tw:absolute tw:right-0 tw:top-0 tw:bottom-[23px] tw:z-20 tw:w-[min(300px,90vw)] tw:max-w-[90vw] tw:shadow-md; } }
 }
 
 @layer components {
