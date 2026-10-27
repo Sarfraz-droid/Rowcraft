@@ -119,5 +119,18 @@ pub trait Connection: Send + std::fmt::Debug {
     async fn query(&mut self, statement: &str) -> Result<ResultSet> {
         self.query_limited(statement, usize::MAX).await
     }
-    // TODO(M1): query_stream (true paging), execute with params, cancel_handle, begin/commit/rollback.
+
+    /// A handle that asks the server to stop whatever this connection is running, usable while
+    /// the connection itself is busy. `None` when the driver cannot cancel server-side; the
+    /// caller then abandons the statement and replaces the connection instead.
+    fn cancel_handle(&self) -> Option<std::sync::Arc<dyn CancelHandle>> {
+        None
+    }
+    // TODO(M1): query_stream (true paging), execute with params, begin/commit/rollback.
+}
+
+/// Stops the statement running on a connection, from outside that connection.
+#[async_trait]
+pub trait CancelHandle: Send + Sync + std::fmt::Debug {
+    async fn cancel(&self) -> Result<()>;
 }

@@ -7,7 +7,7 @@ import { ErrorNotice } from "./components/ErrorNotice";
 import { ExportToast } from "./components/ExportToast";
 import { SelectField } from "./components/SelectField";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type AddedSource, type Catalog, type RowChanges, type SourceSummary, api, errorText } from "./api";
+import { type AddedSource, type Catalog, type RowChanges, type SourceSummary, QUERY_CANCELLED, api, errorText } from "./api";
 import { AddSourceDialog } from "./components/AddSourceDialog";
 import { DatabaseBrowser } from "./components/DatabaseBrowser";
 import { SourceDashboard } from "./components/SourceDashboard";
@@ -57,6 +57,7 @@ export function App() {
   const [discovering, setDiscovering] = useState<string[]>([]);
   const [activity, setActivity] = useState<Activity>("idle");
   const [runningTab, setRunningTab] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const [message, setMessage] = useState<Message>({ kind: "none", text: "" });
   const [exportedPath, setExportedPath] = useState<string | null>(null);
   const [aiSettingsVersion, setAiSettingsVersion] = useState(0);
@@ -283,10 +284,21 @@ export function App() {
       setHistory((before) => [{ ...entry, duration_ms: Math.round(performance.now() - started), rows: output.rows.length }, ...before].slice(0, 200));
       setMessage({ kind: "info", text: output.summary });
     } catch (e) {
-      const error = errorText(e); patchTab(tab.id, { error });
+      const error = errorText(e);
       setHistory((before) => [{ ...entry, duration_ms: Math.round(performance.now() - started), rows: 0, error }, ...before].slice(0, 200));
+      // A cancelled run keeps the previous result on screen instead of reporting a failure.
+      if (error === QUERY_CANCELLED) { setMessage({ kind: "info", text: `${tab.title}: query cancelled` }); return; }
+      patchTab(tab.id, { error });
       throw e;
     }
+  };
+  /** Runs outside `operation`, which the statement being cancelled holds. */
+  const cancelRunning = async () => {
+    if (cancelling) return;
+    setCancelling(true); setMessage({ kind: "info", text: "Cancelling query…" });
+    try { if (!await api.cancelQuery()) setMessage({ kind: "info", text: "No query is running." }); }
+    catch (e) { setMessage({ kind: "error", text: `Could not cancel the query: ${errorText(e)}` }); }
+    finally { setCancelling(false); }
   };
   const showAllRows = (id: string) => operation("running", async () => {
     const tab = tabsRef.current.find(item => item.id === id);
@@ -475,7 +487,7 @@ export function App() {
           const hasResults = tab.result !== null;
           return <div className="document-panel" key={tab.id} hidden={activeId !== tab.id} role="tabpanel" id={`document-panel-${tab.id}`} aria-labelledby={`document-tab-${tab.id}`}>
             {tab.kind === "console" && <div className="console-workspace">
-              <div className="console-toolbar"><div className="console-context"><label className="console-database-control console-schema-control"><span>{profile.namespace}</span><SelectField aria-label={`${profile.namespace} for ${tab.title}`} value={consoleSchema(tab.schema, tabCatalog)} disabled={busy || !tabCatalog?.schemas.length || !supportsConsoleSchema(tabSource?.dialect ?? "")} title={supportsConsoleSchema(tabSource?.dialect ?? "") ? `${profile.namespace} used for queries` : `${profile.namespace} is set by the connection`} onValueChange={schema => patchTab(tab.id, { schema, result: null, error: undefined })} placeholder={busy ? "Loading schemas…" : "No schemas available"} options={tabCatalog?.schemas.map(schema => ({ value: schema.name, label: schema.name })) ?? []} /></label><span className="dialect-label">{profile.language}</span></div><div className="console-actions tw:flex tw:items-center tw:gap-[16px]"><span className="inline-ai-hint tw:text-muted-foreground tw:text-label tw:whitespace-nowrap"><kbd>{IS_MAC ? "⌘ K" : "Ctrl K"}</kbd> to open inline AI</span><button className="btn primary run-button" disabled={busy} onClick={() => void runTab(tab.id)}>{runningTab === tab.id ? <span className="spinner" aria-hidden /> : <Icon name="play" size={13} />} Run <kbd>{RUN_SHORTCUT}</kbd></button></div></div>
+              <div className="console-toolbar"><div className="console-context"><label className="console-database-control console-schema-control"><span>{profile.namespace}</span><SelectField aria-label={`${profile.namespace} for ${tab.title}`} value={consoleSchema(tab.schema, tabCatalog)} disabled={busy || !tabCatalog?.schemas.length || !supportsConsoleSchema(tabSource?.dialect ?? "")} title={supportsConsoleSchema(tabSource?.dialect ?? "") ? `${profile.namespace} used for queries` : `${profile.namespace} is set by the connection`} onValueChange={schema => patchTab(tab.id, { schema, result: null, error: undefined })} placeholder={busy ? "Loading schemas…" : "No schemas available"} options={tabCatalog?.schemas.map(schema => ({ value: schema.name, label: schema.name })) ?? []} /></label><span className="dialect-label">{profile.language}</span></div><div className="console-actions tw:flex tw:items-center tw:gap-[16px]"><span className="inline-ai-hint tw:text-muted-foreground tw:text-label tw:whitespace-nowrap"><kbd>{IS_MAC ? "⌘ K" : "Ctrl K"}</kbd> to open inline AI</span>{runningTab === tab.id ? <button type="button" className="btn run-button cancel-button" disabled={cancelling} onClick={() => void cancelRunning()} title="Stop the running query"><span className="spinner" aria-hidden />{cancelling ? "Cancelling…" : <><Icon name="stop" size={13} /> Cancel</>}</button> : <button className="btn primary run-button" disabled={busy} onClick={() => void runTab(tab.id)}><Icon name="play" size={13} /> Run <kbd>{RUN_SHORTCUT}</kbd></button>}</div></div>
               <QueryHelp dialect={tabSource?.dialect ?? ""} catalog={tabCatalog} schema={consoleSchema(tab.schema, tabCatalog)} onInsert={query => { const editor = editorHandle(tab.id).current; if (!editor) return; const text = editor.text(); const insert = `${text && !text.endsWith("\n") ? "\n" : ""}${query}\n`; if (editor.replaceRange) editor.replaceRange(text.length, text.length, insert); else editor.setText(text + insert); patchTab(tab.id, { sql: editor.text() }); }} />
               <div className="panes" ref={paneHandle(tab.id)}><div className="pane editor-pane" style={{ flex: hasResults ? `${tab.split} 1 0` : "1 1 0" }}><Editor preferences={{ ...editorPreferences, fontSize: DEFAULT_EDITOR_PREFERENCES.fontSize }} initial={tab.sql} onChange={() => persistSession.current()} handle={editorHandle(tab.id)} dialect={tabSource?.dialect} catalog={tabCatalog} schema={consoleSchema(tab.schema, tabCatalog)} />{inlineTarget?.tabId === tab.id && activeId === tab.id && <InlineSqlAssistant target={inlineTarget} dialect={tabSource?.dialect ?? ""} source={tab.source} schema={consoleSchema(tab.schema, tabCatalog)} catalog={tabCatalog} error={tab.error} onClose={() => { setInlineTarget(null); editorHandle(tab.id).current?.focus?.(); }} onSettings={() => setSettingsSection("ai")} onApply={(sql, action) => {
                   const editor = editorHandle(tab.id).current;
@@ -500,7 +512,7 @@ export function App() {
     </div>
     {message.kind === "error" && message.text !== active?.error && <ErrorNotice error={message.text} />}
     {exportedPath && <ExportToast path={exportedPath} onClose={closeExportToast} onReveal={() => void api.revealFile(exportedPath).catch((e: unknown) => setMessage({ kind: "error", text: errorText(e) }))} />}
-    <footer className="statusbar"><span className="connection"><span className={`connection-dot${connected && sources.some((item) => item.name === connected) ? " online" : ""}`} />{connected && sources.some((item) => item.name === connected) ? connected : "No active connection"}</span><span className={`message ${message.kind}`} role="status" title={message.text || "Ready"}>{message.text || "Ready"}</span><AppUpdate /><span className="status-end">{tabs.length} tabs{catalog ? ` · ${catalog.schemas.reduce((n, item) => n + item.tables.length, 0)} objects` : ""}</span></footer>
+    <footer className="statusbar"><span className="connection"><span className={`connection-dot${connected && sources.some((item) => item.name === connected) ? " online" : ""}`} />{connected && sources.some((item) => item.name === connected) ? connected : "No active connection"}</span><span className={`message ${message.kind}`} role="status" title={message.text || "Ready"}>{message.text || "Ready"}</span>{activity === "running" && <button type="button" className="status-cancel" disabled={cancelling} onClick={() => void cancelRunning()}><Icon name="stop" size={11} />{cancelling ? "Cancelling…" : "Cancel"}</button>}<AppUpdate /><span className="status-end">{tabs.length} tabs{catalog ? ` · ${catalog.schemas.reduce((n, item) => n + item.tables.length, 0)} objects` : ""}</span></footer>
     {settingsSection && <SettingsDialog initialSection={settingsSection} theme={theme} editorPreferences={editorPreferences} onSaveGeneral={(nextTheme, preferences) => {
       localStorage.setItem(EDITOR_PREFERENCES_KEY, JSON.stringify(preferences));
       localStorage.setItem("rowcraft.theme", nextTheme);

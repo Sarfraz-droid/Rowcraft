@@ -203,6 +203,11 @@ async fn run_query(
 }
 
 #[tauri::command]
+async fn cancel_query(wb: State<'_, Workbench>) -> Result<bool, String> {
+    Ok(wb.cancel_query().await)
+}
+
+#[tauri::command]
 fn remove_source(wb: State<'_, Workbench>, name: String) -> Result<Vec<SourceSummary>, String> {
     wb.remove_source(&name)
 }
@@ -515,6 +520,7 @@ pub fn run() {
             save_ssh_config,
             connect,
             run_query,
+            cancel_query,
             remove_source,
             introspect,
             apply_row_changes,

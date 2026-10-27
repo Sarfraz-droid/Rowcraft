@@ -20,5 +20,5 @@ rowcraft-io.workspace = true
 rowcraft-model.workspace = true
 rowcraft-sql.workspace = true
 rowcraft-ssh.workspace = true
-tokio = { workspace = true, features = ["sync"] }
+tokio = { workspace = true, features = ["sync", "time", "macros"] }
 thiserror.workspace = true

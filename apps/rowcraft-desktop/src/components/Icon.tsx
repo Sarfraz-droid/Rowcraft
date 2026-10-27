@@ -1,6 +1,6 @@
 import {
   FilePlusIcon, ChevronDownIcon, ChevronRightIcon, ChevronLeftIcon, PlusIcon, MinusIcon, MagnifyingGlassIcon, DashboardIcon,
-  CodeIcon, Share2Icon, TableIcon, CounterClockwiseClockIcon, ReloadIcon, PlayIcon,
+  CodeIcon, Share2Icon, TableIcon, CounterClockwiseClockIcon, ReloadIcon, PlayIcon, StopIcon,
   DownloadIcon, SunIcon, MoonIcon, Cross2Icon, HamburgerMenuIcon, GearIcon,
   FileTextIcon, MixerHorizontalIcon, CheckIcon, Link2Icon, CopyIcon, DotsHorizontalIcon,
   BarChartIcon, ArrowRightIcon, MagicWandIcon, DoubleArrowDownIcon, DoubleArrowUpIcon,
@@ -17,7 +17,7 @@ const icons = {
   chevronDown: ChevronDownIcon, chevronRight: ChevronRightIcon, chevronLeft: ChevronLeftIcon, plus: PlusIcon, minus: MinusIcon,
   search: MagnifyingGlassIcon, dashboard: DashboardIcon, console: CodeIcon,
   map: Share2Icon, database: TableIcon, table: TableIcon, history: CounterClockwiseClockIcon,
-  refresh: ReloadIcon, play: PlayIcon, download: DownloadIcon, sun: SunIcon,
+  refresh: ReloadIcon, play: PlayIcon, stop: StopIcon, download: DownloadIcon, sun: SunIcon,
   moon: MoonIcon, close: Cross2Icon, menu: HamburgerMenuIcon, settings: GearIcon,
   file: FileTextIcon, filter: MixerHorizontalIcon, check: CheckIcon, link: Link2Icon,
   copy: CopyIcon, more: DotsHorizontalIcon, chart: BarChartIcon, arrow: ArrowRightIcon,

@@ -30,7 +30,7 @@ impl Dialect for MysqlDialect {
     }
 
     fn capabilities(&self) -> Capabilities {
-        Capabilities { transactions: true, ..Capabilities::default() }
+        Capabilities { transactions: true, cancel: true, ..Capabilities::default() }
     }
 
     fn connects(&self) -> bool {

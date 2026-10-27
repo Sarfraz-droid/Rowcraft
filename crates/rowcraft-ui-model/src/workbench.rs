@@ -654,6 +654,27 @@ impl Workbench {
         })
     }
 
+    /// Cancels the statement running on any open session (the console, a grid save, an explorer
+    /// refresh). Returns whether one was running; the cancelled call fails with "Query cancelled."
+    pub async fn cancel_query(&self) -> bool {
+        let sessions: Vec<Arc<Session>> = {
+            let state = self.state();
+            let mut sessions: Vec<Arc<Session>> = Vec::new();
+            let open = state.sessions.values().map(|retained| &retained.session);
+            for session in open.chain(state.session.as_ref()) {
+                if session.is_running() && !sessions.iter().any(|seen| Arc::ptr_eq(seen, session)) {
+                    sessions.push(session.clone());
+                }
+            }
+            sessions
+        };
+        let mut cancelled = false;
+        for session in &sessions {
+            cancelled |= session.cancel().await;
+        }
+        cancelled
+    }
+
     /// Runs `op` on `session`; when the connection turns out to be gone (the server closed it
     /// while the app sat idle, the laptop slept, the tunnel dropped), opens it again and runs `op`
     /// once more. Only a lost connection is retried, never a failed statement.

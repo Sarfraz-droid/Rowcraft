@@ -1,18 +1,20 @@
 //! UI-independent engine. Depends on dialect *traits* only; the caller supplies a `Registry`.
 
-use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex as StdMutex};
+use std::time::Duration;
 
 use std::path::PathBuf;
 
 use rowcraft_config::{
     AuthType, DataSourceConfig, Defaults, ObjectFilter, SchemaPattern, SshConfig, SshFile, ssh_path,
 };
-use rowcraft_dialect::{Connection, Dialect, IntrospectScope, Registry, ResultSet};
+use rowcraft_dialect::{CancelHandle, Connection, Dialect, IntrospectScope, Registry, ResultSet};
 use rowcraft_model::{Catalog, TableKind};
 use rowcraft_ssh::{
     Credentials, EnvCredentials, RusshOpener, TunnelOpener, Tunnels, parse_targets,
 };
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, watch};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -22,6 +24,8 @@ pub enum Error {
     Dialect(#[from] rowcraft_dialect::Error),
     #[error(transparent)]
     Ssh(#[from] rowcraft_ssh::Error),
+    #[error("Query cancelled.")]
+    Cancelled,
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -203,7 +207,12 @@ impl Engine {
             dialect,
             scope,
             cfg: cfg.clone(),
+            canceller: StdMutex::new(conn.cancel_handle()),
             conn: Mutex::new(conn),
+            next_run: AtomicU64::new(0),
+            running: AtomicU64::new(0),
+            cancel_requested: AtomicU64::new(0),
+            abandon: watch::Sender::new(0),
         }))
     }
 
@@ -233,6 +242,37 @@ impl Connection for Tunneled {
     ) -> rowcraft_dialect::Result<ResultSet> {
         self.inner.query_limited(statement, max_rows).await
     }
+
+    fn cancel_handle(&self) -> Option<Arc<dyn CancelHandle>> {
+        self.inner.cancel_handle()
+    }
+}
+
+/// Stands in for a connection that was dropped mid-statement by [`Session::cancel`]. Its error
+/// reads as a lost connection, so callers that reconnect on one do so before running anything.
+#[derive(Debug)]
+struct Abandoned;
+
+#[async_trait::async_trait]
+impl Connection for Abandoned {
+    async fn query_limited(&mut self, _: &str, _: usize) -> rowcraft_dialect::Result<ResultSet> {
+        Err(rowcraft_dialect::Error::Query(
+            "not connected: the connection was closed to cancel a statement".into(),
+        ))
+    }
+}
+
+/// How long a statement may keep running after the server was asked to cancel it before the
+/// session gives up on it and drops its connection.
+const CANCEL_GRACE: Duration = Duration::from_secs(3);
+
+/// Marks a statement as running for as long as it holds the connection.
+struct Running<'s>(&'s AtomicU64);
+
+impl Drop for Running<'_> {
+    fn drop(&mut self) {
+        self.0.store(0, Ordering::SeqCst);
+    }
 }
 
 /// One open connection, shared between the UI and background tasks. Statements on a session run
@@ -244,6 +284,15 @@ pub struct Session {
     /// What the session was opened from, so a dropped connection can be opened again.
     cfg: DataSourceConfig,
     conn: Mutex<Box<dyn Connection>>,
+    /// The current connection's server-side cancel, readable while a statement holds `conn`.
+    canceller: StdMutex<Option<Arc<dyn CancelHandle>>>,
+    next_run: AtomicU64,
+    /// Id of the statement holding `conn`, 0 when idle.
+    running: AtomicU64,
+    /// Id of the statement the user last cancelled.
+    cancel_requested: AtomicU64,
+    /// Id of a statement to abandon without waiting for the server.
+    abandon: watch::Sender<u64>,
 }
 
 impl std::fmt::Debug for Session {
@@ -261,7 +310,10 @@ impl Session {
     }
 
     pub async fn query(&self, statement: &str, max_rows: usize) -> Result<ResultSet> {
-        Ok(self.conn.lock().await.query_limited(statement, max_rows).await?)
+        let mut conn = self.conn.lock().await;
+        let (run, _running) = self.start();
+        let outcome = self.until_abandoned(run, conn.query_limited(statement, max_rows)).await;
+        self.finish(&mut conn, run, outcome)
     }
 
     /// Keeps session setup and execution under the same connection lock.
@@ -272,23 +324,108 @@ impl Session {
         max_rows: usize,
     ) -> Result<ResultSet> {
         let mut conn = self.conn.lock().await;
-        conn.query(setup).await?;
-        Ok(conn.query_limited(statement, max_rows).await?)
+        let (run, _running) = self.start();
+        let work = async {
+            conn.query(setup).await?;
+            conn.query_limited(statement, max_rows).await
+        };
+        let outcome = self.until_abandoned(run, work).await;
+        self.finish(&mut conn, run, outcome)
     }
 
     /// Reads the catalog and applies the data source's schema pattern and object filter.
     pub async fn introspect(&self, scope: &IntrospectScope) -> Result<Catalog> {
         let mut conn = self.conn.lock().await;
-        let catalog = self.dialect.introspect(conn.as_mut(), scope).await?;
-        Ok(self.scope.apply(catalog))
+        let (run, _running) = self.start();
+        let outcome = self.until_abandoned(run, self.dialect.introspect(conn.as_mut(), scope)).await;
+        Ok(self.scope.apply(self.finish(&mut conn, run, outcome)?))
     }
 
     /// Replaces the connection with a fresh one (tunnels and startup script included), e.g. after
     /// the server closed it for being idle. Statements queued behind the lock use the new one.
     pub async fn reconnect(&self, engine: &Engine) -> Result<()> {
         let fresh = engine.connect(&self.cfg).await?;
-        *self.conn.lock().await = fresh;
+        let mut conn = self.conn.lock().await;
+        *self.canceller.lock().unwrap_or_else(std::sync::PoisonError::into_inner) =
+            fresh.cancel_handle();
+        *conn = fresh;
         Ok(())
+    }
+
+    /// Stops the statement running on this session, if any, and returns whether there was one.
+    /// The server is asked to cancel it where the driver supports that, which keeps the
+    /// connection. A statement still running [`CANCEL_GRACE`] later, or on a driver that cannot
+    /// cancel, is abandoned instead: its connection is closed and the next statement reconnects.
+    /// The cancelled statement fails with [`Error::Cancelled`].
+    pub async fn cancel(&self) -> bool {
+        let run = self.running.load(Ordering::SeqCst);
+        if run == 0 {
+            return false;
+        }
+        self.cancel_requested.store(run, Ordering::SeqCst);
+        let handle =
+            self.canceller.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clone();
+        if let Some(handle) = handle {
+            if handle.cancel().await.is_ok() {
+                let deadline = tokio::time::Instant::now() + CANCEL_GRACE;
+                while self.running.load(Ordering::SeqCst) == run
+                    && tokio::time::Instant::now() < deadline
+                {
+                    tokio::time::sleep(Duration::from_millis(25)).await;
+                }
+            }
+        }
+        if self.running.load(Ordering::SeqCst) == run {
+            self.abandon.send_replace(run);
+        }
+        true
+    }
+
+    /// Whether a statement is running on this session.
+    pub fn is_running(&self) -> bool {
+        self.running.load(Ordering::SeqCst) != 0
+    }
+
+    fn start(&self) -> (u64, Running<'_>) {
+        let run = self.next_run.fetch_add(1, Ordering::SeqCst) + 1;
+        self.running.store(run, Ordering::SeqCst);
+        (run, Running(&self.running))
+    }
+
+    /// Runs `work` unless [`Session::cancel`] abandons statement `run` first (`None`).
+    async fn until_abandoned<T>(
+        &self,
+        run: u64,
+        work: impl std::future::Future<Output = rowcraft_dialect::Result<T>>,
+    ) -> Option<rowcraft_dialect::Result<T>> {
+        let mut abandon = self.abandon.subscribe();
+        tokio::select! {
+            outcome = work => Some(outcome),
+            _ = abandon.wait_for(|id| *id == run) => None,
+        }
+    }
+
+    /// Turns the outcome of statement `run` into its result. An abandoned statement leaves its
+    /// connection mid-response, so that connection is replaced by [`Abandoned`].
+    fn finish<T>(
+        &self,
+        conn: &mut Box<dyn Connection>,
+        run: u64,
+        outcome: Option<rowcraft_dialect::Result<T>>,
+    ) -> Result<T> {
+        let cancelled = self.cancel_requested.load(Ordering::SeqCst) == run;
+        match outcome {
+            Some(Ok(value)) => Ok(value),
+            // The server's own wording ("canceling statement due to user request", "Query
+            // execution was interrupted") is replaced with one message for every database.
+            Some(Err(_)) if cancelled => Err(Error::Cancelled),
+            Some(Err(e)) => Err(e.into()),
+            None => {
+                *conn = Box::new(Abandoned);
+                *self.canceller.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
+                Err(Error::Cancelled)
+            }
+        }
     }
 
     /// Runs `statements` in order without letting another statement in between. With `tx`
@@ -302,40 +439,46 @@ impl Session {
         check: impl Fn(usize, &ResultSet) -> Result<(), String>,
     ) -> Result<u64> {
         let mut conn = self.conn.lock().await;
-        if let Some([begin, ..]) = tx {
-            conn.query(begin).await?;
-        }
-        let mut affected = 0;
-        let mut outcome = Ok(());
-        for (i, statement) in statements.iter().enumerate() {
-            match conn.query(statement).await {
-                Ok(rs) => {
-                    affected += rs.rows_affected.unwrap_or(0);
-                    if let Err(message) = check(i, &rs) {
-                        outcome = Err(rowcraft_dialect::Error::Query(message));
+        let (run, _running) = self.start();
+        let work = async {
+            if let Some([begin, ..]) = tx {
+                conn.query(begin).await?;
+            }
+            let mut affected = 0;
+            let mut outcome = Ok(());
+            for (i, statement) in statements.iter().enumerate() {
+                match conn.query(statement).await {
+                    Ok(rs) => {
+                        affected += rs.rows_affected.unwrap_or(0);
+                        if let Err(message) = check(i, &rs) {
+                            outcome = Err(rowcraft_dialect::Error::Query(message));
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        outcome = Err(e);
                         break;
                     }
                 }
-                Err(e) => {
-                    outcome = Err(e);
-                    break;
+            }
+            match (outcome, tx) {
+                (Ok(()), Some([_, commit, _])) => {
+                    conn.query(commit).await?;
                 }
+                (Ok(()), None) => {}
+                (Err(e), Some([.., rollback])) => {
+                    // The original error is the useful one; a failed rollback (e.g. the
+                    // connection dropped) leaves nothing committed either.
+                    let _ = conn.query(rollback).await;
+                    return Err(e);
+                }
+                (Err(e), None) => return Err(e),
             }
-        }
-        match (outcome, tx) {
-            (Ok(()), Some([_, commit, _])) => {
-                conn.query(commit).await?;
-            }
-            (Ok(()), None) => {}
-            (Err(e), Some([.., rollback])) => {
-                // The original error is the useful one; a failed rollback (e.g. the connection
-                // dropped) leaves nothing committed either.
-                let _ = conn.query(rollback).await;
-                return Err(e.into());
-            }
-            (Err(e), None) => return Err(e.into()),
-        }
-        Ok(affected)
+            Ok(affected)
+        };
+        // An abandoned transaction is rolled back by the server when its connection closes.
+        let outcome = self.until_abandoned(run, work).await;
+        self.finish(&mut conn, run, outcome)
     }
 }
 
@@ -420,6 +563,9 @@ mod tests {
     struct Log {
         statements: StdMutex<Vec<String>>,
         connects: StdMutex<Vec<DataSourceConfig>>,
+        /// Connections hand out a cancel handle, which stops `hang` the way a server would.
+        cancellable: std::sync::atomic::AtomicBool,
+        cancel: tokio::sync::Notify,
     }
 
     impl Log {
@@ -445,6 +591,15 @@ mod tests {
             if statement == "boom" || statement == "bad script" {
                 return Err(rowcraft_dialect::Error::Query(statement.into()));
             }
+            if statement == "hang" {
+                if !self.0.cancellable.load(Ordering::SeqCst) {
+                    std::future::pending::<()>().await;
+                }
+                self.0.cancel.notified().await;
+                return Err(rowcraft_dialect::Error::Query(
+                    "canceling statement due to user request".into(),
+                ));
+            }
             let all: Vec<Vec<Value>> = (0..5).map(|i| vec![Value::Int(i)]).collect();
             Ok(ResultSet {
                 columns: vec!["n".into()],
@@ -452,6 +607,24 @@ mod tests {
                 rows: all.into_iter().take(max_rows).collect(),
                 rows_affected: None,
             })
+        }
+
+        fn cancel_handle(&self) -> Option<Arc<dyn CancelHandle>> {
+            self.0
+                .cancellable
+                .load(Ordering::SeqCst)
+                .then(|| Arc::new(FakeCancel(self.0.clone())) as Arc<dyn CancelHandle>)
+        }
+    }
+
+    #[derive(Debug)]
+    struct FakeCancel(Arc<Log>);
+
+    #[async_trait]
+    impl CancelHandle for FakeCancel {
+        async fn cancel(&self) -> rowcraft_dialect::Result<()> {
+            self.0.cancel.notify_one();
+            Ok(())
         }
     }
 
@@ -626,6 +799,63 @@ mod tests {
         let connects = log.connects.lock().unwrap();
         assert_eq!(connects.len(), 2);
         assert_eq!(connects[1].name, "t");
+    }
+
+    /// Starts `hang` on `session` and waits until it holds the connection.
+    async fn hang(session: &Arc<Session>) -> tokio::task::JoinHandle<Result<ResultSet>> {
+        let running = session.clone();
+        let task = tokio::spawn(async move { running.query("hang", 10).await });
+        while !session.is_running() {
+            tokio::task::yield_now().await;
+        }
+        task
+    }
+
+    #[tokio::test]
+    async fn cancelling_asks_the_server_and_keeps_the_connection() {
+        let (engine, log) = engine_with_log();
+        log.cancellable.store(true, Ordering::SeqCst);
+        let session = engine.open_session(&cfg("fake")).await.unwrap();
+        assert!(!session.cancel().await, "nothing is running yet");
+        let task = hang(&session).await;
+        assert!(session.cancel().await);
+        assert!(matches!(task.await.unwrap(), Err(Error::Cancelled)));
+        assert!(!session.is_running());
+        assert_eq!(session.query("select 1", 10).await.unwrap().rows.len(), 5);
+        assert_eq!(log.connects.lock().unwrap().len(), 1, "the connection was kept");
+    }
+
+    #[tokio::test]
+    async fn without_a_server_cancel_the_statement_is_abandoned_and_the_connection_replaced() {
+        let (engine, log) = engine_with_log();
+        let session = engine.open_session(&cfg("fake")).await.unwrap();
+        let task = hang(&session).await;
+        assert!(session.cancel().await);
+        assert!(matches!(task.await.unwrap(), Err(Error::Cancelled)));
+        // The half-read connection is gone; its stand-in reads as lost, so callers reconnect.
+        let error = session.query("select 1", 10).await.unwrap_err();
+        assert!(is_connection_lost(&error), "{error}");
+        session.reconnect(&engine).await.unwrap();
+        assert_eq!(session.query("select 1", 10).await.unwrap().rows.len(), 5);
+        assert_eq!(log.connects.lock().unwrap().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn a_cancelled_transaction_is_not_committed() {
+        let (engine, log) = engine_with_log();
+        log.cancellable.store(true, Ordering::SeqCst);
+        let session = engine.open_session(&cfg("fake")).await.unwrap();
+        let statements = vec!["a".to_owned(), "hang".to_owned(), "b".to_owned()];
+        let running = session.clone();
+        let task = tokio::spawn(async move {
+            running.execute_all(Some(["BEGIN", "COMMIT", "ROLLBACK"]), &statements, |_, _| Ok(())).await
+        });
+        while !log.statements().contains(&"hang".to_owned()) {
+            tokio::task::yield_now().await;
+        }
+        assert!(session.cancel().await);
+        assert!(matches!(task.await.unwrap(), Err(Error::Cancelled)));
+        assert_eq!(log.statements(), ["BEGIN", "a", "hang", "ROLLBACK"]);
     }
 
     #[test]

@@ -6,11 +6,13 @@
 
 mod introspect;
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use futures_util::TryStreamExt;
-use mysql_async::{Conn, OptsBuilder, Row, SslOpts, prelude::Queryable};
+use mysql_async::{Conn, Opts, OptsBuilder, Row, SslOpts, prelude::Queryable};
 use rowcraft_config::{DataSourceConfig, SslMode};
-use rowcraft_dialect::{Connection, Error, IntrospectScope, Result, ResultSet, Value};
+use rowcraft_dialect::{CancelHandle, Connection, Error, IntrospectScope, Result, ResultSet, Value};
 use rowcraft_model::Catalog;
 
 /// The two servers differ in a handful of `information_schema` columns.
@@ -38,11 +40,12 @@ pub async fn connect(cfg: &DataSourceConfig, default_port: u16) -> Result<Box<dy
         let _ = rustls::crypto::ring::default_provider().install_default();
         opts = opts.ssl_opts(ssl);
     }
-    let mut conn = Conn::new(opts).await.map_err(|e| Error::Connect(describe(&e)))?;
+    let opts = Opts::from(opts);
+    let mut conn = Conn::new(opts.clone()).await.map_err(|e| Error::Connect(describe(&e)))?;
     if cfg.read_only {
         conn.query_drop("SET SESSION TRANSACTION READ ONLY").await.map_err(query_err)?;
     }
-    Ok(Box::new(MysqlConnection { conn }))
+    Ok(Box::new(MysqlConnection { conn, opts }))
 }
 
 fn ssl_opts(cfg: &DataSourceConfig) -> Result<Option<SslOpts>> {
@@ -72,10 +75,34 @@ pub async fn introspect(
 #[derive(Debug)]
 struct MysqlConnection {
     conn: Conn,
+    /// What `conn` was opened with, so a second connection can stop its running statement.
+    opts: Opts,
+}
+
+/// Runs `KILL QUERY` for one connection id over a short-lived second connection.
+#[derive(Debug)]
+struct MysqlCancel {
+    opts: Opts,
+    id: u32,
+}
+
+#[async_trait]
+impl CancelHandle for MysqlCancel {
+    async fn cancel(&self) -> Result<()> {
+        let mut killer =
+            Conn::new(self.opts.clone()).await.map_err(|e| Error::Connect(describe(&e)))?;
+        let killed = killer.query_drop(format!("KILL QUERY {}", self.id)).await.map_err(query_err);
+        let _ = killer.disconnect().await;
+        killed
+    }
 }
 
 #[async_trait]
 impl Connection for MysqlConnection {
+    fn cancel_handle(&self) -> Option<Arc<dyn CancelHandle>> {
+        Some(Arc::new(MysqlCancel { opts: self.opts.clone(), id: self.conn.id() }))
+    }
+
     async fn query_limited(&mut self, statement: &str, max_rows: usize) -> Result<ResultSet> {
         let mut result = self.conn.query_iter(statement).await.map_err(query_err)?;
         let mut last = ResultSet::default();

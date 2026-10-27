@@ -213,3 +213,21 @@ mod introspection {
         assert!(catalog.schemas.is_empty());
     }
 }
+
+#[tokio::test]
+async fn the_cancel_key_stops_a_running_statement_and_keeps_the_connection() {
+    let cfg = live_config!();
+    let mut conn = PgDialect.connect(&cfg).await.expect("connect");
+    let cancel = conn.cancel_handle().expect("pg cancels server-side");
+    let started = std::time::Instant::now();
+    let stopper = tokio::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        cancel.cancel().await
+    });
+    let err = conn.query("select pg_sleep(30)").await.expect_err("cancelled");
+    stopper.await.expect("join").expect("cancel request");
+    assert!(started.elapsed() < std::time::Duration::from_secs(5));
+    assert!(err.to_string().contains("canceling statement"), "{err}");
+    let rs = conn.query("select 1").await.expect("connection still works");
+    assert_eq!(rs.rows, [vec![Value::Text("1".into())]]);
+}

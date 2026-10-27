@@ -30,7 +30,7 @@ impl Dialect for MariadbDialect {
     }
 
     fn capabilities(&self) -> Capabilities {
-        Capabilities { transactions: true, ..Capabilities::default() }
+        Capabilities { transactions: true, cancel: true, ..Capabilities::default() }
     }
 
     fn connects(&self) -> bool {

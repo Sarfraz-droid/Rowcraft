@@ -11,7 +11,7 @@ vi.mock("./ai-harness", () => ({ runSqlAssistance: vi.fn() }));
 
 vi.mock("./api", async (original) => {
   const actual = await original<typeof import("./api")>();
-  return { ...actual, api: { editSource: vi.fn(), updateSource: vi.fn(), drivers: vi.fn(), driverSettings: vi.fn(), driverPackage: vi.fn().mockResolvedValue({ distribution: "native", installed: true, files: [], version: null, source: null }), aiSettings: vi.fn(), aiRouterStatus: vi.fn(), stopAiRouter: vi.fn(), bootstrap: vi.fn(), connect: vi.fn(), introspect: vi.fn(), runQuery: vi.fn(), previewStatement: vi.fn(), removeSource: vi.fn() } };
+  return { ...actual, api: { editSource: vi.fn(), updateSource: vi.fn(), drivers: vi.fn(), driverSettings: vi.fn(), driverPackage: vi.fn().mockResolvedValue({ distribution: "native", installed: true, files: [], version: null, source: null }), aiSettings: vi.fn(), aiRouterStatus: vi.fn(), stopAiRouter: vi.fn(), bootstrap: vi.fn(), connect: vi.fn(), introspect: vi.fn(), runQuery: vi.fn(), cancelQuery: vi.fn(), previewStatement: vi.fn(), removeSource: vi.fn() } };
 });
 vi.mock("./components/Editor", async () => {
   const { useEffect, useRef } = await import("react");
@@ -154,6 +154,25 @@ describe("workspace document interactions", () => {
     fireEvent.click(within(menu).getByRole('menuitem', {name:'Reconnect'}));
     await waitFor(() => expect(api.connect).toHaveBeenLastCalledWith('Alpha',true));
     await waitFor(() => expect(api.introspect).toHaveBeenCalledTimes(2));
+  });
+
+  it("cancels a running query and keeps the previous result instead of reporting a failure", async () => {
+    await start();
+    fireEvent.change(screen.getByRole("textbox", { name: "SQL editor" }), { target: { value: "select 1" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
+    await within(activePanel()).findByText("result: select 1");
+    let stop!: () => void;
+    vi.mocked(api.runQuery).mockImplementationOnce(() => new Promise((_, reject) => { stop = () => reject(new Error("Query cancelled.")); }));
+    vi.mocked(api.cancelQuery).mockImplementation(async () => { stop(); return true; });
+    fireEvent.change(screen.getByRole("textbox", { name: "SQL editor" }), { target: { value: "select pg_sleep(60)" } });
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Run/ }).hasAttribute("disabled")).toBe(false));
+    fireEvent.click(screen.getByRole("button", { name: /^Run/ }));
+    fireEvent.click(await within(activePanel()).findByRole("button", { name: "Cancel" }));
+    expect(api.cancelQuery).toHaveBeenCalledOnce();
+    expect(await screen.findByText("Console 1: query cancelled")).toBeTruthy();
+    expect(within(activePanel()).getByText("result: select 1")).toBeTruthy();
+    expect(screen.queryByText("Query failed")).toBeNull();
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Run/ }).hasAttribute("disabled")).toBe(false));
   });
 
   it("shows the default limit and reruns the original result query with Run full query", async () => {

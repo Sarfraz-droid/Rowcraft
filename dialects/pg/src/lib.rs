@@ -1,20 +1,22 @@
 //! PostgreSQL dialect (tier A, see SPEC.md §5), on `tokio-postgres` with rustls.
 //!
 //! M0 runs statements through the simple query protocol: multi-statement scripts work and every
-//! value arrives as text. TODO(M1): typed decoding via prepared statements, cancel handle
-//! (cancel key), transactions.
+//! value arrives as text. Running statements are cancelled with the protocol's cancel key.
+//! TODO(M1): typed decoding via prepared statements, transactions.
 
 mod introspect;
+
+use std::sync::Arc;
 
 use async_trait::async_trait;
 use futures_util::{StreamExt, pin_mut};
 use rowcraft_config::{DataSourceConfig, SslMode};
 use rowcraft_dialect::{
-    Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
+    CancelHandle, Capabilities, Connection, Dialect, DialectFamily, DialectId, Error, IntrospectScope, Result,
     ResultSet, Value,
 };
 use rowcraft_model::Catalog;
-use tokio_postgres::{Client, Config, NoTls, SimpleQueryMessage};
+use tokio_postgres::{CancelToken, Client, Config, NoTls, SimpleQueryMessage};
 use tokio_postgres_rustls::MakeRustlsConnect;
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -39,7 +41,7 @@ impl Dialect for PgDialect {
     }
 
     fn capabilities(&self) -> Capabilities {
-        Capabilities { transactions: true, ..Capabilities::default() }
+        Capabilities { transactions: true, cancel: true, ..Capabilities::default() }
     }
 
     fn connects(&self) -> bool {
@@ -109,16 +111,46 @@ pub async fn connect_wire(
         tokio::spawn(conn);
         client
     };
-    Ok(Box::new(PgConnection { client }))
+    Ok(Box::new(PgConnection { client, tls }))
 }
 
 #[derive(Debug)]
 struct PgConnection {
     client: Client,
+    /// Whether the connection is encrypted; the cancel request must be too.
+    tls: bool,
+}
+
+/// Sends the connection's cancel key to the server over a separate, short-lived connection.
+struct PgCancel {
+    token: CancelToken,
+    tls: bool,
+}
+
+impl std::fmt::Debug for PgCancel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PgCancel").field("tls", &self.tls).finish_non_exhaustive()
+    }
+}
+
+#[async_trait]
+impl CancelHandle for PgCancel {
+    async fn cancel(&self) -> Result<()> {
+        let sent = if self.tls {
+            self.token.cancel_query(MakeRustlsConnect::with_webpki_roots()).await
+        } else {
+            self.token.cancel_query(NoTls).await
+        };
+        sent.map_err(query_err)
+    }
 }
 
 #[async_trait]
 impl Connection for PgConnection {
+    fn cancel_handle(&self) -> Option<Arc<dyn CancelHandle>> {
+        Some(Arc::new(PgCancel { token: self.client.cancel_token(), tls: self.tls }))
+    }
+
     async fn query_limited(&mut self, statement: &str, max_rows: usize) -> Result<ResultSet> {
         let stream = self.client.simple_query_raw(statement).await.map_err(query_err)?;
         pin_mut!(stream);

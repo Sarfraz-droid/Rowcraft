@@ -21,6 +21,13 @@ const sources: SourceSummary[] = [
 ];
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/** Stops the mock query in flight, like `cancel_query`. */
+let stopQuery: (() => void) | null = null;
+/** Resolves after `ms`, or early with `true` when the query is cancelled. */
+const queryTime = (ms: number) => new Promise<boolean>((resolve) => {
+  const timer = setTimeout(() => { stopQuery = null; resolve(false); }, ms);
+  stopQuery = () => { clearTimeout(timer); stopQuery = null; resolve(true); };
+});
 
 function defaultDraft(): Draft {
   return {
@@ -195,10 +202,16 @@ export function installMock(): void {
       case "preview_statement":
         return `select * from "${String(args.schema)}"."${String(args.table)}" limit 1000`;
       case "run_query": {
-        await wait(250);
         const statement = String(args.statement);
+        // `sleep` in a statement makes it run for a minute, to try cancelling.
+        if (await queryTime(/sleep/i.test(statement) ? 60_000 : 250)) throw "Query cancelled.";
         if (/error/i.test(statement)) throw `query failed: syntax error near "error" in ${statement}`;
         return sampleResult(statement);
+      }
+      case "cancel_query": {
+        const running = stopQuery;
+        running?.();
+        return !!running;
       }
       case "save_export":
         return `~/Downloads/${String(args.fileName)}`;

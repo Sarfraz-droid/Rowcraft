@@ -277,6 +277,9 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
 }
 
 
+/** The error of a statement stopped with `api.cancelQuery` (rowcraft-core `Error::Cancelled`). */
+export const QUERY_CANCELLED = "Query cancelled.";
+
 export const api = {
   sourceProperties: (name: string) => call<SourceProperties>("source_properties", { name }),
   editSource: (name: string) => call<SourceEditDefaults>("edit_source", { name }),
@@ -330,4 +333,6 @@ export const api = {
   /** Saves grid edits to `schema.table` in one transaction; rows are matched by the table's key. */
   applyRowChanges: (schema: string, table: string, columns: string[], changes: RowChanges) => call<QueryOutput>("apply_row_changes", { schema, table, columns, changes }),
   runQuery: (statement: string, schema?: string, showAll = false) => call<QueryOutput>("run_query", { statement, schema, showAll }),
+  /** Stops the running statement; resolves to whether one was running. The stopped call fails with {@link QUERY_CANCELLED}. */
+  cancelQuery: () => call<boolean>("cancel_query"),
 };

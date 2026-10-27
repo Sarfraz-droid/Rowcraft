@@ -650,6 +650,10 @@
   .btn.primary { @apply tw:text-primary-foreground tw:font-medium; }
   .run-button { @apply tw:min-h-[29px] tw:[padding:5px_10px]; }
   .run-button kbd { @apply tw:ml-[6px] tw:text-caption; }
+  .cancel-button { @apply tw:gap-[6px]; }
+  .status-cancel { @apply tw:inline-flex tw:items-center tw:gap-[4px] tw:shrink-0 tw:text-caption tw:text-foreground tw:bg-transparent tw:border-0 tw:p-0 tw:cursor-pointer tw:[font:inherit]; }
+  .status-cancel:hover:not(:disabled) { @apply tw:underline; }
+  .status-cancel:disabled { @apply tw:text-muted-foreground tw:cursor-default; }
   .editor-pane { @apply tw:pt-[4px]; }
   .cm-editor { @apply tw:[font-variant-ligatures:none]; }
   .cm-gutters { @apply tw:pr-[8px]; }
