@@ -204,6 +204,14 @@ export interface DriverInfo {
  */
 export type Cell = null | boolean | number | string | { bytes: number };
 
+/** Grid edits, mirroring `RowChanges` in the workbench. Rows are result rows as read. */
+export interface RowChanges {
+  deletes: Cell[][];
+  updates: { row: Cell[]; values: Record<string, Cell> }[];
+  /** Column name to value; columns left out get their database default. */
+  inserts: Record<string, Cell>[];
+}
+
 export interface QueryOutput {
   columns: string[];
   rows: Cell[][];
@@ -319,5 +327,7 @@ export const api = {
   introspect: () => call<Catalog>("introspect"),
   previewStatement: (schema: string, table: string) =>
     call<string>("preview_statement", { schema, table }),
+  /** Saves grid edits to `schema.table` in one transaction; rows are matched by the table's key. */
+  applyRowChanges: (schema: string, table: string, columns: string[], changes: RowChanges) => call<QueryOutput>("apply_row_changes", { schema, table, columns, changes }),
   runQuery: (statement: string, schema?: string, showAll = false) => call<QueryOutput>("run_query", { statement, schema, showAll }),
 };

@@ -213,6 +213,17 @@ async fn introspect(wb: State<'_, Workbench>) -> Result<Catalog, String> {
 }
 
 #[tauri::command]
+async fn apply_row_changes(
+    wb: State<'_, Workbench>,
+    schema: String,
+    table: String,
+    columns: Vec<String>,
+    changes: rowcraft_ui_model::workbench::RowChanges,
+) -> Result<QueryOutput, String> {
+    wb.apply_row_changes(&schema, &table, &columns, &changes).await
+}
+
+#[tauri::command]
 fn preview_statement(
     wb: State<'_, Workbench>,
     schema: String,
@@ -465,6 +476,8 @@ pub fn run() {
     let workbench = Workbench::open(engine, Paths::default(), driver_warnings);
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(workbench)
         .manage(Arc::new(ai_router::RouterManager::new(
             rowcraft_config::config_dir().join("ai-router"),
@@ -504,6 +517,7 @@ pub fn run() {
             run_query,
             remove_source,
             introspect,
+            apply_row_changes,
             preview_statement,
             save_export,
             reveal_file,

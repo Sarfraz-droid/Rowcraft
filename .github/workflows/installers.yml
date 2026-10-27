@@ -112,6 +112,9 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signs the update archives the in-app updater verifies (plugins.updater.pubkey).
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/rowcraft-desktop
           args: --target ${{ matrix.target }} --ci -- --locked
@@ -123,4 +126,6 @@ jobs:
           releaseBody: Download the installer for your operating system and CPU architecture. See docs/installers.md for installation and signing details.
           releaseDraft: true
           uploadWorkflowArtifacts: true
-          uploadUpdaterJson: false
+          # latest.json lists every platform's signed archive; installed apps poll it through
+          # releases/latest, so an update reaches users once this release is published.
+          uploadUpdaterJson: true

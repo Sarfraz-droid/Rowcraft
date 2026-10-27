@@ -58,6 +58,8 @@ interface Props {
   onRemove(name: string): void;
   onEdit(name: string): void;
   catalog: Catalog | null;
+  /** Database objects of the selected source are being read in the background. */
+  discovering?: boolean;
   onOpenTable(schema: string, table: string): void;
   onOpenSchema?(schema: string): void;
   onRefresh(): void;
@@ -66,7 +68,7 @@ interface Props {
   onNewConsole(name: string): void;
   hidden: boolean;
 }
-export function Sidebar({ tabs, activeTabId, onSelectTab, onCloseTab, onKeepTab, onSaveAllEditors, onCloseAllEditors, onMoveSource, workspaces, workspaceId, onSwitchWorkspace, onCreateWorkspace, onRenameWorkspace, sources, selected, connected, connectedSources, view, busy, onNavigate, onAdd, onRemove, onEdit, catalog, onOpenTable, onOpenSchema, onRefresh, onRefreshSource, onReconnect, onNewConsole, hidden }: Props) {
+export function Sidebar({ tabs, activeTabId, onSelectTab, onCloseTab, onKeepTab, onSaveAllEditors, onCloseAllEditors, onMoveSource, workspaces, workspaceId, onSwitchWorkspace, onCreateWorkspace, onRenameWorkspace, sources, selected, connected, connectedSources, view, busy, onNavigate, onAdd, onRemove, onEdit, catalog, discovering = false, onOpenTable, onOpenSchema, onRefresh, onRefreshSource, onReconnect, onNewConsole, hidden }: Props) {
   const sidebar = useRef<HTMLElement>(null);
   const [connectionsOpen, setConnectionsOpen] = useState(true);
   const connectionsId = useId();
@@ -155,7 +157,7 @@ export function Sidebar({ tabs, activeTabId, onSelectTab, onCloseTab, onKeepTab,
           </ConnectionMenu>
           {open && <div className="source-children"><nav aria-label={`${source.name} views`}>{viewsFor(source.dialect).map((item) => <button key={item.id} className={`source-nav-item${active && view === item.id ? " selected" : ""}`} disabled={busy && !active} aria-current={active && view === item.id ? "page" : undefined} onClick={() => onNavigate(source.name, item.id)}><Icon name={item.icon} /><span>{item.label}</span>{item.id === "databases" && active && catalog && <span className="nav-count tw:ml-auto tw:text-caption tw:text-muted-foreground">{catalog.schemas.length}</span>}</button>)}</nav>
           {active && (connectedSources ? connectedSources.includes(source.name) : connected === source.name) && catalog && <Explorer key={source.name} catalog={catalog} dialect={source.dialect} sourceName={source.name} busy={busy} onRefresh={onRefresh} onOpenTable={onOpenTable} onOpenSchema={onOpenSchema} />}
-          {active && busy && !catalog && <div className="tree-loading" aria-label="Reading database objects"><span /><span /><span /></div>}
+          {active && (busy || discovering) && !catalog && <div className="tree-loading" aria-label="Reading database objects"><span /><span /><span /></div>}
           </div>}
         </li>;
       })}</ul>

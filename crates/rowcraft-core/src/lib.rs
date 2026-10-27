@@ -198,7 +198,13 @@ impl Engine {
         };
         let conn = self.connect(cfg).await?;
         let dialect = self.registry.get(&cfg.dialect)?;
-        Ok(Arc::new(Session { name: cfg.name.clone(), dialect, scope, conn: Mutex::new(conn) }))
+        Ok(Arc::new(Session {
+            name: cfg.name.clone(),
+            dialect,
+            scope,
+            cfg: cfg.clone(),
+            conn: Mutex::new(conn),
+        }))
     }
 
     /// Connects, reads the catalog and disconnects.
@@ -235,6 +241,8 @@ pub struct Session {
     name: String,
     dialect: Arc<dyn Dialect>,
     scope: CatalogScope,
+    /// What the session was opened from, so a dropped connection can be opened again.
+    cfg: DataSourceConfig,
     conn: Mutex<Box<dyn Connection>>,
 }
 
@@ -274,6 +282,87 @@ impl Session {
         let catalog = self.dialect.introspect(conn.as_mut(), scope).await?;
         Ok(self.scope.apply(catalog))
     }
+
+    /// Replaces the connection with a fresh one (tunnels and startup script included), e.g. after
+    /// the server closed it for being idle. Statements queued behind the lock use the new one.
+    pub async fn reconnect(&self, engine: &Engine) -> Result<()> {
+        let fresh = engine.connect(&self.cfg).await?;
+        *self.conn.lock().await = fresh;
+        Ok(())
+    }
+
+    /// Runs `statements` in order without letting another statement in between. With `tx`
+    /// (`[begin, commit, rollback]`) they run as one transaction that a failure rolls back.
+    /// `check` sees each statement's result and can reject it, which also counts as a failure.
+    /// Returns the total of the affected-row counts the database reported.
+    pub async fn execute_all(
+        &self,
+        tx: Option<[&str; 3]>,
+        statements: &[String],
+        check: impl Fn(usize, &ResultSet) -> Result<(), String>,
+    ) -> Result<u64> {
+        let mut conn = self.conn.lock().await;
+        if let Some([begin, ..]) = tx {
+            conn.query(begin).await?;
+        }
+        let mut affected = 0;
+        let mut outcome = Ok(());
+        for (i, statement) in statements.iter().enumerate() {
+            match conn.query(statement).await {
+                Ok(rs) => {
+                    affected += rs.rows_affected.unwrap_or(0);
+                    if let Err(message) = check(i, &rs) {
+                        outcome = Err(rowcraft_dialect::Error::Query(message));
+                        break;
+                    }
+                }
+                Err(e) => {
+                    outcome = Err(e);
+                    break;
+                }
+            }
+        }
+        match (outcome, tx) {
+            (Ok(()), Some([_, commit, _])) => {
+                conn.query(commit).await?;
+            }
+            (Ok(()), None) => {}
+            (Err(e), Some([.., rollback])) => {
+                // The original error is the useful one; a failed rollback (e.g. the connection
+                // dropped) leaves nothing committed either.
+                let _ = conn.query(rollback).await;
+                return Err(e.into());
+            }
+            (Err(e), None) => return Err(e.into()),
+        }
+        Ok(affected)
+    }
+}
+
+/// Whether `error` means the connection itself is gone (the server closed it after a timeout,
+/// the network or SSH tunnel dropped, …) rather than the statement being wrong. Drivers only
+/// report this as text, so it is recognised by the phrases they use.
+pub fn is_connection_lost(error: &Error) -> bool {
+    const PHRASES: &[&str] = &[
+        "connection closed",
+        "connection to the server is closed",
+        "connection reset",
+        "connection aborted",
+        "broken pipe",
+        "unexpected eof",
+        "unexpected end of file",
+        "not connected",
+        "server has gone away",
+        "lost connection",
+        "disconnected by the server",
+        "error communicating with the server",
+        "input/output error",
+        "pool was disconnected",
+        "socket closed",
+        "channel closed",
+    ];
+    let message = error.to_string().to_lowercase();
+    PHRASES.iter().any(|phrase| message.contains(phrase))
 }
 
 /// The Schemas tab of a data source: what introspection results to keep.
@@ -501,6 +590,55 @@ mod tests {
         assert_eq!(log.statements(), ["USE `app`", "show tables"]);
         assert!(session.query_with_setup("boom", "must not run", 3).await.is_err());
         assert_eq!(log.statements(), ["USE `app`", "show tables", "boom"]);
+    }
+
+    #[tokio::test]
+    async fn execute_all_commits_together_and_rolls_back_on_failure_or_rejection() {
+        let (engine, log) = engine_with_log();
+        let session = engine.open_session(&cfg("fake")).await.unwrap();
+        let tx = Some(["BEGIN", "COMMIT", "ROLLBACK"]);
+        let statements = ["a".to_owned(), "b".to_owned()];
+        session.execute_all(tx, &statements, |_, _| Ok(())).await.unwrap();
+        assert_eq!(log.statements(), ["BEGIN", "a", "b", "COMMIT"]);
+
+        let failing = ["a".to_owned(), "boom".to_owned(), "never".to_owned()];
+        assert!(session.execute_all(tx, &failing, |_, _| Ok(())).await.is_err());
+        assert_eq!(log.statements()[4..], ["BEGIN", "a", "boom", "ROLLBACK"]);
+
+        let err = session
+            .execute_all(tx, &statements, |i, _| {
+                if i == 0 { Err("matched 2 rows".into()) } else { Ok(()) }
+            })
+            .await
+            .unwrap_err();
+        assert!(err.to_string().contains("matched 2 rows"));
+        assert_eq!(log.statements()[8..], ["BEGIN", "a", "ROLLBACK"]);
+
+        session.execute_all(None, &statements, |_, _| Ok(())).await.unwrap();
+        assert_eq!(log.statements()[11..], ["a", "b"]);
+    }
+
+    #[tokio::test]
+    async fn reconnect_opens_the_same_source_again() {
+        let (engine, log) = engine_with_log();
+        let session = engine.open_session(&cfg("fake")).await.unwrap();
+        session.reconnect(&engine).await.unwrap();
+        let connects = log.connects.lock().unwrap();
+        assert_eq!(connects.len(), 2);
+        assert_eq!(connects[1].name, "t");
+    }
+
+    #[test]
+    fn lost_connections_are_told_apart_from_bad_statements() {
+        let lost = |m: &str| is_connection_lost(&rowcraft_dialect::Error::Query(m.into()).into());
+        assert!(lost("Connection to the server is closed."));
+        assert!(lost(
+            "ERROR 4031 (HY000): The client was disconnected by the server because of inactivity."
+        ));
+        assert!(lost("connection closed"));
+        assert!(lost("Input/output error: Broken pipe (os error 32)"));
+        assert!(!lost("ERROR 1064 (42000): You have an error in your SQL syntax"));
+        assert!(!lost("relation \"missing\" does not exist"));
     }
 
     #[tokio::test]

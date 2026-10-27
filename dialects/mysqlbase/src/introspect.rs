@@ -38,8 +38,26 @@ struct Raw {
     columns: ResultSet,
     indexes: ResultSet,
     foreign_keys: ResultSet,
-    checks: ResultSet,
+    /// `(schema, table, constraint)` of every CHECK constraint.
+    check_owners: ResultSet,
+    /// `(schema, constraint, clause)`; joined to `check_owners` in [`assemble`], because joining
+    /// the two views on the server is slow once there are thousands of tables.
+    check_clauses: ResultSet,
     routines: ResultSet,
+}
+
+/// Runs the first statement the server accepts. `information_schema` gained columns over the
+/// releases (and MySQL-protocol forks differ), so the richest query comes first and plainer ones
+/// follow; this keeps introspection working on any server version without parsing `version()`.
+async fn first_accepted(conn: &mut dyn Connection, statements: &[String]) -> Result<ResultSet> {
+    let mut error = None;
+    for statement in statements {
+        match conn.query(statement).await {
+            Ok(rs) => return Ok(rs),
+            Err(e) => error = Some(e),
+        }
+    }
+    Err(error.unwrap_or_else(|| rowcraft_dialect::Error::Query("no statement to run".into())))
 }
 
 pub(crate) async fn introspect(
@@ -47,9 +65,11 @@ pub(crate) async fn introspect(
     scope: &IntrospectScope,
     flavor: Flavor,
 ) -> Result<Catalog> {
-    let expr = match flavor {
-        Flavor::MySql => "coalesce(column_name, concat('(', expression, ')'))",
-        Flavor::MariaDb => "column_name",
+    let tables_filter = filter("table_schema", scope);
+    // Functional index parts (`expression`) exist from MySQL 8.0.13; MariaDB has no such column.
+    let index_parts: &[&str] = match flavor {
+        Flavor::MySql => &["coalesce(column_name, concat('(', expression, ')'))", "column_name"],
+        Flavor::MariaDb => &["column_name"],
     };
     let raw = Raw {
         session: conn.query("select database(), database()").await?,
@@ -59,29 +79,41 @@ pub(crate) async fn introspect(
                 filter("schema_name", scope)
             ))
             .await?,
+        // Not `update_time`: on MySQL 8+ it is a dynamic statistic, so reading it makes the
+        // server open every table, which takes minutes on large instances.
         tables: conn
             .query(&format!(
-                "select table_schema, table_name, table_type, table_comment, \
-                 coalesce(update_time, create_time) \
-                 from information_schema.tables where {} order by 1, 2",
-                filter("table_schema", scope)
+                "select table_schema, table_name, table_type, table_comment, create_time \
+                 from information_schema.tables where {tables_filter} order by 1, 2"
             ))
             .await?,
-        columns: conn
-            .query(&format!(
-                "select table_schema, table_name, column_name, column_type, is_nullable, \
-                 column_default, extra, column_comment, generation_expression \
-                 from information_schema.columns where {} order by 1, 2, ordinal_position",
-                filter("table_schema", scope)
-            ))
-            .await?,
-        indexes: conn
-            .query(&format!(
-                "select table_schema, table_name, index_name, non_unique, index_type, {expr} \
-                 from information_schema.statistics where {} order by 1, 2, 3, seq_in_index",
-                filter("table_schema", scope)
-            ))
-            .await?,
+        // `generation_expression` exists from MySQL 5.7 / MariaDB 10.2.
+        columns: first_accepted(
+            conn,
+            &["generation_expression", "null"].map(|generated| {
+                format!(
+                    "select table_schema, table_name, column_name, column_type, is_nullable, \
+                     column_default, extra, column_comment, {generated} \
+                     from information_schema.columns where {tables_filter} \
+                     order by 1, 2, ordinal_position"
+                )
+            }),
+        )
+        .await?,
+        indexes: first_accepted(
+            conn,
+            &index_parts
+                .iter()
+                .map(|part| {
+                    format!(
+                        "select table_schema, table_name, index_name, non_unique, index_type, \
+                         {part} from information_schema.statistics where {tables_filter} \
+                         order by 1, 2, 3, seq_in_index"
+                    )
+                })
+                .collect::<Vec<_>>(),
+        )
+        .await?,
         foreign_keys: conn
             .query(&format!(
                 "select k.table_schema, k.table_name, k.constraint_name, k.column_name, \
@@ -95,17 +127,22 @@ pub(crate) async fn introspect(
                  order by 1, 2, 3, k.ordinal_position",
                 filter("k.table_schema", scope)
             ))
-            .await?,
+            .await
+            .unwrap_or_default(),
         // CHECK constraints exist from MySQL 8.0.16 / MariaDB 10.2; older servers have no view.
-        checks: conn
+        check_owners: conn
             .query(&format!(
-                "select tc.table_schema, tc.table_name, tc.constraint_name, cc.check_clause \
-                 from information_schema.table_constraints tc \
-                 join information_schema.check_constraints cc \
-                   on cc.constraint_schema = tc.constraint_schema \
-                  and cc.constraint_name = tc.constraint_name \
-                 where tc.constraint_type = 'CHECK' and {} order by 1, 2, 3",
-                filter("tc.table_schema", scope)
+                "select table_schema, table_name, constraint_name \
+                 from information_schema.table_constraints \
+                 where constraint_type = 'CHECK' and {tables_filter} order by 1, 2, 3"
+            ))
+            .await
+            .unwrap_or_default(),
+        check_clauses: conn
+            .query(&format!(
+                "select constraint_schema, constraint_name, check_clause \
+                 from information_schema.check_constraints where {}",
+                filter("constraint_schema", scope)
             ))
             .await
             .unwrap_or_default(),
@@ -120,7 +157,8 @@ pub(crate) async fn introspect(
                  from information_schema.routines r where {} order by 1, 2",
                 filter("r.routine_schema", scope)
             ))
-            .await?,
+            .await
+            .unwrap_or_default(),
     };
     Ok(assemble(&raw))
 }
@@ -300,12 +338,15 @@ fn assemble(raw: &Raw) -> Catalog {
         }
     }
 
-    for r in &raw.checks.rows {
-        let (Some(s), Some(t), Some(name), Some(clause)) =
-            (text(r, 0), text(r, 1), text(r, 2), text(r, 3))
-        else {
-            continue;
-        };
+    let clauses: HashMap<(String, String), String> = raw
+        .check_clauses
+        .rows
+        .iter()
+        .filter_map(|r| Some(((text(r, 0)?, text(r, 1)?), text(r, 2)?)))
+        .collect();
+    for r in &raw.check_owners.rows {
+        let (Some(s), Some(t), Some(name)) = (text(r, 0), text(r, 1), text(r, 2)) else { continue };
+        let Some(clause) = clauses.get(&(s.clone(), name.clone())) else { continue };
         let Some(&(si, ti)) = index.get(&(s, t)) else { continue };
         schemas[si].tables[ti].constraints.push(Constraint {
             name,
@@ -395,7 +436,8 @@ mod tests {
                 "CASCADE",
                 "RESTRICT",
             ]]),
-            checks: rs(vec![vec!["shop", "orders", "pos", "(`total` >= 0)"]]),
+            check_owners: rs(vec![vec!["shop", "orders", "pos"]]),
+            check_clauses: rs(vec![vec!["shop", "pos", "(`total` >= 0)"]]),
             routines: rs(vec![vec![
                 "shop",
                 "tax",

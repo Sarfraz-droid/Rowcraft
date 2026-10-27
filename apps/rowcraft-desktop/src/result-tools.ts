@@ -20,3 +20,15 @@ export function resultCsv(result: QueryOutput): string {
 }
 
 export const resultToCsv = resultCsv;
+
+/** A Markdown table of the given row indexes (all rows when omitted); numeric columns align right. */
+export function resultMarkdown(result: QueryOutput, rows?: Iterable<number>): string {
+  const line = (cells: string[]) => `| ${cells.map(text => text.replaceAll("|", "\\|").replace(/\r?\n/g, "<br>")).join(" | ")} |`;
+  const numeric = new Set(numericColumns(result));
+  const indexes = rows ? [...rows].sort((a, b) => a - b) : result.rows.map((_, index) => index);
+  return [
+    line(result.columns),
+    `|${result.columns.map((_, index) => numeric.has(index) ? " ---: " : " --- ").join("|")}|`,
+    ...indexes.flatMap(index => { const row = result.rows[index]; return row ? [line(row.map(cellText))] : []; }),
+  ].join("\n");
+}

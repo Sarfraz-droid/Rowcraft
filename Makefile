@@ -8,6 +8,8 @@ ROWCRAFT         := target/debug/rowcraft
 # Desktop app (Tauri + React). Local binaries are called directly: `pnpm run` first checks
 # dependency status, which fails on some setups.
 DESKTOP    := apps/rowcraft-desktop
+# Private key that signs in-app update archives (docs/installers.md); never commit it.
+UPDATER_KEY ?= $(HOME)/.tauri/rowcraft-updater.key
 DESKTOP_CFG := $(CURDIR)/.dev/desktop-cfg
 DESKTOP_DB  := $(CURDIR)/.dev/desktop-demo.sqlite
 
@@ -47,7 +49,12 @@ gui: ## Build the desktop app without bundling (run gui-install once first)
 	cd $(DESKTOP) && node_modules/.bin/tauri build --no-bundle
 
 installer: ## Build installers for the current OS (run gui-install once first)
-	cd $(DESKTOP) && node_modules/.bin/tauri build
+	@# Update archives need the updater signing key; without it, build installers only.
+	cd $(DESKTOP) && if [ -n "$$TAURI_SIGNING_PRIVATE_KEY" ] || [ -f "$(UPDATER_KEY)" ]; then \
+		TAURI_SIGNING_PRIVATE_KEY="$${TAURI_SIGNING_PRIVATE_KEY:-$(UPDATER_KEY)}" node_modules/.bin/tauri build; \
+	else \
+		node_modules/.bin/tauri build --config '{"bundle":{"createUpdaterArtifacts":false}}'; \
+	fi
 
 run-gui: ## Launch the desktop app with frontend hot reload (uses your real config)
 	cd $(DESKTOP) && node_modules/.bin/tauri dev

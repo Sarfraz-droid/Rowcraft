@@ -4,7 +4,7 @@
 
 import { mockIPC } from "@tauri-apps/api/mocks";
 
-import type { AddedSource, Bootstrap, Catalog, Cell, Draft, DriverInfo, FormDefaults, QueryOutput, SourceSummary, CustomDriverConfig } from "./api";
+import type { AddedSource, Bootstrap, Catalog, Cell, Draft, DriverInfo, FormDefaults, QueryOutput, RowChanges, SourceSummary, CustomDriverConfig } from "./api";
 
 import catalog from "./driver-catalog.json";
 import downloadCatalog from "../../../drivers/catalog.json";
@@ -186,6 +186,12 @@ export function installMock(): void {
       case "introspect":
         await wait(300);
         return CATALOG;
+      case "apply_row_changes": {
+        await wait(150);
+        const changes = args.changes as RowChanges;
+        const count = changes.deletes.length + changes.updates.length + changes.inserts.length;
+        return { columns: [], rows: [], summary: `${count} rows affected in 2 ms`, row_limit: null };
+      }
       case "preview_statement":
         return `select * from "${String(args.schema)}"."${String(args.table)}" limit 1000`;
       case "run_query": {

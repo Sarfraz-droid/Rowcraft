@@ -2,8 +2,10 @@
 //! only its gateway key is stored here, using the existing OS credential store.
 
 use std::{
+    collections::HashMap,
     path::{Path, PathBuf},
-    time::Duration,
+    sync::{LazyLock, Mutex, PoisonError},
+    time::{Duration, Instant},
 };
 
 use reqwest::{Client, StatusCode, Url};
@@ -321,7 +323,7 @@ pub async fn complete(
         return Err("Choose a model or routing combo in AI settings first.".into());
     }
     if messages.is_empty()
-        || messages.len() > 32
+        || messages.len() > 80
         || messages
             .iter()
             .any(|m| !["system", "user", "assistant", "tool"].contains(&m.role.as_str()))
@@ -332,7 +334,127 @@ pub async fn complete(
         return Err("Keep the AI conversation below 100 KB.".into());
     }
     let key = key(path, None, &settings.base_url)?;
-    complete_with(&client()?, &settings, key.as_deref(), messages, tools_enabled).await
+    let client = client()?;
+    let spare = spare_models(&client, &settings, key.as_deref()).await;
+    complete_with(&client, &route(&settings, spare), key.as_deref(), messages, tools_enabled).await
+}
+
+/// How long a model that just failed waits at the back of the route.
+const COOLDOWN: Duration = Duration::from_secs(120);
+/// Models that failed recently, so the next request does not wait on them first again.
+static COOLING: LazyLock<Mutex<HashMap<String, Instant>>> = LazyLock::new(Default::default);
+/// The gateway's model list, fetched at most every ten minutes.
+static LISTED: LazyLock<Mutex<Option<Listed>>> = LazyLock::new(Default::default);
+
+#[derive(Debug, Clone)]
+struct Listed {
+    base_url: String,
+    fetched: Instant,
+    ids: Vec<String>,
+}
+
+fn cool(model: &str) {
+    COOLING.lock().unwrap_or_else(PoisonError::into_inner).insert(model.to_owned(), Instant::now());
+}
+
+fn warm(model: &str) {
+    COOLING.lock().unwrap_or_else(PoisonError::into_inner).remove(model);
+}
+
+fn cooling(model: &str) -> bool {
+    COOLING
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .get(model)
+        .is_some_and(|at| at.elapsed() < COOLDOWN)
+}
+
+/// Whether a listed model id looks like a chat model rather than embeddings, speech or images.
+fn chat_capable(id: &str) -> bool {
+    let id = id.to_ascii_lowercase();
+    ![
+        "embed",
+        "tts",
+        "whisper",
+        "transcri",
+        "speech",
+        "audio",
+        "image",
+        "dall-e",
+        "moderation",
+        "rerank",
+        "realtime",
+    ]
+    .iter()
+    .any(|word| id.contains(word))
+}
+
+/// Up to two gateway models outside the configured route, tried only after it fails: first those
+/// from the primary model's provider (`provider/model`), then the gateway's order.
+fn pick_spares(settings: &AiSettings, listed: &[String]) -> Vec<String> {
+    let provider = settings.model.split_once('/').map(|(provider, _)| provider);
+    let mut spare: Vec<&String> = listed
+        .iter()
+        .filter(|id| {
+            chat_capable(id) && **id != settings.model && !settings.fallback_models.contains(id)
+        })
+        .collect();
+    spare.sort_by_key(|id| {
+        provider.is_none_or(|p| id.split_once('/').map(|(own, _)| own) != Some(p))
+    });
+    spare.into_iter().take(2).cloned().collect()
+}
+
+async fn spare_models(client: &Client, settings: &AiSettings, key: Option<&str>) -> Vec<String> {
+    let cached = LISTED.lock().unwrap_or_else(PoisonError::into_inner).clone();
+    let listed = match cached {
+        Some(listed)
+            if listed.base_url == settings.base_url
+                && listed.fetched.elapsed() < Duration::from_secs(600) =>
+        {
+            listed.ids
+        }
+        _ => {
+            let request = authorized(client.get(format!("{}/models", settings.base_url)), key)
+                .timeout(Duration::from_secs(5));
+            #[derive(Deserialize)]
+            struct Models {
+                data: Vec<AiModel>,
+            }
+            let ids = match request.send().await {
+                Ok(response) if response.status().is_success() => json_response::<Models>(response)
+                    .await
+                    .map(|models| models.data.into_iter().map(|model| model.id).collect())
+                    .unwrap_or_default(),
+                _ => Vec::new(),
+            };
+            *LISTED.lock().unwrap_or_else(PoisonError::into_inner) = Some(Listed {
+                base_url: settings.base_url.clone(),
+                fetched: Instant::now(),
+                ids: ids.clone(),
+            });
+            ids
+        }
+    };
+    pick_spares(settings, &listed)
+}
+
+/// The models to try in order: the configured route, then spares, with recently failed models
+/// moved to the back (still tried, in case everything else is down too).
+fn route(settings: &AiSettings, spare: Vec<String>) -> AiSettings {
+    let mut models: Vec<String> = Vec::new();
+    for model in std::iter::once(&settings.model).chain(&settings.fallback_models).chain(&spare) {
+        if !models.contains(model) {
+            models.push(model.clone());
+        }
+    }
+    models.sort_by_key(|model| cooling(model));
+    let mut models = models.into_iter();
+    AiSettings {
+        base_url: settings.base_url.clone(),
+        model: models.next().unwrap_or_default(),
+        fallback_models: models.collect(),
+    }
 }
 
 async fn complete_with(
@@ -342,9 +464,9 @@ async fn complete_with(
     messages: &[AiMessage],
     tools_enabled: bool,
 ) -> Result<AiReply, String> {
-    route_completion(settings, |model| {
+    route_completion(settings, tools_enabled, |model, tools| {
         let mut body = json!({ "model": model, "messages": messages, "stream": false });
-        if tools_enabled {
+        if tools {
             body["tools"] = json!([
                 {"type":"function","function":{"name":"read_schema","description":"Inspect table and column metadata for the active source and schema.","parameters":{"type":"object","properties":{},"additionalProperties":false}}},
                 {"type":"function","function":{"name":"run_readonly_query","description":"Run one SELECT query against the active database in a read-only transaction. At most 25 rows are returned. Use this to inspect samples or test a query. No mutations, file operations, or locking clauses.","parameters":{"type":"object","properties":{"sql":{"type":"string"}},"required":["sql"],"additionalProperties":false}}}
@@ -353,9 +475,16 @@ async fn complete_with(
         }
         let request = authorized(client.post(format!("{}/chat/completions", settings.base_url)), key).json(&body);
         async move {
-            let response = request.send().await.map_err(|_| {
-                "Could not reach the AI gateway. Check its connection and try again.".to_owned()
-            })?;
+            let response = match request.send().await {
+                Ok(response) => response,
+                // A slow model is that model's problem: move on to the next one.
+                Err(error) if error.is_timeout() => {
+                    return Ok(GatewayResponse { status: StatusCode::REQUEST_TIMEOUT, data: None });
+                }
+                Err(_) => {
+                    return Err("Could not reach the AI gateway. Check its connection and try again.".to_owned());
+                }
+            };
             let status = response.status();
             let data = if status.is_success() {
                 Some(json_response::<Value>(response).await?)
@@ -388,66 +517,85 @@ fn provider_access_error(data: Option<&Value>) -> Option<u16> {
     })
 }
 
-async fn route_completion<F, Fut>(settings: &AiSettings, mut send: F) -> Result<AiReply, String>
+/// The model's message, or why it is unusable so the next model is tried.
+fn parse_reply(model: &str, data: Option<Value>) -> Result<AiReply, &'static str> {
+    let data = data.ok_or("no response data")?;
+    let tool_calls: Vec<AiToolCall> = data
+        .pointer("/choices/0/message/tool_calls")
+        .cloned()
+        .map(serde_json::from_value)
+        .transpose()
+        .map_err(|_| "invalid database tool calls")?
+        .unwrap_or_default();
+    let content =
+        data.pointer("/choices/0/message/content").and_then(Value::as_str).unwrap_or_default();
+    if content.trim().is_empty() && tool_calls.is_empty() {
+        return Err("empty reply");
+    }
+    Ok(AiReply {
+        content: content.to_owned(),
+        model: data.get("model").and_then(Value::as_str).unwrap_or(model).to_owned(),
+        tool_calls,
+    })
+}
+
+/// Tries each model in turn. Any failure of one model (rate limit, outage, timeout, a request it
+/// rejects, an empty or malformed reply) moves on to the next; only a rejected gateway key stops,
+/// since every model would be refused the same way.
+async fn route_completion<F, Fut>(
+    settings: &AiSettings,
+    tools_enabled: bool,
+    mut send: F,
+) -> Result<AiReply, String>
 where
-    F: FnMut(String) -> Fut,
+    F: FnMut(String, bool) -> Fut,
     Fut: std::future::Future<Output = Result<GatewayResponse, String>>,
 {
     let mut failures = Vec::new();
     let mut access_rejected = false;
     for model in std::iter::once(&settings.model).chain(&settings.fallback_models) {
-        let mut response = send(model.clone()).await?;
+        let mut response = send(model.clone(), tools_enabled).await?;
         if matches!(response.status.as_u16(), 502..=504)
             && provider_access_error(response.data.as_ref()).is_none()
         {
             // One short retry handles transient upstream failures without looping
             // on rejected credentials or a provider's account cooldown.
             tokio::time::sleep(Duration::from_millis(500)).await;
-            response = send(model.clone()).await?;
+            response = send(model.clone(), tools_enabled).await?;
+        }
+        if tools_enabled && matches!(response.status.as_u16(), 400 | 422) {
+            // Many models reject the `tools` field. Answering without database checks beats failing.
+            response = send(model.clone(), false).await?;
         }
         let status = response.status;
-        if !status.is_success() {
-            if status.is_server_error() {
-                if let Some(upstream) = provider_access_error(response.data.as_ref()) {
-                    access_rejected = true;
-                    failures.push(format!("{model}: provider rejected access (HTTP {upstream})"));
-                    continue;
-                }
-            }
-            if status == StatusCode::TOO_MANY_REQUESTS
-                || status.is_server_error()
-                || status == StatusCode::NOT_FOUND
-            {
-                failures.push(format!("{model} (HTTP {})", status.as_u16()));
-                continue;
-            }
+        if matches!(status, StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) {
             return Err(format!(
                 "AI gateway returned HTTP {}. Check its API key and model configuration.",
                 status.as_u16()
             ));
         }
-        let data =
-            response.data.ok_or_else(|| "The AI gateway returned no response data.".to_owned())?;
-        let tool_calls: Vec<AiToolCall> = data
-            .pointer("/choices/0/message/tool_calls")
-            .cloned()
-            .map(serde_json::from_value)
-            .transpose()
-            .map_err(|_| "The model returned invalid database tool calls.".to_owned())?
-            .unwrap_or_default();
-        let content =
-            data.pointer("/choices/0/message/content").and_then(Value::as_str).unwrap_or_default();
-        if content.trim().is_empty() && tool_calls.is_empty() {
-            return Err("The model returned no text. Choose a chat-capable model.".into());
+        if !status.is_success() {
+            match provider_access_error(response.data.as_ref()).filter(|_| status.is_server_error())
+            {
+                Some(upstream) => {
+                    access_rejected = true;
+                    failures.push(format!("{model}: provider rejected access (HTTP {upstream})"));
+                }
+                None => failures.push(format!("{model} (HTTP {})", status.as_u16())),
+            }
+            cool(model);
+            continue;
         }
-        if tool_calls.len() > 4 {
-            return Err("The model requested too many tools in one turn.".into());
+        match parse_reply(model, response.data) {
+            Ok(reply) => {
+                warm(model);
+                return Ok(reply);
+            }
+            Err(problem) => {
+                failures.push(format!("{model}: {problem}"));
+                cool(model);
+            }
         }
-        return Ok(AiReply {
-            content: content.to_owned(),
-            model: data.get("model").and_then(Value::as_str).unwrap_or(model).to_owned(),
-            tool_calls,
-        });
     }
     let recovery = if access_rejected {
         "Reconnect the provider in the router dashboard and check model/project access, or choose another model in AI settings."
@@ -571,7 +719,7 @@ mod tests {
             ..Default::default()
         };
         let mut sent = Vec::new();
-        let reply = route_completion(&settings, |model| {
+        let reply = route_completion(&settings, false, |model, _| {
             sent.push(model.clone());
             std::future::ready(Ok(if model == "preferred" {
                 GatewayResponse { status: StatusCode::TOO_MANY_REQUESTS, data: None }
@@ -588,7 +736,7 @@ mod tests {
     async fn retries_a_temporary_503_before_reporting_the_route_unavailable() {
         let settings = AiSettings { model: "gc/gemini-2.5-flash".into(), ..Default::default() };
         let mut attempts = 0;
-        let reply = route_completion(&settings, |_| {
+        let reply = route_completion(&settings, false, |_, _| {
             attempts += 1;
             std::future::ready(Ok(if attempts == 1 {
                 GatewayResponse { status: StatusCode::SERVICE_UNAVAILABLE, data: None }
@@ -609,7 +757,7 @@ mod tests {
     async fn explains_provider_access_errors_wrapped_in_a_gateway_503_without_retrying() {
         let settings = AiSettings { model: "gc/gemini-2.5-flash".into(), ..Default::default() };
         let mut attempts = 0;
-        let error = route_completion(&settings, |_| {
+        let error = route_completion(&settings, false, |_, _| {
             attempts += 1;
             std::future::ready(Ok(GatewayResponse {
                 status: StatusCode::SERVICE_UNAVAILABLE,
@@ -629,7 +777,7 @@ mod tests {
             ..Default::default()
         };
         let mut sent = Vec::new();
-        let reply = route_completion(&settings, |model| {
+        let reply = route_completion(&settings, false, |model, _| {
             sent.push(model.clone());
             std::future::ready(Ok(if model == "unavailable" {
                 GatewayResponse { status: StatusCode::SERVICE_UNAVAILABLE, data: None }
@@ -654,7 +802,7 @@ mod tests {
             ..Default::default()
         };
         let mut sent = Vec::new();
-        let reply = route_completion(&settings, |model| {
+        let reply = route_completion(&settings, false, |model, _| {
             sent.push(model.clone());
             std::future::ready(Ok(if model == "rejected" {
                 GatewayResponse {
@@ -682,7 +830,7 @@ mod tests {
             ..Default::default()
         };
         let mut sent = Vec::new();
-        let error = route_completion(&settings, |model| {
+        let error = route_completion(&settings, false, |model, _| {
             sent.push(model);
             std::future::ready(Ok(GatewayResponse { status: StatusCode::UNAUTHORIZED, data: None }))
         })
@@ -690,6 +838,90 @@ mod tests {
         .expect_err("authentication error");
         assert!(error.contains("401"));
         assert_eq!(sent, ["preferred"]);
+    }
+
+    #[tokio::test]
+    async fn retries_without_tools_when_a_model_rejects_them() {
+        let settings = AiSettings { model: "no-tools-model".into(), ..Default::default() };
+        let mut sent = Vec::new();
+        let reply = route_completion(&settings, true, |_, tools| {
+            sent.push(tools);
+            std::future::ready(Ok(if tools {
+                GatewayResponse { status: StatusCode::BAD_REQUEST, data: None }
+            } else {
+                GatewayResponse {
+                    status: StatusCode::OK,
+                    data: Some(json!({"choices":[{"message":{"content":"SELECT 1;"}}]})),
+                }
+            }))
+        })
+        .await
+        .expect("reply without tools");
+        assert_eq!(reply.content, "SELECT 1;");
+        assert_eq!(sent, [true, false]);
+    }
+
+    #[tokio::test]
+    async fn empty_replies_timeouts_and_bad_requests_move_on_to_the_next_model() {
+        let settings = AiSettings {
+            model: "silent".into(),
+            fallback_models: vec!["slow".into(), "confused".into(), "working".into()],
+            ..Default::default()
+        };
+        let mut sent = Vec::new();
+        let reply = route_completion(&settings, false, |model, _| {
+            sent.push(model.clone());
+            std::future::ready(Ok(match model.as_str() {
+                "silent" => GatewayResponse {
+                    status: StatusCode::OK,
+                    data: Some(json!({"choices":[{"message":{"content":"  "}}]})),
+                },
+                "slow" => GatewayResponse { status: StatusCode::REQUEST_TIMEOUT, data: None },
+                "confused" => GatewayResponse { status: StatusCode::BAD_REQUEST, data: None },
+                _ => GatewayResponse {
+                    status: StatusCode::OK,
+                    data: Some(json!({"choices":[{"message":{"content":"SELECT 1;"}}]})),
+                },
+            }))
+        })
+        .await
+        .expect("working model reply");
+        assert_eq!(reply.model, "working");
+        assert_eq!(sent, ["silent", "slow", "confused", "working"]);
+    }
+
+    #[test]
+    fn spare_models_prefer_the_primary_provider_and_skip_non_chat_models() {
+        let settings = AiSettings {
+            model: "gc/gemini-2.5-pro".into(),
+            fallback_models: vec!["gc/gemini-2.5-flash".into()],
+            ..Default::default()
+        };
+        let listed = [
+            "openai/gpt-4o-mini",
+            "gc/text-embedding-004",
+            "gc/gemini-2.5-pro",
+            "gc/gemini-2.5-flash",
+            "gc/gemini-2.0-flash",
+            "openai/whisper-1",
+        ]
+        .map(String::from);
+        assert_eq!(pick_spares(&settings, &listed), ["gc/gemini-2.0-flash", "openai/gpt-4o-mini"]);
+    }
+
+    #[test]
+    fn recently_failed_models_move_to_the_back_of_the_route() {
+        let settings = AiSettings {
+            model: "route-test/down".into(),
+            fallback_models: vec!["route-test/up".into()],
+            ..Default::default()
+        };
+        cool("route-test/down");
+        let routed = route(&settings, vec!["route-test/spare".into()]);
+        assert_eq!(routed.model, "route-test/up");
+        assert_eq!(routed.fallback_models, ["route-test/spare", "route-test/down"]);
+        warm("route-test/down");
+        assert_eq!(route(&settings, vec![]).model, "route-test/down");
     }
 
     #[test]

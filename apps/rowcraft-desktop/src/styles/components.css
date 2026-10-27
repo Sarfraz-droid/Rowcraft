@@ -424,6 +424,26 @@
   .grid-row.odd { @apply tw:bg-panel; }
   .grid-cell { @apply tw:[padding:4px_10px]; @apply tw:[border-right:1px_solid_var(--border)]; @apply tw:overflow-hidden; @apply tw:text-ellipsis; @apply tw:whitespace-nowrap; }
   .grid-gutter { @apply tw:text-right tw:text-muted-foreground; }
+  .grid-gutter { @apply tw:flex tw:items-center tw:justify-end tw:gap-[6px]; }
+  .grid-row-check { @apply tw:m-0 tw:cursor-pointer tw:opacity-0 tw:[accent-color:var(--primary)]; }
+  .grid-head .grid-row-check, .grid-row:hover .grid-row-check, .grid-row.selected .grid-row-check, .grid-row-check:focus-visible { @apply tw:opacity-100; }
+  .grid-row { @apply tw:cursor-default; }
+  .grid-row.selected, .grid-row.selected.odd { @apply tw:[background:color-mix(in_srgb,var(--primary)_18%,var(--bg))]; }
+  .grid:focus-visible { @apply tw:outline-none; }
+  .grid-head .grid-cell.readonly { @apply tw:text-muted-foreground tw:font-normal; }
+  .grid-cell.edited { @apply tw:[background:color-mix(in_srgb,var(--primary)_14%,transparent)] tw:[box-shadow:inset_2px_0_0_var(--primary)]; }
+  .grid-row.inserted { @apply tw:[background:color-mix(in_srgb,var(--success)_12%,var(--bg))]; }
+  .grid-row.inserted .grid-gutter span { @apply tw:text-success tw:font-semibold; }
+  .grid-row.deleted { @apply tw:[background:color-mix(in_srgb,var(--destructive)_12%,var(--bg))]; }
+  .grid-row.deleted .grid-cell:not(.grid-gutter) { @apply tw:line-through tw:text-muted-foreground; }
+  .grid-cell.editing { @apply tw:p-0 tw:overflow-visible; }
+  .grid-cell-input { @apply tw:w-full tw:h-full tw:m-0 tw:[padding:3px_9px] tw:[font:inherit] tw:text-foreground tw:bg-background tw:[border:1px_solid_var(--primary)] tw:rounded-none tw:outline-none; }
+  .grid-menu { @apply tw:fixed tw:z-50 tw:flex tw:flex-col tw:min-w-[170px] tw:p-[4px] tw:border tw:border-border tw:rounded-control tw:bg-popover tw:text-popover-foreground tw:shadow-md tw:text-label; }
+  .grid-menu button { @apply tw:text-left tw:bg-transparent tw:[border:0] tw:rounded-control tw:[padding:5px_10px] tw:text-inherit tw:cursor-pointer tw:[font:inherit]; }
+  .grid-menu button:hover:not(:disabled), .grid-menu button:focus-visible { @apply tw:bg-hover tw:outline-none; }
+  .grid-menu button:disabled { @apply tw:text-muted-foreground tw:cursor-default; }
+  .grid-menu hr { @apply tw:[border:0] tw:[border-top:1px_solid_var(--border)] tw:[margin:4px_0]; }
+  .grid-menu hr:first-child, .grid-menu hr:last-child, .grid-menu hr + hr { @apply tw:hidden; }
   .dim { @apply tw:text-muted-foreground tw:italic; }
   .num { @apply tw:text-right; }
   .statusbar { @apply tw:flex; @apply tw:items-center; @apply tw:gap-[20px]; @apply tw:min-h-[28px]; @apply tw:[border-top:1px_solid_var(--border)]; @apply tw:[padding:5px_12px]; @apply tw:text-label; }
@@ -650,6 +670,11 @@
   .connection { @apply tw:flex tw:items-center tw:gap-[7px] tw:max-w-[34%] tw:overflow-hidden tw:text-ellipsis; }
   .statusbar .message { @apply tw:whitespace-nowrap tw:text-ellipsis tw:overflow-hidden; }
   .status-end { @apply tw:text-muted-foreground tw:text-caption tw:shrink-0; }
+  .app-update { @apply tw:inline-flex tw:items-center tw:gap-[5px] tw:shrink-0 tw:whitespace-nowrap tw:text-caption tw:text-muted-foreground tw:bg-transparent tw:border-0 tw:p-0 tw:[font:inherit]; }
+  button.app-update { @apply tw:cursor-pointer; }
+  button.app-update:hover:not(:disabled) { @apply tw:text-foreground; }
+  .app-update.available { @apply tw:text-primary tw:font-medium; }
+  .app-update.failed { @apply tw:text-destructive; }
   .welcome-workspace { @apply tw:flex tw:[flex:1] tw:min-h-0 tw:items-center tw:justify-center tw:flex-col tw:p-[30px] tw:text-center; }
   .welcome-symbol { @apply tw:w-[78px]; @apply tw:h-[78px]; @apply tw:flex; @apply tw:items-center; @apply tw:justify-center; @apply tw:bg-panel; @apply tw:[border:1px_solid_var(--border)]; @apply tw:rounded-control; @apply tw:text-muted-foreground; @apply tw:mb-[25px]; }
   .welcome-workspace h1 { @apply tw:text-[21px] tw:font-medium tw:tracking-[-.04em] tw:[margin:0_0_13px]; }

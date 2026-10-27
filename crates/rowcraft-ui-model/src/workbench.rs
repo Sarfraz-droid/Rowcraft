@@ -14,7 +14,7 @@ use rowcraft_config::{
 use rowcraft_core::{Engine, Session};
 use rowcraft_dialect::IntrospectScope;
 use rowcraft_model::Catalog;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::result::{QueryOutput, ROW_LIMIT};
 use crate::source_form::{self, Draft};
@@ -511,8 +511,9 @@ impl Workbench {
     pub async fn introspect(&self) -> Result<Catalog, String> {
         let session =
             self.state().session.clone().ok_or_else(|| "Select a data source first.".to_owned())?;
+        let scope = IntrospectScope::default();
         let catalog =
-            session.introspect(&IntrospectScope::default()).await.map_err(|e| e.to_string())?;
+            self.retrying(&session, |s| s.introspect(&scope)).await.map_err(|e| e.to_string())?;
         let mut state = self.state();
         if let Some(retained) = state
             .sessions
@@ -591,6 +592,86 @@ impl Workbench {
             format!("{}.{}", ident(schema), ident(table))
         };
         Ok(format!("select * from {name}"))
+    }
+
+    /// Saves the edits made in the result grid to `schema.table`: `changes.deletes` and the rows of
+    /// `changes.updates` are result rows (cells in `columns` order, as the grid received them),
+    /// matched by the primary key, or by a unique key whose columns are all NOT NULL. Tables
+    /// without such a key are refused rather than guessed at.
+    ///
+    /// Everything runs in one transaction where the database has them, and a statement that does
+    /// not hit exactly the rows it was meant for rolls it all back, so a row that changed or
+    /// vanished since it was read is never half-saved.
+    pub async fn apply_row_changes(
+        &self,
+        schema: &str,
+        table: &str,
+        columns: &[String],
+        changes: &RowChanges,
+    ) -> Result<QueryOutput, String> {
+        let (session, dialect, statements) = {
+            let state = self.state();
+            let session =
+                state.session.clone().ok_or_else(|| "Select a data source first.".to_owned())?;
+            let dialect = state.dialect.clone().unwrap_or_default();
+            let meta = state
+                .catalog
+                .as_ref()
+                .and_then(|catalog| catalog.table(schema, table))
+                .ok_or("Refresh the database objects before editing rows of this table.")?;
+            let statements = change_statements(&dialect, schema, meta, columns, changes)?;
+            (session, dialect, statements)
+        };
+        let sql: Vec<String> = statements.iter().map(|(sql, _)| sql.clone()).collect();
+        let check = |i: usize, rs: &rowcraft_dialect::ResultSet| match (
+            statements[i].1,
+            rs.rows_affected,
+        ) {
+            (Some(expected), Some(actual)) if actual != expected => Err(format!(
+                "`{}` matched {actual} row(s) instead of {expected}; the rows may have changed \
+                 since they were read. Nothing was saved. Reload the rows and try again.",
+                statements[i].0
+            )),
+            _ => Ok(()),
+        };
+        let started = Instant::now();
+        let tx = transaction_verbs(&dialect);
+        let affected = match tx {
+            // A dropped connection rolls the transaction back, so it is safe to run it again.
+            Some(_) => self.retrying(&session, |s| s.execute_all(tx, &sql, check)).await,
+            None => session.execute_all(None, &sql, check).await,
+        }
+        .map_err(|e| e.to_string())?;
+        Ok(QueryOutput {
+            columns: Vec::new(),
+            rows: Vec::new(),
+            summary: format!(
+                "{affected} row{} affected in {} ms",
+                if affected == 1 { "" } else { "s" },
+                started.elapsed().as_millis()
+            ),
+            row_limit: None,
+        })
+    }
+
+    /// Runs `op` on `session`; when the connection turns out to be gone (the server closed it
+    /// while the app sat idle, the laptop slept, the tunnel dropped), opens it again and runs `op`
+    /// once more. Only a lost connection is retried, never a failed statement.
+    async fn retrying<'s, T, Fut>(
+        &self,
+        session: &'s Session,
+        op: impl Fn(&'s Session) -> Fut,
+    ) -> rowcraft_core::Result<T>
+    where
+        Fut: std::future::Future<Output = rowcraft_core::Result<T>>,
+    {
+        match op(session).await {
+            Err(e) if rowcraft_core::is_connection_lost(&e) => {
+                session.reconnect(&self.engine).await?;
+                op(session).await
+            }
+            other => other,
+        }
     }
 
     fn ai_source(&self, name: &str) -> Result<DataSourceConfig, String> {
@@ -740,13 +821,20 @@ impl Workbench {
         let applied_limit = bounded.is_some();
         let statement = bounded.as_deref().unwrap_or(statement);
         let max_rows = if show_all { usize::MAX } else { ROW_LIMIT };
-        let started = Instant::now();
-        let result = if let Some(schema) = schema.filter(|name| !name.is_empty()) {
-            let setup = schema_statement(&dialect, schema)?;
-            session.query_with_setup(&setup, statement, max_rows).await
-        } else {
-            session.query(statement, max_rows).await
+        let setup = match schema.filter(|name| !name.is_empty()) {
+            Some(schema) => Some(schema_statement(&dialect, schema)?),
+            None => None,
         };
+        let setup = setup.as_deref();
+        let started = Instant::now();
+        let result = self
+            .retrying(&session, |s| async move {
+                match setup {
+                    Some(setup) => s.query_with_setup(setup, statement, max_rows).await,
+                    None => s.query(statement, max_rows).await,
+                }
+            })
+            .await;
         let rs = result.map_err(|error| {
             let message = error.to_string();
             if message.contains("1046") || message.contains("No database selected") {
@@ -785,6 +873,205 @@ fn schema_statement(dialect: &str, schema: &str) -> Result<String, String> {
     }
 }
 
+/// The columns that identify one row: the primary key, else the first unique key whose columns
+/// are all NOT NULL (NULLs never compare equal, so a nullable key cannot find its row).
+fn row_key(table: &rowcraft_model::Table) -> Option<Vec<String>> {
+    use rowcraft_model::ConstraintKind;
+    let primary = table.primary_key();
+    if !primary.is_empty() {
+        return Some(primary.to_vec());
+    }
+    table
+        .constraints
+        .iter()
+        .filter(|c| c.kind == ConstraintKind::Unique && !c.columns.is_empty())
+        .find(|c| {
+            c.columns
+                .iter()
+                .all(|name| table.columns.iter().any(|col| &col.name == name && !col.nullable))
+        })
+        .map(|c| c.columns.clone())
+}
+
+/// Edits made in the result grid, as the frontend sends them. Values are JSON cells: `null` is
+/// SQL NULL, text is typed by the user and left for the database to convert.
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(default)]
+pub struct RowChanges {
+    /// Result rows to delete.
+    pub deletes: Vec<Vec<serde_json::Value>>,
+    pub updates: Vec<RowUpdate>,
+    /// New rows, column name to value; columns left out get their default.
+    pub inserts: Vec<serde_json::Map<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct RowUpdate {
+    /// The result row as it was read, which locates the row by its key.
+    pub row: Vec<serde_json::Value>,
+    /// Column name to new value.
+    pub values: serde_json::Map<String, serde_json::Value>,
+}
+
+/// Rows deleted per statement: few round trips, while keeping statements a sensible size.
+const DELETE_CHUNK: usize = 200;
+
+/// The statements that apply `changes` to `table`, deletes first (so a new row may reuse a
+/// deleted key), each with the number of rows it must affect, where that is known.
+fn change_statements(
+    dialect: &str,
+    schema: &str,
+    table: &rowcraft_model::Table,
+    columns: &[String],
+    changes: &RowChanges,
+) -> Result<Vec<(String, Option<u64>)>, String> {
+    if matches!(
+        dialect,
+        "mongo" | "redis" | "neo4j" | "graphql" | "dynamo" | "couchbase" | "cassandra"
+    ) {
+        return Err("Editing rows from the grid is only available for SQL databases.".into());
+    }
+    if changes.deletes.is_empty() && changes.updates.is_empty() && changes.inserts.is_empty() {
+        return Err("There are no changes to save.".into());
+    }
+    let (open, close) = quote_pair(dialect);
+    let ident = |s: &str| format!("{open}{}{close}", s.replace(close, &format!("{close}{close}")));
+    let name = if schema.is_empty() {
+        ident(&table.name)
+    } else {
+        format!("{}.{}", ident(schema), ident(&table.name))
+    };
+    let column = |key: &str| {
+        if table.columns.iter().any(|c| c.name == key) {
+            Ok(ident(key))
+        } else {
+            Err(format!("`{key}` is not a column of {}, so it cannot be edited.", table.name))
+        }
+    };
+    let keys = || {
+        row_key(table).ok_or_else(|| {
+            "This table has no primary key or NOT NULL unique key, so its rows cannot be \
+             matched safely from the grid. Use the console instead."
+                .to_owned()
+        })
+    };
+    let matcher = |keys: &[String], row: &[serde_json::Value]| -> Result<String, String> {
+        let terms = keys
+            .iter()
+            .map(|key| {
+                let i = columns.iter().position(|c| c == key).ok_or_else(|| {
+                    format!("The result does not include key column `{key}`; run `select *` first.")
+                })?;
+                match row.get(i) {
+                    Some(serde_json::Value::Null) | None => {
+                        Err("A key value is NULL, so the row cannot be matched.".to_owned())
+                    }
+                    cell => Ok(format!("{} = {}", ident(key), sql_literal(dialect, cell)?)),
+                }
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        Ok(format!("({})", terms.join(" and ")))
+    };
+
+    let mut statements = Vec::new();
+    if !changes.deletes.is_empty() {
+        let keys = keys()?;
+        for chunk in changes.deletes.chunks(DELETE_CHUNK) {
+            let matches =
+                chunk.iter().map(|row| matcher(&keys, row)).collect::<Result<Vec<_>, _>>()?;
+            statements.push((
+                format!("delete from {name} where {}", matches.join(" or ")),
+                Some(chunk.len() as u64),
+            ));
+        }
+    }
+    if !changes.updates.is_empty() {
+        let keys = keys()?;
+        for update in &changes.updates {
+            if update.values.is_empty() {
+                continue;
+            }
+            let sets = update
+                .values
+                .iter()
+                .map(|(key, value)| {
+                    Ok(format!("{} = {}", column(key)?, sql_literal(dialect, Some(value))?))
+                })
+                .collect::<Result<Vec<_>, String>>()?;
+            statements.push((
+                format!(
+                    "update {name} set {} where {}",
+                    sets.join(", "),
+                    matcher(&keys, &update.row)?
+                ),
+                Some(1),
+            ));
+        }
+    }
+    for insert in &changes.inserts {
+        if insert.is_empty() {
+            let statement = if matches!(dialect, "mysql" | "mariadb") {
+                format!("insert into {name} () values ()")
+            } else {
+                format!("insert into {name} default values")
+            };
+            statements.push((statement, Some(1)));
+            continue;
+        }
+        let names = insert.keys().map(|key| column(key)).collect::<Result<Vec<_>, _>>()?;
+        let values = insert
+            .values()
+            .map(|value| sql_literal(dialect, Some(value)))
+            .collect::<Result<Vec<_>, _>>()?;
+        statements.push((
+            format!("insert into {name} ({}) values ({})", names.join(", "), values.join(", ")),
+            Some(1),
+        ));
+    }
+    if statements.is_empty() {
+        return Err("There are no changes to save.".into());
+    }
+    Ok(statements)
+}
+
+/// A grid cell as a SQL literal; a missing cell is NULL. MySQL strings go hex-encoded with a
+/// charset introducer, so neither quotes nor backslashes need escaping whatever
+/// `NO_BACKSLASH_ESCAPES` says.
+fn sql_literal(dialect: &str, cell: Option<&serde_json::Value>) -> Result<String, String> {
+    use serde_json::Value as J;
+    let tsql = matches!(dialect, "mssql" | "sybase");
+    match cell {
+        Some(J::Bool(b)) if tsql => Ok(if *b { "1" } else { "0" }.into()),
+        Some(J::Bool(b)) => Ok(if *b { "TRUE" } else { "FALSE" }.into()),
+        Some(J::Number(n)) => Ok(n.to_string()),
+        Some(J::String(text)) if matches!(dialect, "mysql" | "mariadb") => {
+            if text.is_empty() {
+                return Ok("''".into());
+            }
+            let hex: String = text.bytes().map(|b| format!("{b:02X}")).collect();
+            Ok(format!("_utf8mb4 X'{hex}'"))
+        }
+        Some(J::String(text)) if tsql => Ok(format!("N'{}'", text.replace('\'', "''"))),
+        Some(J::String(text)) => Ok(format!("'{}'", text.replace('\'', "''"))),
+        Some(J::Null) | None => Ok("NULL".into()),
+        Some(_) => Err("Binary values cannot be written from the grid.".into()),
+    }
+}
+
+/// How to open, commit and roll back a transaction, for the databases the grid saves in one.
+fn transaction_verbs(dialect: &str) -> Option<[&'static str; 3]> {
+    match dialect {
+        "pg" | "cockroach" | "greenplum" | "redshift" | "sqlite" => {
+            Some(["BEGIN", "COMMIT", "ROLLBACK"])
+        }
+        "mysql" | "mariadb" => Some(["START TRANSACTION", "COMMIT", "ROLLBACK"]),
+        "mssql" | "sybase" => {
+            Some(["BEGIN TRANSACTION", "COMMIT TRANSACTION", "ROLLBACK TRANSACTION"])
+        }
+        _ => None,
+    }
+}
+
 /// Identifier quote characters per dialect.
 fn quote_pair(dialect: &str) -> (&'static str, &'static str) {
     match dialect {
@@ -801,6 +1088,110 @@ mod tests {
     use serde_json::json;
 
     use super::*;
+
+    fn keyed_table(
+        constraint: rowcraft_model::ConstraintKind,
+        nullable: bool,
+    ) -> rowcraft_model::Table {
+        let column = |name: &str| rowcraft_model::Column {
+            name: name.into(),
+            nullable: nullable || name != "id",
+            ..Default::default()
+        };
+        rowcraft_model::Table {
+            name: "t".into(),
+            columns: vec![column("id"), column("name")],
+            constraints: vec![rowcraft_model::Constraint {
+                name: "k".into(),
+                kind: constraint,
+                columns: vec!["id".into()],
+                definition: String::new(),
+                reference: None,
+            }],
+            ..Default::default()
+        }
+    }
+
+    fn changes(value: serde_json::Value) -> RowChanges {
+        serde_json::from_value(value).unwrap()
+    }
+
+    #[test]
+    fn grid_changes_become_keyed_statements_with_expected_row_counts() {
+        use rowcraft_model::ConstraintKind::{PrimaryKey, Unique};
+        let table = keyed_table(PrimaryKey, false);
+        let columns = vec!["id".to_owned(), "name".to_owned()];
+        let all = changes(json!({
+            "deletes": [[1, "a'b"], [2, "c"]],
+            "updates": [{ "row": [3, "x"], "values": { "name": "it's", "id": 30 } }],
+            "inserts": [{ "name": null }, {}],
+        }));
+        assert_eq!(
+            change_statements("pg", "public", &table, &columns, &all).unwrap(),
+            [
+                (r#"delete from "public"."t" where ("id" = 1) or ("id" = 2)"#.to_owned(), Some(2)),
+                (
+                    r#"update "public"."t" set "name" = 'it''s', "id" = 30 where ("id" = 3)"#
+                        .into(),
+                    Some(1)
+                ),
+                (r#"insert into "public"."t" ("name") values (NULL)"#.into(), Some(1)),
+                (r#"insert into "public"."t" default values"#.into(), Some(1)),
+            ]
+        );
+        let mysql = changes(
+            json!({ "updates": [{ "row": [1, "a"], "values": { "name": "a'b" } }], "inserts": [{}] }),
+        );
+        assert_eq!(
+            change_statements("mysql", "shop", &table, &columns, &mysql).unwrap(),
+            [
+                (
+                    "update `shop`.`t` set `name` = _utf8mb4 X'612762' where (`id` = 1)".to_owned(),
+                    Some(1)
+                ),
+                ("insert into `shop`.`t` () values ()".into(), Some(1)),
+            ]
+        );
+        let tsql = changes(json!({ "updates": [{ "row": [1, "a"], "values": { "name": "é" } }] }));
+        assert_eq!(
+            change_statements("mssql", "dbo", &table, &columns, &tsql).unwrap()[0].0,
+            "update [dbo].[t] set [name] = N'é' where ([id] = 1)"
+        );
+        // A NOT NULL unique key stands in for a missing primary key; a nullable one does not.
+        let deletes = changes(json!({ "deletes": [[1, "a"]] }));
+        assert!(
+            change_statements("sqlite", "", &keyed_table(Unique, false), &columns, &deletes)
+                .is_ok()
+        );
+        assert!(
+            change_statements("sqlite", "", &keyed_table(Unique, true), &columns, &deletes)
+                .is_err()
+        );
+        // Inserts need no key at all.
+        let insert = changes(json!({ "inserts": [{ "name": "n" }] }));
+        assert!(
+            change_statements("sqlite", "", &keyed_table(Unique, true), &columns, &insert).is_ok()
+        );
+    }
+
+    #[test]
+    fn grid_changes_are_refused_when_they_cannot_be_applied_exactly() {
+        let table = keyed_table(rowcraft_model::ConstraintKind::PrimaryKey, false);
+        let columns = vec!["id".to_owned(), "name".to_owned()];
+        let refused = |dialect: &str, columns: &[String], value| {
+            change_statements(dialect, "s", &table, columns, &changes(value)).is_err()
+        };
+        assert!(refused("pg", &columns, json!({})));
+        assert!(refused("pg", &["name".to_owned()], json!({ "deletes": [["a"]] })));
+        assert!(refused("pg", &columns, json!({ "deletes": [[null, "a"]] })));
+        assert!(refused(
+            "pg",
+            &columns,
+            json!({ "updates": [{ "row": [1, "a"], "values": { "nope": 1 } }] })
+        ));
+        assert!(refused("pg", &columns, json!({ "inserts": [{ "total": 1 }] })));
+        assert!(refused("mongo", &columns, json!({ "deletes": [[1, "a"]] })));
+    }
 
     #[test]
     fn mongo_collection_preview_uses_native_commands() {
@@ -1163,6 +1554,48 @@ mod tests {
 
         let err = f.bench.run("selec 1").await.unwrap_err();
         assert!(!err.is_empty());
+    }
+
+    #[tokio::test]
+    async fn grid_changes_are_saved_in_one_transaction_or_not_at_all() {
+        let f = Fixture::new("row-changes");
+        f.bench.add_source(&f.sqlite_draft("local")).unwrap();
+        f.bench.connect("local").await.unwrap();
+        f.bench
+            .run("create table people(id integer primary key, name text not null, note text)")
+            .await
+            .unwrap();
+        f.bench.run("insert into people values (1, 'Ada', null), (2, 'Bob', 'x')").await.unwrap();
+        let schema = f.bench.introspect().await.unwrap().schemas[0].name.clone();
+        let columns = ["id".to_owned(), "name".to_owned(), "note".to_owned()];
+        let rows = || async {
+            f.bench.run("select id, name, note from people order by id").await.unwrap().rows
+        };
+
+        let saved = changes(json!({
+            "deletes": [[2, "Bob", "x"]],
+            "updates": [{ "row": [1, "Ada", null], "values": { "name": "Ada L.", "note": "it's" } }],
+            "inserts": [{ "id": "3", "name": "Cy" }],
+        }));
+        let out = f.bench.apply_row_changes(&schema, "people", &columns, &saved).await.unwrap();
+        assert!(out.summary.starts_with("3 rows affected"), "{}", out.summary);
+        assert_eq!(
+            rows().await,
+            [[json!(1), json!("Ada L."), json!("it's")], [json!(3), json!("Cy"), json!(null)]]
+        );
+
+        // Row 2 is gone, so its update matches nothing and the valid insert is rolled back too.
+        let stale = changes(json!({
+            "updates": [{ "row": [2, "Bob", "x"], "values": { "name": "B" } }],
+            "inserts": [{ "id": 4, "name": "Di" }],
+        }));
+        let err = f.bench.apply_row_changes(&schema, "people", &columns, &stale).await.unwrap_err();
+        assert!(err.contains("matched 0 row(s)"), "{err}");
+        // A constraint failure rolls back as well.
+        let invalid =
+            changes(json!({ "inserts": [{ "id": 5, "name": "Ed" }, { "id": 6, "name": null }] }));
+        assert!(f.bench.apply_row_changes(&schema, "people", &columns, &invalid).await.is_err());
+        assert_eq!(rows().await.len(), 2);
     }
 
     #[tokio::test]

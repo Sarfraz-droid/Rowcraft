@@ -149,6 +149,11 @@
   .result-page-size, .result-page-controls { @apply tw:flex tw:items-center tw:gap-[6px]; }
   .result-page-size { @apply tw:whitespace-nowrap; }
   .result-row-range { @apply tw:whitespace-nowrap tw:tabular-nums; }
+  .result-selection { @apply tw:flex tw:items-center tw:gap-[6px] tw:whitespace-nowrap tw:text-foreground; }
+  .result-delete { @apply tw:text-destructive; }
+  .result-changes { @apply tw:flex tw:items-center tw:gap-[6px] tw:whitespace-nowrap tw:text-foreground; }
+  .result-save { @apply tw:[padding:3px_10px] tw:gap-[6px]; }
+  .result-readonly { @apply tw:whitespace-nowrap tw:cursor-help tw:[border:1px_solid_var(--border)] tw:rounded-control tw:[padding:1px_6px]; }
   .result-page-controls { @apply tw:ml-auto; }
   .result-page-controls > span { @apply tw:whitespace-nowrap tw:mr-[4px] tw:tabular-nums; }
   .ai-assistant-sidebar { @apply tw:flex tw:flex-col tw:w-[350px] tw:min-w-[280px] tw:max-w-[45vw] tw:shrink-0 tw:min-h-0 tw:border-l tw:border-border tw:bg-panel; }

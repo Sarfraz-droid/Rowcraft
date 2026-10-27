@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { databaseProfile } from "../database-profile";
 import type { QueryHistoryItem, SourceViewProps, WorkspaceView } from '../workbench-model';
 import { catalogTables, columnTypes, relationships } from '../workbench-model';
@@ -5,15 +6,17 @@ import { catalogTables, columnTypes, relationships } from '../workbench-model';
 interface Props extends SourceViewProps { history: QueryHistoryItem[]; onNavigate(view: WorkspaceView): void }
 export function SourceDashboard({ catalog, source, connected, busy, history, onNavigate, onRefresh, onOpenTable }: Props) {
   const profile = databaseProfile(source?.dialect);
-  const tables = catalogTables(catalog);
-  const types = columnTypes(tables);
+  // Large catalogs hold tens of thousands of columns; derive these once per catalog, not per render.
+  const tables = useMemo(() => catalogTables(catalog), [catalog]);
+  const types = useMemo(() => columnTypes(tables), [tables]);
+  const foreignKeys = useMemo(() => relationships(tables).length, [tables]);
   const recent = history.filter(item => item.source === source?.name).slice(0, 5);
   const columns = tables.reduce((sum, item) => sum + item.table.columns.length, 0);
   return <section className="source-view dashboard-view" aria-label="Source dashboard">
     <header className="source-view-heading"><div><h1>{source?.name ?? 'Source overview'}</h1><p>{source?.dialect.toUpperCase() ?? 'Database'} <span className="sv-separator tw:[margin:0_10px] tw:text-border">/</span> {catalog?.database ?? source?.host ?? 'Local database'}</p></div><button className="sv-button" onClick={onRefresh} disabled={!connected || busy}>{busy ? 'Refreshing…' : 'Refresh metadata'}</button></header>
     <div className="sv-connection"><span className={`sv-status-dot ${connected ? 'is-connected' : ''}`} /><span>{connected ? 'Connected' : 'Disconnected'}</span><span className="sv-subtle">{source?.ssh_tunnel ? `via ${source.ssh_tunnel}` : source?.host ?? 'Local connection'}</span></div>
     {!catalog ? <div className="sv-empty"><h2>{busy ? 'Reading database structure…' : 'Explore your database'}</h2><p>{busy ? 'Database objects and their metadata will appear here.' : 'Connect to this source to inspect its structure and run queries.'}</p><button className="sv-button" onClick={() => onNavigate('console')}>Open {profile.console}</button></div> : <>
-    <dl className="sv-inventory"><div><dt>{profile.namespace}s</dt><dd>{catalog.schemas.length}</dd></div><div><dt>{profile.relationships ? "Tables & views" : profile.objects}</dt><dd>{tables.length}</dd></div><div><dt>{profile.fields}</dt><dd>{columns}</dd></div>{profile.relationships && <div><dt>Foreign keys</dt><dd>{relationships(tables).length}</dd></div>}</dl>
+    <dl className="sv-inventory"><div><dt>{profile.namespace}s</dt><dd>{catalog.schemas.length}</dd></div><div><dt>{profile.relationships ? "Tables & views" : profile.objects}</dt><dd>{tables.length}</dd></div><div><dt>{profile.fields}</dt><dd>{columns}</dd></div>{profile.relationships && <div><dt>Foreign keys</dt><dd>{foreignKeys}</dd></div>}</dl>
     <div className="sv-dashboard-columns"><section className="sv-section"><header><h2>{profile.namespace} inventory</h2><button className="sv-text-button" onClick={() => onNavigate('databases')}>Browse objects</button></header>
       {catalog.schemas.length ? <div className="sv-schema-bars">{catalog.schemas.map(schema => <button key={schema.name} onClick={() => onNavigate('databases')} className="sv-schema-bar"><span>{schema.name}</span><div className="sv-bar-track"><span style={{ width: `${tables.length ? schema.tables.length / tables.length * 100 : 0}%` }} /></div><b>{schema.tables.length}</b></button>)}</div> : <p className="sv-subtle">No namespaces returned by this source.</p>}
       <div className="sv-inline-note">Object counts come from the latest inspection.{profile.documentView ? " Field metadata may be sampled and does not define a fixed schema." : ""}</div>

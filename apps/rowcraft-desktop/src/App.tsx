@@ -7,7 +7,7 @@ import { ErrorNotice } from "./components/ErrorNotice";
 import { ExportToast } from "./components/ExportToast";
 import { SelectField } from "./components/SelectField";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type AddedSource, type Catalog, type SourceSummary, api, errorText } from "./api";
+import { type AddedSource, type Catalog, type RowChanges, type SourceSummary, api, errorText } from "./api";
 import { AddSourceDialog } from "./components/AddSourceDialog";
 import { DatabaseBrowser } from "./components/DatabaseBrowser";
 import { SourceDashboard } from "./components/SourceDashboard";
@@ -17,7 +17,9 @@ import { ResultDocuments } from "./components/ResultDocuments";
 import { ResultChart } from "./components/ResultChart";
 import { Editor, type EditorHandle } from "./components/Editor";
 import { Icon } from "./components/Icon";
-import { ResultGrid } from "./components/ResultGrid";
+import { AppUpdate } from "./components/AppUpdate";
+import { ResultGrid, type GridEditing } from "./components/ResultGrid";
+import { editSupport, findTable, sourceTable } from "./result-edit";
 import { Sidebar } from "./components/Sidebar";
 import { Splitter } from "./components/Splitter";
 import { WorkspaceTabs } from "./components/WorkspaceTabs";
@@ -52,6 +54,7 @@ export function App() {
   const [tabs, setTabs] = useState<WorkspaceTab[]>(restored?.tabs ?? []);
   const [activeId, setActiveId] = useState<string | null>(restored?.activeId ?? null);
   const [catalogs, setCatalogs] = useState<Record<string, Catalog>>({});
+  const [discovering, setDiscovering] = useState<string[]>([]);
   const [activity, setActivity] = useState<Activity>("idle");
   const [runningTab, setRunningTab] = useState<string | null>(null);
   const [message, setMessage] = useState<Message>({ kind: "none", text: "" });
@@ -218,11 +221,17 @@ export function App() {
       connectedRef.current = opened; setConnected(opened);
       liveConnectionsRef.current.add(opened); setLiveConnections([...liveConnectionsRef.current]);
       if (retained) return;
-      try {
-        const discovered = await api.introspect();
-        setCatalogs((before) => ({ ...before, [name]: discovered }));
-        setMessage({ kind: "info", text: `Connected to ${opened}` });
-      } catch (e) { setMessage({ kind: "error", text: `Connected. Schema discovery failed: ${errorText(e)}` }); }
+      setMessage({ kind: "info", text: `Connected to ${opened}. Reading database objects…` });
+      // Not awaited: on a large server the catalog takes a while, and the workbench stays usable
+      // meanwhile (queries simply wait their turn on the connection).
+      setDiscovering((before) => [...before, name]);
+      api.introspect()
+        .then((discovered) => {
+          setCatalogs((before) => ({ ...before, [name]: discovered }));
+          if (connectedRef.current === name) setMessage({ kind: "info", text: `Connected to ${opened}` });
+        })
+        .catch((e) => setMessage({ kind: "error", text: `Connected. Schema discovery failed: ${errorText(e)}` }))
+        .finally(() => setDiscovering((before) => before.filter((item) => item !== name)));
     } catch (error) { connectedRef.current = null; setConnected(null); invalidateConnection(name); throw error; }
   };
   const makeTab = (name: string, kind: WorkspaceTabKind, options: { schema?: string; table?: string; sql?: string } = {}, newConsole = false, preview = kind !== "console") => {
@@ -285,6 +294,36 @@ export function App() {
     await ensureConnection(tab.source);
     await performQuery({ ...tab, schema: tab.resultSchema }, tab.resultStatement, true);
   });
+  /** Writes grid edits to `schema.table`, then reruns the tab's query so the grid shows the table as saved. */
+  const saveRows = async (id: string, schema: string, table: string, changes: RowChanges) => {
+    let saved = false;
+    await operation("running", async () => {
+      const tab = tabsRef.current.find((item) => item.id === id);
+      const result = tab?.result;
+      if (!tab || !result) return;
+      await ensureConnection(tab.source);
+      const output = await api.applyRowChanges(schema, table, result.columns, changes);
+      saved = true;
+      const statement = tab.resultStatement ?? tab.sql;
+      if (statement) await performQuery(tab, statement);
+      setMessage({ kind: "info", text: `Saved ${table}: ${output.summary}` });
+    });
+    return saved;
+  };
+  /** Whether a tab's result can be edited in the grid: it must come from one table whose rows have a key. */
+  const resultEditing = (tab: WorkspaceTab): { editing?: GridEditing; readOnly?: string } => {
+    const result = tab.result;
+    const dialect = sources.find((item) => item.name === tab.source)?.dialect;
+    if (!result?.columns.length || !databaseProfile(dialect).relationships) return {};
+    const origin = tab.kind === "table" ? { schema: tab.schema, table: tab.table ?? tab.title, columns: "*" as const } : sourceTable(tab.resultStatement ?? "");
+    if (!origin) return { readOnly: "Only the result of a plain select from a single table can be edited." };
+    const catalog = catalogs[tab.source] ?? null;
+    const found = findTable(catalog, origin, tab.resultSchema || tab.schema);
+    if (!found) return { readOnly: catalog ? `${origin.table} is not among the loaded database objects; refresh them to edit its rows.` : "Database objects are still loading." };
+    if (found.table.kind !== "Table" && found.table.kind !== "PartitionedTable") return { readOnly: `${found.table.name} is a view, so its rows are read-only here.` };
+    const disabled = busy ? "Wait for the current operation to finish." : !liveConnections.includes(tab.source) ? `Connect to ${tab.source} to edit rows.` : undefined;
+    return { editing: { ...editSupport(result.columns, found.table, origin.columns), disabled, onSave: (changes) => saveRows(tab.id, found.schema, found.table.name, changes) } };
+  };
   const runTab = (id: string) => operation("running", async () => {
     const tab = tabsRef.current.find((item) => item.id === id); if (!tab) return;
     try {
@@ -423,7 +462,7 @@ export function App() {
         if (busy) return;
         updateTabs(() => []); editors.current.clear(); paneElements.current.clear(); activate(null);
         requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.workspace-add-tab')?.focus());
-      }} tabs={tabs} activeTabId={activeId} onSelectTab={id => void selectTab(id)} onCloseTab={id => void closeTab(id)} key={workspace.id} workspaces={workspaceSettings.workspaces} workspaceId={workspace.id} onSwitchWorkspace={switchWorkspace} onCreateWorkspace={createWorkspace} onRenameWorkspace={renameWorkspace} sources={sources} selected={selected} connected={connected} connectedSources={liveConnections} view={sidebarView} busy={busy} onNavigate={(name, kind) => void openView(name, kind)} onAdd={(kind = "source") => setAdding(kind)} onEdit={name => setEditingSource(name)} onRemove={(name) => void removeSource(name)} catalog={catalog} onOpenTable={(schema, table) => selected && void openTable(selected, schema, table)} onOpenSchema={(schema) => selected && void openView(selected, "schema", { schema })} onRefresh={() => selected && void refresh(selected)} onRefreshSource={(name) => void refresh(name)} onNewConsole={(name) => void openView(name, "console", {}, true)} onReconnect={(name) => void operation("connecting", async () => { makeTab(name, "dashboard"); await ensureConnection(name, true); })} hidden={sidebarHidden} />
+      }} tabs={tabs} activeTabId={activeId} onSelectTab={id => void selectTab(id)} onCloseTab={id => void closeTab(id)} key={workspace.id} workspaces={workspaceSettings.workspaces} workspaceId={workspace.id} onSwitchWorkspace={switchWorkspace} onCreateWorkspace={createWorkspace} onRenameWorkspace={renameWorkspace} sources={sources} selected={selected} connected={connected} connectedSources={liveConnections} view={sidebarView} busy={busy} onNavigate={(name, kind) => void openView(name, kind)} onAdd={(kind = "source") => setAdding(kind)} onEdit={name => setEditingSource(name)} onRemove={(name) => void removeSource(name)} catalog={catalog} discovering={!!selected && discovering.includes(selected)} onOpenTable={(schema, table) => selected && void openTable(selected, schema, table)} onOpenSchema={(schema) => selected && void openView(selected, "schema", { schema })} onRefresh={() => selected && void refresh(selected)} onRefreshSource={(name) => void refresh(name)} onNewConsole={(name) => void openView(name, "console", {}, true)} onReconnect={(name) => void operation("connecting", async () => { makeTab(name, "dashboard"); await ensureConnection(name, true); })} hidden={sidebarHidden} />
       <main className="main">
         <div className="workspace-topbar"><div className="workspace-breadcrumb"><button type="button" className="icon-button" aria-label={sidebarHidden ? "Show sidebar" : "Hide sidebar"} title={sidebarHidden ? "Show sidebar" : "Hide sidebar"} aria-expanded={!sidebarHidden} aria-controls="workspace-sidebar" onClick={() => setSidebarHidden(hidden => !hidden)}><Icon name={sidebarHidden ? "sidebarExpand" : "sidebarCollapse"} size={17} /></button><span className="breadcrumb-source tw:text-foreground tw:whitespace-nowrap tw:overflow-hidden tw:text-ellipsis">{source?.name ?? workspace.name}</span>{active && <><Icon name="chevronRight" size={12} /><span>{active.kind === "table" && active.schema ? `${active.schema}.` : ""}{active.title}</span></>}</div><div className="workspace-controls">{source && <>{!liveConnections.includes(selected ?? "") && <button className="btn" disabled={busy} onClick={() => void operation("connecting", () => ensureConnection(source.name))}>Connect</button>}<span className="session-state"><span className={`connection-dot${liveConnections.includes(selected ?? "") ? " online" : ""}`} />{activity === "connecting" ? "Connecting…" : liveConnections.includes(selected ?? "") ? source.dialect.toUpperCase() : "Disconnected"}</span><button className="icon-button" disabled={busy} onClick={() => void refresh(source.name)} aria-label="Refresh schema" title="Refresh schema"><Icon name="refresh" className={activity === "refreshing" ? "rotating" : ""} /></button></>}<button type="button" className="icon-button" aria-label="Settings" title="Settings" onClick={() => setSettingsSection("general")}><Icon name="settings" /></button><button className="icon-button" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}><Icon name={theme === "dark" ? "sun" : "moon"} /></button></div></div>
         <WorkspaceTabs onKeep={id => patchTab(id, { preview: false })} dialect={source?.dialect} tabs={tabs} activeId={activeId} busy={busy} onSelect={(id) => void selectTab(id)} onClose={(id) => void closeTab(id)} onAdd={addTab} />
@@ -432,7 +471,7 @@ export function App() {
           const tabSource = sources.find((item) => item.name === tab.source) ?? null;
           const tabCatalog = catalogs[tab.source] ?? null;
           const profile = databaseProfile(tabSource?.dialect);
-          const props = { source: tabSource, catalog: tabCatalog, connected: liveConnections.includes(tab.source), busy, onOpenTable: (schema: string, table: string) => void openTable(tab.source, schema, table), onRefresh: () => void refresh(tab.source) };
+          const props = { source: tabSource, catalog: tabCatalog, connected: liveConnections.includes(tab.source), busy: busy || discovering.includes(tab.source), onOpenTable: (schema: string, table: string) => void openTable(tab.source, schema, table), onRefresh: () => void refresh(tab.source) };
           const hasResults = tab.result !== null;
           return <div className="document-panel" key={tab.id} hidden={activeId !== tab.id} role="tabpanel" id={`document-panel-${tab.id}`} aria-labelledby={`document-tab-${tab.id}`}>
             {tab.kind === "console" && <div className="console-workspace">
@@ -446,10 +485,10 @@ export function App() {
                   if (editor.replaceRange) editor.replaceRange(from, to, sql);
                   else editor.setText(inlineTarget.fullSql.slice(0, from) + sql + inlineTarget.fullSql.slice(to));
                   patchTab(tab.id, { sql: editor.text(), error: undefined }); setInlineTarget(null); return true;
-                }} />}</div>{hasResults && <><Splitter container={paneHandle(tab.id)} value={tab.split} onChange={(split) => patchTab(tab.id, { split })} /><div className="pane result-pane" style={{ flex: `${1 - tab.split} 1 0` }}><div className="result-toolbar"><div className="result-switch"><button className={tab.resultView === "table" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "table" })}><Icon name="table" size={13} /> Results <span>{tab.result!.rows.length.toLocaleString()}</span></button>{profile.documentView && <button className={tab.resultView === "json" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "json" })}>JSON</button>}<button className={tab.resultView === "chart" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "chart" })}><Icon name="chart" size={13} /> Chart</button></div><div className="result-actions tw:flex tw:items-center tw:gap-[10px] tw:min-w-0"><span className="result-summary" title={tab.result!.summary}>{tab.result!.summary}</span>{tab.result!.row_limit && <button type="button" className="btn ghost" disabled={busy} onClick={() => void showAllRows(tab.id)}>Run full query</button>}<button className="icon-button" aria-label="Export displayed results as CSV" onClick={() => void exportTab(tab)}><Icon name="download" size={14} /></button></div></div><div className="result-body tw:[flex:1] tw:min-h-0 tw:overflow-hidden">{tab.resultView === "json" && tab.result ? <ResultDocuments result={tab.result} /> : tab.resultView === "table" ? <ResultGrid result={tab.result} /> : <ResultChart result={tab.result} />}</div></div></>}</div>
+                }} />}</div>{hasResults && <><Splitter container={paneHandle(tab.id)} value={tab.split} onChange={(split) => patchTab(tab.id, { split })} /><div className="pane result-pane" style={{ flex: `${1 - tab.split} 1 0` }}><div className="result-toolbar"><div className="result-switch"><button className={tab.resultView === "table" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "table" })}><Icon name="table" size={13} /> Results <span>{tab.result!.rows.length.toLocaleString()}</span></button>{profile.documentView && <button className={tab.resultView === "json" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "json" })}>JSON</button>}<button className={tab.resultView === "chart" ? "active" : ""} onClick={() => patchTab(tab.id, { resultView: "chart" })}><Icon name="chart" size={13} /> Chart</button></div><div className="result-actions tw:flex tw:items-center tw:gap-[10px] tw:min-w-0"><span className="result-summary" title={tab.result!.summary}>{tab.result!.summary}</span>{tab.result!.row_limit && <button type="button" className="btn ghost" disabled={busy} onClick={() => void showAllRows(tab.id)}>Run full query</button>}<button className="icon-button" aria-label="Export displayed results as CSV" onClick={() => void exportTab(tab)}><Icon name="download" size={14} /></button></div></div><div className="result-body tw:[flex:1] tw:min-h-0 tw:overflow-hidden">{tab.resultView === "json" && tab.result ? <ResultDocuments result={tab.result} /> : tab.resultView === "table" ? <ResultGrid result={tab.result} {...resultEditing(tab)} /> : <ResultChart result={tab.result} />}</div></div></>}</div>
               {tab.error && <ErrorNotice error={tab.error} title="Query failed" context={tab.source} onRetry={() => void runTab(tab.id)} busy={busy} />}{!hasResults && <div className="results-idle"><Icon name="table" size={13} /><span>Results appear here after you run a query.</span><kbd>{RUN_SHORTCUT}</kbd></div>}
             </div>}
-            {tab.kind === "table" && <TableWorkspace dialect={tabSource?.dialect} tab={tab} metadata={tabCatalog?.schemas.find((item) => item.name === tab.schema)?.tables.find((item) => item.name === tab.table) ?? null} connected={liveConnections.includes(tab.source)} busy={busy} onRefresh={() => void runTab(tab.id)} onShowAll={() => void showAllRows(tab.id)} onOpenConsole={() => void openView(tab.source, "console", { sql: tab.sql, schema: tab.schema }, true)} onExport={() => void exportTab(tab)} onResultView={(resultView) => patchTab(tab.id, { resultView })} />}
+            {tab.kind === "table" && <TableWorkspace dialect={tabSource?.dialect} tab={tab} metadata={tabCatalog?.schemas.find((item) => item.name === tab.schema)?.tables.find((item) => item.name === tab.table) ?? null} connected={liveConnections.includes(tab.source)} busy={busy} onRefresh={() => void runTab(tab.id)} onShowAll={() => void showAllRows(tab.id)} onOpenConsole={() => void openView(tab.source, "console", { sql: tab.sql, schema: tab.schema }, true)} onExport={() => void exportTab(tab)} onResultView={(resultView) => patchTab(tab.id, { resultView })} {...resultEditing(tab)} />}
             {tab.kind === "dashboard" && <SourceDashboard {...props} history={history.filter((entry) => entry.source === tab.source)} onNavigate={(kind) => void openView(tab.source, kind)} />}
             {tab.kind === "schema-map" && <SchemaMap {...props} />}
             {(tab.kind === "databases" || tab.kind === "schema") && <DatabaseBrowser {...props} initialSchema={tab.kind === "schema" ? tab.schema : undefined} />}
@@ -461,7 +500,7 @@ export function App() {
     </div>
     {message.kind === "error" && message.text !== active?.error && <ErrorNotice error={message.text} />}
     {exportedPath && <ExportToast path={exportedPath} onClose={closeExportToast} onReveal={() => void api.revealFile(exportedPath).catch((e: unknown) => setMessage({ kind: "error", text: errorText(e) }))} />}
-    <footer className="statusbar"><span className="connection"><span className={`connection-dot${connected && sources.some((item) => item.name === connected) ? " online" : ""}`} />{connected && sources.some((item) => item.name === connected) ? connected : "No active connection"}</span><span className={`message ${message.kind}`} role="status" title={message.text || "Ready"}>{message.text || "Ready"}</span><span className="status-end">{tabs.length} tabs{catalog ? ` · ${catalog.schemas.reduce((n, item) => n + item.tables.length, 0)} objects` : ""}</span></footer>
+    <footer className="statusbar"><span className="connection"><span className={`connection-dot${connected && sources.some((item) => item.name === connected) ? " online" : ""}`} />{connected && sources.some((item) => item.name === connected) ? connected : "No active connection"}</span><span className={`message ${message.kind}`} role="status" title={message.text || "Ready"}>{message.text || "Ready"}</span><AppUpdate /><span className="status-end">{tabs.length} tabs{catalog ? ` · ${catalog.schemas.reduce((n, item) => n + item.tables.length, 0)} objects` : ""}</span></footer>
     {settingsSection && <SettingsDialog initialSection={settingsSection} theme={theme} editorPreferences={editorPreferences} onSaveGeneral={(nextTheme, preferences) => {
       localStorage.setItem(EDITOR_PREFERENCES_KEY, JSON.stringify(preferences));
       localStorage.setItem("rowcraft.theme", nextTheme);

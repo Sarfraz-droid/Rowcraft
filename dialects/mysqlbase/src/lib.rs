@@ -29,7 +29,10 @@ pub async fn connect(cfg: &DataSourceConfig, default_port: u16) -> Result<Box<dy
         .prefer_socket(false)
         .user(cfg.user.as_deref())
         .pass(cfg.password.as_deref())
-        .db_name(cfg.database.as_deref().filter(|d| !d.is_empty()));
+        .db_name(cfg.database.as_deref().filter(|d| !d.is_empty()))
+        // Report matched rather than changed rows, as JDBC does, so a grid edit that rewrites a
+        // value with itself still counts its row.
+        .client_found_rows(true);
     if let Some(ssl) = ssl_opts(cfg)? {
         // Installing twice is harmless: the second call returns Err and we keep the first.
         let _ = rustls::crypto::ring::default_provider().install_default();
