@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/*", "dialects/*", "wire/*", "apps/rowcraft-cli", "apps/rowcraft-desktop/src-tauri"]
 
 [workspace.package]
-version = "0.0.9"
+version = "0.0.10"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT OR Apache-2.0"
@@ -38,6 +38,10 @@ mysql_async = { version = "=0.37.1", default-features = false, features = ["mini
 rusqlite = { version = "0.37", features = ["bundled", "column_decltype"] }
 clap = { version = "4", features = ["derive"] }
 futures-util = { version = "0.3", default-features = false }
+# Local HTTP API (`rowcraft serve`).
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+http-body-util = "0.1"
 # GUI: Tauri shell around a web frontend (SPEC.md §3.1).
 tauri = { version = "2", default-features = false, features = ["wry", "compression"] }
 tauri-build = { version = "2", features = [] }
@@ -56,6 +60,7 @@ tokio-postgres-rustls = { version = "0.14", features = ["ring", "webpki-roots"] 
 toml = "1"
 
 # Internal: core
+rowcraft-api = { path = "crates/rowcraft-api" }
 rowcraft-cache = { path = "crates/rowcraft-cache" }
 rowcraft-config = { path = "crates/rowcraft-config" }
 rowcraft-core = { path = "crates/rowcraft-core" }

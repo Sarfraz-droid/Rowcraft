@@ -30,7 +30,7 @@ SSH_DIR    := $(CURDIR)/.dev/ssh
 SSH_PORT   ?= 2222
 
 .DEFAULT_GOAL := help
-.PHONY: help build cli gui gui-install installer run-cli run-gui web test-desktop desktop-demo desktop-typecheck dialects test lint fmt check \
+.PHONY: help build cli gui gui-install installer release release-finish run-cli run-gui web test-desktop desktop-demo desktop-typecheck dialects test lint fmt check \
         pg-up pg-down test-live demo clean landing landing-check
 
 help: ## Show this help
@@ -55,6 +55,14 @@ installer: ## Build installers for the current OS (run gui-install once first)
 	else \
 		node_modules/.bin/tauri build --config '{"bundle":{"createUpdaterArtifacts":false}}'; \
 	fi
+
+release: ## Release VERSION=x.y.z: bump, push main + tag, wait for installers, publish as latest
+	@test -n "$(VERSION)" || { echo "usage: make release VERSION=x.y.z"; exit 1; }
+	scripts/release.sh $(VERSION)
+
+release-finish: ## Resume a release whose tag is pushed: wait, publish, verify (VERSION=x.y.z)
+	@test -n "$(VERSION)" || { echo "usage: make release-finish VERSION=x.y.z"; exit 1; }
+	scripts/release.sh $(VERSION) --finish
 
 run-gui: ## Launch the desktop app with frontend hot reload (uses your real config)
 	cd $(DESKTOP) && node_modules/.bin/tauri dev

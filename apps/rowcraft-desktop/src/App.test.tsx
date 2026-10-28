@@ -250,6 +250,20 @@ describe("workspace document interactions", () => {
     expect(screen.getByRole("complementary", { name: "AI assistant" })).toBeTruthy();
   });
 
+  it("switches the right sidebar to curl commands for the active console", async () => {
+    await start();
+    fireEvent.change(screen.getByRole("textbox", { name: "SQL editor" }), { target: { value: "select 42" } });
+    fireEvent.click(screen.getByRole("button", { name: "Show HTTP API" }));
+    const panel = screen.getByRole("complementary", { name: "HTTP API" });
+    expect(screen.queryByRole("complementary", { name: "AI assistant" })).toBeNull();
+    const query = within(panel).getByRole("region", { name: "Run SQL (JSON result)" });
+    expect(query.textContent).toContain("/datasources/Alpha/query");
+    expect(query.textContent).toContain('"sql":"select 42"');
+    fireEvent.click(within(panel).getByRole("button", { name: "Close HTTP API" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open HTTP API sidebar" }));
+    expect(screen.getByRole("complementary", { name: "HTTP API" })).toBeTruthy();
+  });
+
   it("opens settings directly from inline AI while the router is stopped and preserves its instruction", async () => {
     await start();
     fireEvent.keyDown(window, { key: "k", metaKey: true, altKey: true });

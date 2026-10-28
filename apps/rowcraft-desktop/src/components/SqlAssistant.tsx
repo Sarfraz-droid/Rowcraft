@@ -8,9 +8,9 @@ import { SelectField } from "./SelectField";
 import { Check, Note } from "./form";
 import { Icon } from "./Icon";
 
-export function SqlAssistant({ sql, getSql, source = "", title = "SQL console", dialect, schema, catalog, error, enabled = true, settingsVersion = 0, onClose, onSettings, onUse, onOpenConsole }: {
+export function SqlAssistant({ onShowApi, sql, getSql, source = "", title = "SQL console", dialect, schema, catalog, error, enabled = true, settingsVersion = 0, onClose, onSettings, onUse, onOpenConsole }: {
   sql: string; getSql?(): string; source?: string; title?: string; dialect: string; schema: string; catalog: Catalog | null; error?: string; enabled?: boolean; settingsVersion?: number;
-  onClose(): void; onSettings(): void; onUse(sql: string): void; onOpenConsole?(): void;
+  onClose(): void; onSettings(): void; onUse(sql: string): void; onOpenConsole?(): void; onShowApi?(): void;
 }) {
   const profile = databaseProfile(dialect);
   const [prompt, setPrompt] = useState("");
@@ -72,7 +72,7 @@ export function SqlAssistant({ sql, getSql, source = "", title = "SQL console", 
     finally { if (!controller.signal.aborted) { setBusy(false); setPending(""); } }
   }
   return <aside className="ai-assistant-sidebar" aria-label="AI assistant">
-    <header className="ai-assistant-header"><h2><Icon name="ai" size={14} />AI assistant</h2><div className="tw:flex tw:items-center">{turns.length > 0 && <button type="button" className="icon-button" aria-label="New conversation" title="New conversation" disabled={busy} onClick={() => { setTurns([]); setTraces([]); setFailure(""); setPrompt(""); input.current?.focus(); }}><Icon name="plus" size={13} /></button>}<button type="button" className="icon-button" aria-label="Close SQL assistant" title="Close assistant" onClick={onClose}><Icon name="close" size={13} /></button></div></header>
+    <header className="ai-assistant-header"><h2><Icon name="ai" size={14} />AI assistant</h2><div className="tw:flex tw:items-center">{turns.length > 0 && <button type="button" className="icon-button" aria-label="New conversation" title="New conversation" disabled={busy} onClick={() => { setTurns([]); setTraces([]); setFailure(""); setPrompt(""); input.current?.focus(); }}><Icon name="plus" size={13} /></button>}{onShowApi && <button type="button" className="icon-button" aria-label="Show HTTP API" title="HTTP API (curl)" onClick={onShowApi}><Icon name="link" size={13} /></button>}<button type="button" className="icon-button" aria-label="Close SQL assistant" title="Close assistant" onClick={onClose}><Icon name="close" size={13} /></button></div></header>
     {enabled && <div className="ai-assistant-context"><Icon name="console" size={12} /><span title={`${source} · ${title}`}>{source ? `${source} / ` : ""}{title}</span>{schema && <small title={`Schema: ${schema}`}>{schema}</small>}</div>}
     <div className="ai-assistant-scroll" ref={scroll}>
       {turns.length === 0 && !busy && <div className="ai-assistant-intro"><Icon name="ai" size={24} /><h2>{enabled ? "What are you working on?" : `Start with a ${profile.console}`}</h2><p>{enabled ? "Write a query, understand your data, or work through an error." : "Open a console to work with AI using your SQL and database context."}</p>

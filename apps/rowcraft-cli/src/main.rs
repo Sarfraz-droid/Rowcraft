@@ -36,6 +36,8 @@ enum Command {
     Ssh(SshCommand),
     /// Read the database catalog (schemas, tables, columns, indexes, keys, routines).
     Introspect(IntrospectArgs),
+    /// Serve a local HTTP API: every saved data source gets endpoints to run SQL against it.
+    Serve(ServeArgs),
 }
 
 #[derive(Debug, Subcommand)]
@@ -208,6 +210,16 @@ struct IntrospectArgs {
     format: IntrospectFormat,
 }
 
+#[derive(Debug, Args)]
+struct ServeArgs {
+    /// Address to listen on. Anything other than loopback requires --token-env.
+    #[arg(long, default_value = "127.0.0.1:7878")]
+    listen: std::net::SocketAddr,
+    /// Environment variable holding a token that clients send as `Authorization: Bearer <token>`.
+    #[arg(long)]
+    token_env: Option<String>,
+}
+
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 enum IntrospectFormat {
     Tree,
@@ -277,6 +289,7 @@ async fn main() -> ExitCode {
         Command::Ds(DsCommand::Test { name }) => commands::ds_test(&engine, &name).await,
         Command::Query(q) => commands::query(&engine, q).await,
         Command::Introspect(a) => commands::introspect(&engine, a).await,
+        Command::Serve(a) => commands::serve(engine, a).await,
     }
 }
 
@@ -392,6 +405,16 @@ mod tests {
             ])
             .is_err()
         );
+    }
+
+    #[test]
+    fn serve_defaults_to_loopback() {
+        let Command::Serve(s) = Cli::try_parse_from(["rowcraft", "serve"]).unwrap().command else {
+            panic!("not serve")
+        };
+        assert_eq!(s.listen, "127.0.0.1:7878".parse().unwrap());
+        assert!(s.token_env.is_none());
+        assert!(Cli::try_parse_from(["rowcraft", "serve", "--listen", "nope"]).is_err());
     }
 
     #[test]

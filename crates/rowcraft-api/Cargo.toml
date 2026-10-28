@@ -1,0 +1,27 @@
+[package]
+name = "rowcraft-api"
+description = "Local HTTP API: run SQL against any saved data source"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+http-body-util.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+rowcraft-config.workspace = true
+rowcraft-core.workspace = true
+rowcraft-dialect.workspace = true
+rowcraft-io.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["net", "sync", "time"] }
+
+[dev-dependencies]
+rowcraft-dialect-sqlite.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

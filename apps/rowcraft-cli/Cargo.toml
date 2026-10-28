@@ -16,6 +16,7 @@ path = "src/main.rs"
 
 [dependencies]
 clap.workspace = true
+rowcraft-api.workspace = true
 rowcraft-config.workspace = true
 rowcraft-core.workspace = true
 rowcraft-dialect.workspace = true

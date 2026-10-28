@@ -214,6 +214,18 @@ cargo run -p rowcraft-cli -- ds --help
 cargo run -p rowcraft-cli -- query --help
 ```
 
+#### Run SQL over HTTP
+
+`rowcraft serve` starts a local HTTP API on `127.0.0.1:7878`. Every saved data source gets its own endpoints, including sources added in the desktop app. Use it from curl, Postman, or test suites:
+
+```sh
+cargo run -p rowcraft-cli -- serve
+curl -s http://127.0.0.1:7878/datasources
+curl -s -X POST http://127.0.0.1:7878/datasources/local-pg/query --data-binary 'SELECT * FROM people LIMIT 10'
+```
+
+See [the HTTP API](docs/api.md) for every endpoint, response shape, and security rule.
+
 CLI exit codes are `0` for success, `1` for statement errors, `2` for connection/authentication errors, and `3` for usage/configuration errors.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -447,6 +459,7 @@ For bugs and feature ideas, [open an issue](https://github.com/Sarfraz-droid/Row
 - [Database consoles and support boundaries](docs/database-consoles.md)
 - [Data source options](docs/data-source-options.md)
 - [JDBC drivers](docs/jdbc-drivers.md)
+- [HTTP API (`rowcraft serve`)](docs/api.md)
 - [Installer builds and signing](docs/installers.md)
 - [Package distribution](docs/package-distribution.md)
 - [Landing-page development](apps/landing/README.md)

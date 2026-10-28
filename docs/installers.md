@@ -39,10 +39,12 @@ In **Actions → Desktop installers → Run workflow**, select the branch or tag
 
 The installers are also retained in the run's **Artifacts** section as a backup. Extract those workflow artifacts before using their installers; files in the release's **Assets** section can be downloaded directly.
 
-For a versioned release:
+For a versioned release, run `make release VERSION=x.y.z` on a clean, up-to-date `main` with the GitHub CLI logged in (`gh auth login`). It does the steps below: bumps the version in all three files, commits and pushes `main`, pushes the tag, waits for the installer jobs, checks that every installer and `latest.json` were uploaded, publishes the release as the latest one, and confirms that the update feed serves the new version. It stops at the first failure. If it is interrupted after the tag is pushed, `make release-finish VERSION=x.y.z` resumes from the wait.
+
+The same steps by hand:
 
 1. Set the same version in `apps/rowcraft-desktop/src-tauri/tauri.conf.json`, `apps/rowcraft-desktop/package.json`, and `[workspace.package]` in `Cargo.toml`. Refresh and commit the lockfiles when Cargo or pnpm changes them.
-2. Commit the source and push a matching tag, for example `v0.0.9` for the current version.
+2. Commit the source and push a matching tag, for example `v0.0.10` for the current version.
 3. Wait for all four installer jobs. Review the installers in the GitHub release's **Assets** section, then publish the release when ready if it is still a draft. You can also run the workflow manually to create or add installers to the version's release.
 
 The workflow needs permission to create releases and upload assets with its `GITHUB_TOKEN`; the installer job requests `contents: write`. If organization policy restricts that token, allow repository content write access for this workflow.

@@ -209,6 +209,12 @@
   .ai-assistant-error p { @apply tw:mt-0 tw:mb-[6px] tw:leading-[1.6]; }
   .ai-assistant-error .btn { @apply tw:text-meta tw:px-0; }
   .ai-assistant-rail { @apply tw:w-[36px] tw:shrink-0 tw:border-l tw:border-border tw:bg-panel tw:flex tw:flex-col tw:items-center tw:pt-[6px]; }
+  .api-panel-note { @apply tw:m-0 tw:text-label tw:leading-[1.6] tw:text-muted-foreground; }
+  .api-panel-note code { @apply tw:font-mono tw:text-foreground; }
+  .api-panel-port { @apply tw:flex tw:items-center tw:gap-[8px] tw:text-meta tw:text-muted-foreground; }
+  .api-panel-port input { @apply tw:w-[80px] tw:h-[24px] tw:px-[6px] tw:font-mono tw:text-meta tw:bg-transparent tw:text-foreground tw:border tw:border-border; }
+  .api-snippet-heading { @apply tw:flex tw:items-center tw:justify-between tw:gap-[8px] tw:text-meta tw:font-medium; }
+  .api-snippet .ai-code { @apply tw:mt-[4px] tw:p-[8px] tw:text-meta; }
   .ai-tool-log { @apply tw:text-meta tw:text-muted-foreground; }
   .ai-tool-log summary { @apply tw:flex tw:items-center tw:gap-[6px] tw:cursor-pointer tw:py-[7px]; }
   .ai-tool-log small { @apply tw:ml-auto tw:text-caption; }

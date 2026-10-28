@@ -2497,6 +2497,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
 
 [[package]]
+name = "httpdate"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
+
+[[package]]
 name = "hybrid-array"
 version = "0.4.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2520,6 +2526,7 @@ dependencies = [
  "http",
  "http-body",
  "httparse",
+ "httpdate",
  "itoa",
  "pin-project-lite",
  "smallvec",
@@ -4649,17 +4656,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "rowcraft-api"
+version = "0.0.10"
+dependencies = [
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "rowcraft-config",
+ "rowcraft-core",
+ "rowcraft-dialect",
+ "rowcraft-dialect-sqlite",
+ "rowcraft-io",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "rowcraft-cache"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-model",
 ]
 
 [[package]]
 name = "rowcraft-cli"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "clap",
+ "rowcraft-api",
  "rowcraft-config",
  "rowcraft-core",
  "rowcraft-dialect",
@@ -4674,7 +4699,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-config"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "regex",
  "rowcraft-drivers",
@@ -4686,7 +4711,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-core"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-cache",
@@ -4703,7 +4728,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-desktop"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "reqwest",
  "rowcraft-config",
@@ -4723,7 +4748,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4733,7 +4758,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-bigquery"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4742,7 +4767,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-cassandra"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "futures-util",
@@ -4758,7 +4783,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-clickhouse"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "reqwest",
@@ -4773,7 +4798,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-cockroach"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4785,7 +4810,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-couchbase"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "reqwest",
@@ -4800,7 +4825,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-db2"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4809,7 +4834,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-derby"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4818,7 +4843,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-dynamo"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -4836,7 +4861,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-exasol"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4845,7 +4870,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-greenplum"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4857,7 +4882,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-h2"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4869,7 +4894,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-hive"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4878,7 +4903,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-hsqldb"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4887,7 +4912,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-http"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "reqwest",
@@ -4900,7 +4925,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-jdbc"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -4914,7 +4939,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-mariadb"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4925,7 +4950,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-mongo"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "bson 3.1.0",
@@ -4940,7 +4965,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-mssql"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4957,7 +4982,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-mysql"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4968,7 +4993,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-mysqlbase"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "futures-util",
@@ -4983,7 +5008,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-oracle"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -4992,7 +5017,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-pg"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "futures-util",
@@ -5007,7 +5032,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-pgbase"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-dialect",
  "rowcraft-model",
@@ -5015,7 +5040,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-redis"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "redis",
@@ -5029,7 +5054,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-redshift"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -5041,7 +5066,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-snowflake"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "reqwest",
@@ -5056,7 +5081,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-spark"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -5065,7 +5090,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-sqlite"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -5077,7 +5102,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-sybase"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -5086,7 +5111,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-trino"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "reqwest",
@@ -5101,7 +5126,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-dialect-vertica"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rowcraft-config",
@@ -5113,18 +5138,18 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-drivers"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-grid"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-dialect",
 ]
 
 [[package]]
 name = "rowcraft-io"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-dialect",
  "serde_json",
@@ -5133,7 +5158,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-model"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "serde",
  "serde_json",
@@ -5141,7 +5166,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-registry"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-dialect",
  "rowcraft-dialect-bigquery",
@@ -5178,18 +5203,18 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-script"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-sql"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "rowcraft-model",
 ]
 
 [[package]]
 name = "rowcraft-ssh"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "async-trait",
  "rand 0.10.3",
@@ -5201,7 +5226,7 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-ui-model"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "reqwest",
  "rowcraft-config",
@@ -5222,31 +5247,31 @@ dependencies = [
 
 [[package]]
 name = "rowcraft-wire-drda"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-exasol"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-hs2"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-hsqldb"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-tds5"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-tns"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rowcraft-wire-vertica"
-version = "0.0.9"
+version = "0.0.10"
 
 [[package]]
 name = "rsa"

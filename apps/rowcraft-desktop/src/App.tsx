@@ -3,6 +3,7 @@ import { InlineSqlAssistant, type InlineTarget } from "./components/InlineSqlAss
 import { SettingsDialog, type SettingsSection } from "./components/SettingsDialog";
 import { getAppScale, DEFAULT_EDITOR_PREFERENCES, EDITOR_FONT_SIZES, EDITOR_PREFERENCES_KEY, loadEditorPreferences } from "./preferences";
 import { SqlAssistant } from "./components/SqlAssistant";
+import { ApiPanel } from "./components/ApiPanel";
 import { ErrorNotice } from "./components/ErrorNotice";
 import { ExportToast } from "./components/ExportToast";
 import { SelectField } from "./components/SelectField";
@@ -63,7 +64,7 @@ export function App() {
   const [aiSettingsVersion, setAiSettingsVersion] = useState(0);
   const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
   const [editorPreferences, setEditorPreferences] = useState(loadEditorPreferences);
-  const [assistantOpen, setAssistantOpen] = useState(true);
+  const [rightPanel, setRightPanel] = useState<"ai" | "api" | null>("ai");
   const [inlineTarget, setInlineTarget] = useState<InlineTarget | null>(null);
   const [adding, setAdding] = useState<AddKind | null>(null);
   const [editingSource, setEditingSource] = useState<string | null>(null);
@@ -508,7 +509,7 @@ export function App() {
           </div>;
         })}
       </main>
-      {assistantOpen ? <SqlAssistant settingsVersion={aiSettingsVersion} key={active?.id ?? "empty"} sql={active?.sql ?? ""} getSql={() => active ? editorHandle(active.id).current?.text() ?? active.sql : ""} enabled={active?.kind === "console"} source={active?.source ?? selected ?? ""} onOpenConsole={() => { const name = active?.source ?? selected; if (name) void openView(name, "console"); else setAdding("source"); }} title={active?.title ?? "SQL console"} dialect={sources.find(item => item.name === active?.source)?.dialect ?? ""} schema={active ? consoleSchema(active.schema, catalogs[active.source] ?? null) : ""} catalog={active ? catalogs[active.source] ?? null : null} error={active?.error} onClose={() => setAssistantOpen(false)} onSettings={() => setSettingsSection("ai")} onUse={sql => { if (!active || active.kind !== "console") return; editorHandle(active.id).current?.setText(sql); patchTab(active.id, { sql, error: undefined }); }} /> : <div className="ai-assistant-rail"><button type="button" className="icon-button" aria-label="Open AI assistant sidebar" title="AI assistant" onClick={() => setAssistantOpen(true)}><Icon name="ai" size={17} /></button></div>}
+      {rightPanel === "api" ? <ApiPanel source={active?.source ?? selected ?? ""} getSql={() => active?.kind === "console" ? editorHandle(active.id).current?.text() ?? active.sql : ""} onClose={() => setRightPanel(null)} onShowAssistant={() => setRightPanel("ai")} onAddSource={() => setAdding("source")} /> : rightPanel === "ai" ? <SqlAssistant onShowApi={() => setRightPanel("api")} settingsVersion={aiSettingsVersion} key={active?.id ?? "empty"} sql={active?.sql ?? ""} getSql={() => active ? editorHandle(active.id).current?.text() ?? active.sql : ""} enabled={active?.kind === "console"} source={active?.source ?? selected ?? ""} onOpenConsole={() => { const name = active?.source ?? selected; if (name) void openView(name, "console"); else setAdding("source"); }} title={active?.title ?? "SQL console"} dialect={sources.find(item => item.name === active?.source)?.dialect ?? ""} schema={active ? consoleSchema(active.schema, catalogs[active.source] ?? null) : ""} catalog={active ? catalogs[active.source] ?? null : null} error={active?.error} onClose={() => setRightPanel(null)} onSettings={() => setSettingsSection("ai")} onUse={sql => { if (!active || active.kind !== "console") return; editorHandle(active.id).current?.setText(sql); patchTab(active.id, { sql, error: undefined }); }} /> : <div className="ai-assistant-rail"><button type="button" className="icon-button" aria-label="Open AI assistant sidebar" title="AI assistant" onClick={() => setRightPanel("ai")}><Icon name="ai" size={17} /></button><button type="button" className="icon-button" aria-label="Open HTTP API sidebar" title="HTTP API (curl)" onClick={() => setRightPanel("api")}><Icon name="link" size={17} /></button></div>}
     </div>
     {message.kind === "error" && message.text !== active?.error && <ErrorNotice error={message.text} />}
     {exportedPath && <ExportToast path={exportedPath} onClose={closeExportToast} onReveal={() => void api.revealFile(exportedPath).catch((e: unknown) => setMessage({ kind: "error", text: errorText(e) }))} />}

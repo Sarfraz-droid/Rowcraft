@@ -10,7 +10,8 @@ use rowcraft_core::Engine;
 use rowcraft_dialect::IntrospectScope;
 
 use crate::{
-    AddArgs, DriverAddArgs, IntrospectArgs, IntrospectFormat, QueryArgs, SshAddArgs, tree,
+    AddArgs, DriverAddArgs, IntrospectArgs, IntrospectFormat, QueryArgs, ServeArgs, SshAddArgs,
+    tree,
 };
 
 const EXIT_STATEMENT: u8 = 1;
@@ -28,7 +29,9 @@ fn exit_code(e: &rowcraft_core::Error) -> u8 {
         rowcraft_core::Error::Config(_) => EXIT_USAGE,
         rowcraft_core::Error::Ssh(_) => EXIT_CONNECTION,
         rowcraft_core::Error::Dialect(D::Connect(_)) => EXIT_CONNECTION,
-        rowcraft_core::Error::Dialect(D::Query(_)) => EXIT_STATEMENT,
+        rowcraft_core::Error::Dialect(D::Query(_)) | rowcraft_core::Error::Cancelled => {
+            EXIT_STATEMENT
+        }
         rowcraft_core::Error::Dialect(D::NotImplemented(_) | D::UnknownDialect(_)) => EXIT_USAGE,
     }
 }
@@ -328,6 +331,30 @@ pub async fn introspect(engine: &Engine, args: IntrospectArgs) -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) if e.kind() == io::ErrorKind::BrokenPipe => ExitCode::SUCCESS,
         Err(e) => fail(EXIT_USAGE, format!("cannot write output: {e}")),
+    }
+}
+
+/// Serves until interrupted; only a startup failure returns.
+pub async fn serve(engine: Engine, args: ServeArgs) -> ExitCode {
+    let token = match args.token_env.as_deref() {
+        None => None,
+        Some(var) => match std::env::var(var) {
+            Ok(token) if !token.is_empty() => Some(token),
+            _ => return fail(EXIT_USAGE, format!("environment variable `{var}` is not set")),
+        },
+    };
+    let options =
+        rowcraft_api::Options { addr: args.listen, token, datasources: datasources_path() };
+    eprintln!(
+        "rowcraft: serving the data sources in {} on http://{}{}",
+        options.datasources.display(),
+        args.listen,
+        if options.token.is_some() { " (bearer token required)" } else { "" },
+    );
+    eprintln!("rowcraft: try `curl http://{}/datasources`", args.listen);
+    match rowcraft_api::serve(std::sync::Arc::new(engine), options).await {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => fail(EXIT_USAGE, format!("cannot serve on {}: {e}", args.listen)),
     }
 }
 
