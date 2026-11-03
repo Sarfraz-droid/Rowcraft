@@ -15,7 +15,15 @@ use rowcraft_ui_model::{
 use tauri::{Manager, State};
 
 mod ai_router;
+mod cli_link;
 mod driver_download;
+
+/// Link the bundled command line onto PATH (macOS app bundle, Linux AppImage). The other
+/// installers already do this; it also repairs a link the user deleted.
+#[tauri::command]
+async fn install_cli() -> Result<cli_link::CliLink, String> {
+    tauri::async_runtime::spawn_blocking(cli_link::install).await.map_err(|e| e.to_string())?
+}
 
 #[tauri::command]
 async fn downloaded_drivers() -> Result<driver_download::DownloadInventory, String> {
@@ -487,7 +495,12 @@ pub fn run() {
         .manage(Arc::new(ai_router::RouterManager::new(
             rowcraft_config::config_dir().join("ai-router"),
         )))
+        .setup(|_| {
+            cli_link::install_on_launch();
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
+            install_cli,
             ai_read_schema,
             ai_readonly_query,
             ai_settings,

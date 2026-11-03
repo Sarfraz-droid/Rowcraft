@@ -44,3 +44,4 @@ coverage/
 
 # Vite dependency cache
 **/.vite/
+/apps/rowcraft-desktop/src-tauri/binaries/
