@@ -49,6 +49,19 @@ The same steps by hand:
 
 The workflow needs permission to create releases and upload assets with its `GITHUB_TOKEN`; the installer job requests `contents: write`. If organization policy restricts that token, allow repository content write access for this workflow.
 
+## Command line (`rowcraft`)
+
+Every installer bundles the `rowcraft` CLI next to the app (Tauri `bundle.externalBin`), so installing the desktop app installs the CLI too. `beforeBuildCommand` runs `apps/rowcraft-desktop/scripts/prepare-cli-sidecar.mjs`, which builds `rowcraft-cli` for the bundle target and stages it in `src-tauri/binaries/` (git-ignored). Release builds fail if it is missing; debug builds (clippy, tests, `tauri dev`) get a placeholder from `build.rs`.
+
+| Platform | How `rowcraft` reaches PATH |
+| --- | --- |
+| Windows (NSIS) | The installer adds the install folder to the user PATH (`src-tauri/windows/hooks.nsh`) and removes it on uninstall. Open a new terminal afterwards. |
+| Linux DEB / RPM | Installed as `/usr/bin/rowcraft`. |
+| Linux AppImage | On launch the app copies the CLI to `~/.local/bin/rowcraft`. Add that folder to PATH if your distribution does not. |
+| macOS | On launch the app symlinks the CLI from `Rowcraft.app` into `/usr/local/bin` if writable, otherwise `~/.local/bin` (add it to PATH if needed). |
+
+The app never overwrites a `rowcraft` it did not install. The `install_cli` command repeats the link step and returns the path and whether it is on PATH.
+
 ## In-app updates
 
 Installed copies check `https://github.com/Sarfraz-droid/Rowcraft/releases/latest/download/latest.json` five seconds after launch and every six hours, and the status bar offers **Update to x.y.z** when a newer version is published. Clicking the version number checks on demand. The app downloads the archive for its platform, verifies its signature against `plugins.updater.pubkey` in `tauri.conf.json`, installs it, and offers **Restart to update**.
