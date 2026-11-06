@@ -179,6 +179,20 @@ async fn test_connection(
 }
 
 #[tauri::command]
+async fn edit_ssh_config(wb: State<'_, Workbench>, name: String) -> Result<Draft, String> {
+    wb.edit_ssh_config(&name)
+}
+
+#[tauri::command]
+async fn update_ssh_config(
+    wb: State<'_, Workbench>,
+    name: String,
+    draft: Draft,
+) -> Result<Vec<String>, String> {
+    wb.update_ssh_config(&name, &draft)
+}
+
+#[tauri::command]
 async fn save_ssh_config(wb: State<'_, Workbench>, draft: Draft) -> Result<Vec<String>, String> {
     wb.save_ssh_config(&draft)
 }
@@ -518,6 +532,8 @@ pub fn run() {
             add_source,
             test_connection,
             save_ssh_config,
+            edit_ssh_config,
+            update_ssh_config,
             connect,
             run_query,
             cancel_query,

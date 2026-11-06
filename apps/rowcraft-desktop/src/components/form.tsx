@@ -17,9 +17,10 @@ interface TextProps {
   placeholder?: string;
   onChange(value: string): void;
   autoFocus?: boolean;
+  disabled?: boolean;
 }
 
-export function TextField({ label, value, placeholder, onChange, autoFocus }: TextProps) {
+export function TextField({ label, value, placeholder, onChange, autoFocus, disabled }: TextProps) {
   return (
     <Field label={label}>
       <input
@@ -28,6 +29,7 @@ export function TextField({ label, value, placeholder, onChange, autoFocus }: Te
         value={value}
         placeholder={placeholder}
         autoFocus={autoFocus}
+        disabled={disabled}
         spellCheck={false}
         autoCapitalize="off"
         autoCorrect="off"

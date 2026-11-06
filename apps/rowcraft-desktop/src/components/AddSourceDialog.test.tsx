@@ -215,3 +215,42 @@ it("autofills MongoDB URL fields and copies auth options to Advanced", async () 
   fireEvent.click(screen.getByRole("button", { name: "OK" }));
   await waitFor(() => expect(add).toHaveBeenCalledWith(expect.objectContaining({ dialect: "mongo", host: "db.example.test", port: "27017", database: "community", user: "reader", password: "demo@only", url: "mongodb://reader@db.example.test:27017/community?authMechanism=DEFAULT&authSource=community" })));
 });
+
+
+it("edits a saved SSH configuration without replacing database fields and keeps blank credentials", async () => {
+  const defaults = await api.formDefaults();
+  vi.spyOn(api, "editSshConfig").mockResolvedValue({ ...defaults.draft, ssh_new_name: "bastion", ssh_host: "old.example", ssh_user: "deploy", ssh_port: "2222", ssh_auth: "key-pair", ssh_key_file: "~/.ssh/key", ssh_host_key: "accept-new", ssh_known_hosts_file: "/tmp/known-hosts" });
+  const update = vi.spyOn(api, "updateSshConfig").mockResolvedValue(["bastion"]);
+  render(<AddSourceDialog onClose={vi.fn()} onAdded={vi.fn()} />);
+  fireEvent.change(await screen.findByLabelText("Host"), { target: { value: "database.example" } });
+  fireEvent.click(screen.getByRole("tab", { name: "SSH/SSL" }));
+  fireEvent.click(screen.getByRole("checkbox", { name: "Use SSH tunnel" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit…" }));
+  const host = await screen.findByLabelText("SSH host");
+  expect((host as HTMLInputElement).value).toBe("old.example");
+  expect((screen.getByLabelText("Configuration name") as HTMLInputElement).disabled).toBe(true);
+  expect((screen.getByLabelText("Private key file") as HTMLInputElement).value).toBe("~/.ssh/key");
+  expect((screen.getByLabelText("Key passphrase") as HTMLInputElement).placeholder).toContain("Leave blank");
+  fireEvent.change(host, { target: { value: "new.example" } });
+  fireEvent.click(screen.getByRole("button", { name: "Update SSH configuration" }));
+  await waitFor(() => expect(update).toHaveBeenCalledWith("bastion", expect.objectContaining({ host: "database.example", ssh_host: "new.example", ssh_port: "2222", ssh_password: "", ssh_passphrase: "" })));
+  await waitFor(() => expect(screen.queryByLabelText("SSH host")).toBeNull());
+  expect(screen.getByRole("combobox", { name: "SSH configuration" }).textContent).toBe("bastion");
+});
+
+it("retains SSH edits after a failed update and supports cancelling", async () => {
+  const defaults = await api.formDefaults();
+  vi.spyOn(api, "editSshConfig").mockResolvedValue({ ...defaults.draft, ssh_new_name: "bastion", ssh_host: "old.example" });
+  vi.spyOn(api, "updateSshConfig").mockRejectedValue(new Error("Could not save SSH settings"));
+  render(<AddSourceDialog onClose={vi.fn()} onAdded={vi.fn()} />);
+  await screen.findByLabelText("Host");
+  fireEvent.click(screen.getByRole("tab", { name: "SSH/SSL" }));
+  fireEvent.click(screen.getByRole("checkbox", { name: "Use SSH tunnel" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit…" }));
+  fireEvent.change(await screen.findByLabelText("SSH host"), { target: { value: "new.example" } });
+  fireEvent.click(screen.getByRole("button", { name: "Update SSH configuration" }));
+  await screen.findByText(/Could not save SSH settings/);
+  expect((screen.getByLabelText("SSH host") as HTMLInputElement).value).toBe("new.example");
+  fireEvent.click(screen.getByRole("button", { name: "Cancel SSH changes" }));
+  expect(screen.queryByLabelText("SSH host")).toBeNull();
+});

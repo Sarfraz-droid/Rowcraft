@@ -121,10 +121,12 @@ export function App() {
     const scale = editorPreferences.fontSize / DEFAULT_EDITOR_PREFERENCES.fontSize;
     const root = document.documentElement;
     root.style.setProperty("zoom", String(scale));
+    root.style.setProperty("--app-scale", String(scale));
     root.style.setProperty("--app-viewport-height", `calc(100dvh / ${scale})`);
     root.style.setProperty("--app-viewport-width", `calc(100vw / ${scale})`);
     return () => {
       root.style.removeProperty("zoom");
+      root.style.removeProperty("--app-scale");
       root.style.removeProperty("--app-viewport-height");
       root.style.removeProperty("--app-viewport-width");
     };

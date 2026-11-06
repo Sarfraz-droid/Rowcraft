@@ -355,8 +355,95 @@ impl Workbench {
 
     /// Saves a reusable SSH configuration independently of any database connection.
     pub fn save_ssh_config(&self, draft: &Draft) -> Result<Vec<String>, String> {
+        let _guard = self.source_lock.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         self.persist_ssh_config(draft.new_ssh_config()?)?;
         Ok(self.ssh_names())
+    }
+
+    /// Loads editable settings without retrieving credentials from Keychain.
+    pub fn edit_ssh_config(&self, name: &str) -> Result<Draft, String> {
+        let file = SshFile::load(&self.paths.ssh).map_err(|e| e.to_string())?;
+        let ssh = file.get(name).map_err(|e| e.to_string())?;
+        Ok(Draft {
+            ssh_new_name: ssh.name.clone(),
+            ssh_host: ssh.host.clone(),
+            ssh_port: ssh.port.map(|p| p.to_string()).unwrap_or_default(),
+            ssh_user: ssh.user.clone(),
+            ssh_auth: ssh.auth,
+            ssh_key_file: ssh.key_file.clone().unwrap_or_default(),
+            ssh_host_key: ssh.host_key,
+            ssh_known_hosts_file: ssh.known_hosts_file.clone().unwrap_or_default(),
+            ..Default::default()
+        })
+    }
+
+    /// Updates a shared configuration in place; its stable name keeps source references valid.
+    /// Blank credential fields preserve the saved secret or legacy environment reference.
+    pub fn update_ssh_config(&self, name: &str, draft: &Draft) -> Result<Vec<String>, String> {
+        let _guard = self.source_lock.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut file = SshFile::load(&self.paths.ssh).map_err(|e| e.to_string())?;
+        let original = file.get(name).map_err(|e| e.to_string())?.clone();
+        let mut ssh = draft.new_ssh_config()?;
+        if ssh.name != name {
+            return Err("The name of a shared SSH configuration cannot be changed.".into());
+        }
+        if draft.ssh_password.is_empty() {
+            ssh.password = original.password.clone();
+            ssh.password_env = original.password_env.clone();
+        }
+        if draft.ssh_passphrase.is_empty() {
+            ssh.passphrase = original.passphrase.clone();
+            ssh.passphrase_env = original.passphrase_env.clone();
+        }
+        let mut pending = rowcraft_config::passwords::PendingSecrets::default();
+        pending.store_secret(&format!("{name}:ssh-password"), &mut ssh.password)?;
+        pending.store_secret(&format!("{name}:ssh-passphrase"), &mut ssh.passphrase)?;
+        let index = file
+            .configs
+            .iter()
+            .position(|c| c.name == name)
+            .ok_or("SSH configuration was removed.")?;
+        file.configs[index] = ssh.clone();
+        let temporary = self.paths.ssh.with_extension(format!("toml.{}.tmp", std::process::id()));
+        let saved = file
+            .save(&temporary)
+            .map_err(|e| e.to_string())
+            .and_then(|_| std::fs::rename(&temporary, &self.paths.ssh).map_err(|e| e.to_string()));
+        if let Err(error) = saved {
+            let _ = std::fs::remove_file(temporary);
+            return Err(error);
+        }
+        pending.commit();
+        {
+            let mut state = self.state();
+            let affected: Vec<_> = state
+                .sources
+                .iter()
+                .filter(|s| s.ssh_tunnel.as_deref() == Some(name))
+                .map(|s| s.name.clone())
+                .collect();
+            for source in &affected {
+                state.sessions.remove(source);
+            }
+            if state.session.as_ref().is_some_and(|s| affected.iter().any(|name| name == s.name()))
+            {
+                state.session = None;
+                state.dialect = None;
+                state.catalog = None;
+            }
+            state.source_revision = state.source_revision.wrapping_add(1);
+        }
+        for account in
+            [original.password.account, original.passphrase.account].into_iter().flatten()
+        {
+            if !file.configs.iter().any(|c| {
+                c.password.account.as_ref() == Some(&account)
+                    || c.passphrase.account.as_ref() == Some(&account)
+            }) {
+                let _ = rowcraft_config::passwords::delete(&account);
+            }
+        }
+        Ok(file.configs.into_iter().map(|c| c.name).collect())
     }
 
     fn persist_ssh_config(&self, mut ssh: rowcraft_config::SshConfig) -> Result<(), String> {
@@ -1339,6 +1426,74 @@ mod tests {
         assert_eq!(reopened.form_defaults().ssh_names, ["Staging"]);
         assert!(reopened.save_ssh_config(&draft).unwrap_err().contains("already exists"));
         assert_eq!(SshFile::load(&f.bench.paths.ssh).unwrap(), saved);
+    }
+
+    #[test]
+    fn ssh_edits_preserve_credentials_and_shared_references() {
+        let f = Fixture::new("edit-shared-ssh");
+        let mut draft = Draft {
+            ssh_new_name: "Staging".into(),
+            ssh_host: "old.example".into(),
+            ssh_user: "deploy".into(),
+            ssh_auth: rowcraft_config::SshAuth::Agent,
+            ..Default::default()
+        };
+        f.bench.save_ssh_config(&draft).unwrap();
+        let mut file = SshFile::load(&f.bench.paths.ssh).unwrap();
+        file.configs[0].password.account = Some("saved-password-reference".into());
+        file.configs[0].passphrase_env = Some("LEGACY_KEY_PASSPHRASE".into());
+        file.save(&f.bench.paths.ssh).unwrap();
+        let editable = f.bench.edit_ssh_config("Staging").unwrap();
+        assert_eq!(editable.ssh_host, "old.example");
+        assert!(editable.ssh_password.is_empty() && editable.ssh_passphrase.is_empty());
+        assert!(editable.ssh_passphrase_env.is_empty());
+        draft.ssh_host = "new.example".into();
+        draft.ssh_port = "2222".into();
+        draft.ssh_key_file = "~/.ssh/staging".into();
+        draft.ssh_auth = rowcraft_config::SshAuth::KeyPair;
+        assert_eq!(f.bench.update_ssh_config("Staging", &draft).unwrap(), ["Staging"]);
+        let saved = SshFile::load(&f.bench.paths.ssh).unwrap();
+        assert_eq!(saved.configs.len(), 1);
+        assert_eq!(saved.configs[0].host, "new.example");
+        assert_eq!(saved.configs[0].port, Some(2222));
+        assert_eq!(saved.configs[0].password, file.configs[0].password);
+        assert_eq!(saved.configs[0].passphrase_env, file.configs[0].passphrase_env);
+        draft.ssh_new_name = "Renamed".into();
+        assert!(f.bench.update_ssh_config("Staging", &draft).is_err());
+        draft.ssh_new_name = "Staging".into();
+        draft.ssh_port = "0".into();
+        assert!(f.bench.update_ssh_config("Staging", &draft).is_err());
+        assert!(f.bench.update_ssh_config("Missing", &draft).is_err());
+        assert_eq!(SshFile::load(&f.bench.paths.ssh).unwrap(), saved);
+        let reopened = Workbench::open(f.bench.engine.clone(), f.bench.paths.clone(), Vec::new());
+        assert_eq!(reopened.edit_ssh_config("Staging").unwrap().ssh_host, "new.example");
+    }
+
+    #[tokio::test]
+    async fn ssh_updates_invalidate_only_sources_using_that_configuration() {
+        let f = Fixture::new("ssh-session-invalidation");
+        let ssh = Draft {
+            ssh_new_name: "Staging".into(),
+            ssh_host: "old.example".into(),
+            ssh_user: "deploy".into(),
+            ssh_auth: rowcraft_config::SshAuth::Agent,
+            ..Default::default()
+        };
+        f.bench.save_ssh_config(&ssh).unwrap();
+        f.bench.add_source(&f.sqlite_draft("alpha")).unwrap();
+        f.bench.add_source(&f.sqlite_draft("beta")).unwrap();
+        f.bench.connect("beta").await.unwrap();
+        let beta = f.bench.state().session.clone().unwrap();
+        f.bench.connect("alpha").await.unwrap();
+        // Associate the retained session with the shared configuration without opening a real tunnel.
+        f.bench.state().sources.iter_mut().find(|s| s.name == "alpha").unwrap().ssh_tunnel =
+            Some("Staging".into());
+        f.bench.update_ssh_config("Staging", &ssh).unwrap();
+        assert!(!f.bench.state().sessions.contains_key("alpha"));
+        assert!(f.bench.state().session.is_none());
+        assert!(f.bench.state().sessions.contains_key("beta"));
+        f.bench.connect("beta").await.unwrap();
+        assert!(Arc::ptr_eq(&beta, f.bench.state().session.as_ref().unwrap()));
     }
 
     struct Fixture {

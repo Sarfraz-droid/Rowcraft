@@ -37,6 +37,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
   const dialog = useRef<HTMLDialogElement>(null);
   const sqliteFileInput = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [editingSsh, setEditingSsh] = useState<string | null>(null);
   const [sshNames, setSshNames] = useState<string[]>([]);
   const [drivers, setDrivers] = useState<DriverInfo[]>([]);
   const [mode, setMode] = useState<"sources" | "drivers">(initialMode);
@@ -93,7 +94,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
     <TextField label={label} value={draft[key]} placeholder={placeholder} onChange={(v) => set(key, v)} />
   );
   const passwordField = (key: "password" | "ssh_password" | "ssh_passphrase" | "key_password", label: string) => (
-    <><Field label={label}><input className="input" type="password" value={draft[key] ?? ""} placeholder={sourceName && (key === "password" || key === "key_password") && savedPasswords[key] ? "Saved · leave blank to keep" : undefined} autoComplete="new-password" onChange={(event) => setDraft((before) => before ? { ...before, [key]: event.target.value, [`${key}_env`]: "", ...(key === "password" || key === "key_password" ? { [`clear_${key}`]: false } : {}) } : before)} /></Field>{sourceName && (key === "password" || key === "key_password") && savedPasswords[key] && <Check label={`Remove saved ${key === "password" ? "password" : "client key password"}`} checked={!!draft[`clear_${key}`]} onChange={checked => setDraft(before => before ? { ...before, [`clear_${key}`]: checked, [key]: checked ? "" : before[key] } : before)} />}</>
+    <><Field label={label}><input className="input" type="password" value={draft[key] ?? ""} placeholder={editingSsh && (key === "ssh_password" || key === "ssh_passphrase") ? "Leave blank to keep saved credential" : sourceName && (key === "password" || key === "key_password") && savedPasswords[key] ? "Saved · leave blank to keep" : undefined} autoComplete="new-password" onChange={(event) => setDraft((before) => before ? { ...before, [key]: event.target.value, [`${key}_env`]: "", ...(key === "password" || key === "key_password" ? { [`clear_${key}`]: false } : {}) } : before)} /></Field>{sourceName && (key === "password" || key === "key_password") && savedPasswords[key] && <Check label={`Remove saved ${key === "password" ? "password" : "client key password"}`} checked={!!draft[`clear_${key}`]} onChange={checked => setDraft(before => before ? { ...before, [`clear_${key}`]: checked, [key]: checked ? "" : before[key] } : before)} />}</>
   );
   const area = (key: TextKey, label: string, placeholder: string, rows: number) => (
     <TextArea label={label} value={draft[key]} placeholder={placeholder} rows={rows} onChange={(v) => set(key, v)} />
@@ -132,11 +133,30 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
     }
   };
 
+  const editSshConfig = async () => {
+    if (busy !== null || !draft.ssh_existing) return;
+    setBusy("ssh");
+    try {
+      const settings = await api.editSshConfig(draft.ssh_existing);
+      setDraft(before => before ? { ...before,
+        ssh_new: false, ssh_new_name: settings.ssh_new_name, ssh_host: settings.ssh_host,
+        ssh_port: settings.ssh_port, ssh_user: settings.ssh_user, ssh_auth: settings.ssh_auth,
+        ssh_key_file: settings.ssh_key_file, ssh_host_key: settings.ssh_host_key,
+        ssh_known_hosts_file: settings.ssh_known_hosts_file,
+        ssh_password: "", ssh_passphrase: "", ssh_password_env: "", ssh_passphrase_env: "",
+      } : before);
+      setEditingSsh(draft.ssh_existing);
+      setStatus({ kind: "none", text: "" });
+    } catch (error) { setStatus({ kind: "error", text: errorText(error) }); }
+    finally { setBusy(null); }
+  };
+
   const saveSshConfig = async () => {
     if (busy !== null) return;
     setBusy("ssh");
     try {
-      const names = await api.saveSshConfig(draft);
+      const names = editingSsh ? await api.updateSshConfig(editingSsh, draft) : await api.saveSshConfig(draft);
+      setEditingSsh(null);
       setSshNames(names);
       const name = draft.ssh_new_name.trim();
       setDraft((before) => before ? { ...before, ssh_new: false, ssh_existing: name, ssh_password: "", ssh_passphrase: "", ssh_password_env: "", ssh_passphrase_env: "" } : before);
@@ -160,6 +180,11 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (editingSsh) {
+      setStatus({ kind: "info", text: "Update or cancel the SSH configuration changes before saving the data source." });
+      setTab("ssh-ssl");
+      return;
+    }
     setBusy("save");
     try {
       onAdded(sourceName ? await api.updateSource(sourceName, draft) : await api.addSource(draft));
@@ -384,20 +409,22 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
 
   const sshSection = (
     <>
-      <Check label="Use SSH tunnel" checked={draft.use_ssh} onChange={(value) => setDraft((before) => before ? { ...before, use_ssh: value, ssh_new: before.ssh_new || !sshNames.length, ssh_existing: before.ssh_existing || sshNames[0] || "" } : before)} />
+      <Check label="Use SSH tunnel" checked={draft.use_ssh} onChange={(value) => { if (!value) setEditingSsh(null); setDraft((before) => before ? { ...before, use_ssh: value, ssh_new: before.ssh_new || !sshNames.length, ssh_existing: before.ssh_existing || sshNames[0] || "", ...(!value ? { ssh_password: "", ssh_passphrase: "" } : {}) } : before); }} />
       {draft.use_ssh && (
         <>
           <div className="field">
             <label className="field-label" htmlFor="saved-ssh-config">SSH configuration</label>
             <div className="row">
-              <SelectField id="saved-ssh-config" aria-label="SSH configuration" className="tw:flex-1 tw:min-w-0" value={draft.ssh_new ? "" : draft.ssh_existing} disabled={busy !== null || !sshNames.length} onValueChange={ssh_existing => setDraft({ ...draft, ssh_new: false, ssh_existing })} placeholder={draft.ssh_new ? "New SSH configuration" : "Select a saved configuration"} options={sshNames.map(name => ({ value: name, label: name }))} />
-              <button type="button" className="btn" disabled={busy !== null} aria-pressed={draft.ssh_new} onClick={() => set("ssh_new", true)}>New…</button>
+              <SelectField id="saved-ssh-config" aria-label="SSH configuration" className="tw:flex-1 tw:min-w-0" value={draft.ssh_new ? "" : draft.ssh_existing} disabled={busy !== null || !sshNames.length} onValueChange={ssh_existing => { setEditingSsh(null); setDraft({ ...draft, ssh_new: false, ssh_existing, ssh_password: "", ssh_passphrase: "" }); }} placeholder={draft.ssh_new ? "New SSH configuration" : "Select a saved configuration"} options={sshNames.map(name => ({ value: name, label: name }))} />
+              <button type="button" className="btn" disabled={busy !== null || draft.ssh_new || !draft.ssh_existing} onClick={() => void editSshConfig()}>Edit…</button>
+              <button type="button" className="btn" disabled={busy !== null} aria-pressed={draft.ssh_new} onClick={() => { setEditingSsh(null); setDraft({ ...draft, ssh_new: true, ssh_new_name: "", ssh_host: "", ssh_port: "22", ssh_user: "", ssh_auth: "password", ssh_key_file: "", ssh_password: "", ssh_passphrase: "", ssh_password_env: "", ssh_passphrase_env: "", ssh_host_key: "strict", ssh_known_hosts_file: "" }); }}>New…</button>
             </div>
           </div>
           {text("ssh_local_port", "Forced local port (optional)", "a free port")}
-          {draft.ssh_new && (
+          {(draft.ssh_new || editingSsh) && (
             <>
-              {text("ssh_new_name", "Configuration name", "e.g. bastion")}
+              <TextField label="Configuration name" value={draft.ssh_new_name} disabled={!!editingSsh} placeholder="e.g. bastion" onChange={v => set("ssh_new_name", v)} />
+              {editingSsh && <Note>Changes apply to every data source using this configuration. Reconnect to use the updated settings. Leave passwords blank to keep saved credentials.</Note>}
               <div className="row">
                 <div className="grow">{text("ssh_host", "SSH host", "ssh.example.com")}</div>
                 <div className="fixed narrow">{text("ssh_port", "Port", "22")}</div>
@@ -434,7 +461,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
                 ]}
               />
               {text("ssh_known_hosts_file", "Known hosts file", "~/.ssh/known_hosts")}
-              <div className="row"><button type="button" className="btn" disabled={busy !== null} onClick={() => void saveSshConfig()}>{busy === "ssh" ? "Saving SSH configuration…" : "Save SSH configuration"}</button></div>
+              <div className="row"><button type="button" className="btn" disabled={busy !== null} onClick={() => void saveSshConfig()}>{busy === "ssh" ? "Saving SSH configuration…" : editingSsh ? "Update SSH configuration" : "Save SSH configuration"}</button><button type="button" className="btn" disabled={busy !== null} onClick={() => { setEditingSsh(null); setDraft({ ...draft, ssh_new: false, ssh_password: "", ssh_passphrase: "" }); }}>Cancel SSH changes</button></div>
               <Note>Saved in ssh.toml for reuse across data sources. Passwords and key passphrases are stored in Keychain.</Note>
             </>
           )}
@@ -559,7 +586,7 @@ export function AddSourceDialog({ onClose, onAdded, initialDriver, initialMode =
           <button type="button" className="btn" onClick={() => dialog.current?.close()}>
             Cancel
           </button>
-          <button type={mode === "sources" ? "submit" : "button"} className="btn primary" disabled={busy !== null || driverBusy} onClick={mode === "drivers" ? () => setMode("sources") : undefined}>
+          <button type={mode === "sources" ? "submit" : "button"} className="btn primary" disabled={busy !== null || driverBusy || !!editingSsh} onClick={mode === "drivers" ? () => setMode("sources") : undefined}>
             {busy === "save" && <span className="spinner" aria-hidden />}
             {mode === "drivers" ? "Done" : sourceName ? "Save changes" : "OK"}
           </button>

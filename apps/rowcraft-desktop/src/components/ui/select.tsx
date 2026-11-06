@@ -59,30 +59,34 @@ function SelectContent({
 }) {
   return (
     <SelectPrimitive.Portal container={container}>
-      <SelectPrimitive.Content
-        data-slot="select-content"
-        className={cn(
-          "tw:relative tw:z-50 tw:max-h-(--radix-select-content-available-height) tw:min-w-[8rem] tw:origin-(--radix-select-content-transform-origin) tw:overflow-x-hidden tw:overflow-y-auto tw:rounded-md tw:border tw:border-border tw:bg-popover tw:text-popover-foreground tw:shadow-mdnn-0n-95",
-          position === "popper" &&
-            "tw:data-[side=bottom]:translate-y-1 tw:data-[side=left]:-translate-x-1 tw:data-[side=right]:translate-x-1 tw:data-[side=top]:-translate-y-1",
-          className
-        )}
-        position={position}
-        align={align}
-        {...props}
-      >
-        <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
+      {/* Popper uses physical viewport coordinates; cancel inherited app zoom here. */}
+      <div style={{ zoom: "calc(1 / var(--app-scale, 1))" }}>
+        <SelectPrimitive.Content
+          data-slot="select-content"
+          style={{ zoom: "var(--app-scale, 1)" }}
           className={cn(
-            "tw:p-1",
+            "tw:relative tw:z-50 tw:max-h-[calc(var(--radix-select-content-available-height)/var(--app-scale,1))] tw:min-w-[8rem] tw:origin-(--radix-select-content-transform-origin) tw:overflow-x-hidden tw:overflow-y-auto tw:rounded-md tw:border tw:border-border tw:bg-popover tw:text-popover-foreground tw:shadow-mdnn-0n-95",
             position === "popper" &&
-              "tw:w-full tw:min-w-[var(--radix-select-trigger-width)] tw:scroll-my-1"
+              "tw:data-[side=bottom]:translate-y-1 tw:data-[side=left]:-translate-x-1 tw:data-[side=right]:translate-x-1 tw:data-[side=top]:-translate-y-1",
+            className
           )}
+          position={position}
+          align={align}
+          {...props}
         >
-          {children}
-        </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
-      </SelectPrimitive.Content>
+          <SelectScrollUpButton />
+          <SelectPrimitive.Viewport
+            className={cn(
+              "tw:p-1",
+              position === "popper" &&
+                "tw:w-full tw:min-w-[calc(var(--radix-select-trigger-width)/var(--app-scale,1))] tw:scroll-my-1"
+            )}
+          >
+            {children}
+          </SelectPrimitive.Viewport>
+          <SelectScrollDownButton />
+        </SelectPrimitive.Content>
+      </div>
     </SelectPrimitive.Portal>
   )
 }

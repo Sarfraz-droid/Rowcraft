@@ -165,6 +165,12 @@ export function installMock(): void {
         if (!driver) return draft;
         return { ...draft, driver: driver.id, dialect: driver.dialect ?? "jdbc", host: draft.host || (driver.file ? "" : "localhost") };
       }
+      case "edit_ssh_config": {
+        if (!sshNames.includes(args.name as string)) throw "SSH configuration not found.";
+        return { ...defaultDraft(), ssh_new_name: args.name as string, ssh_host: "ssh.example.test", ssh_user: "demo", ssh_port: "22" };
+      }
+      case "update_ssh_config":
+        throw "Updating SSH configurations requires the desktop app.";
       case "save_ssh_config": {
         const draft = args.draft as Draft;
         const name = draft.ssh_new_name.trim();
