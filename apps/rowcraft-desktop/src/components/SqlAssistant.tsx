@@ -25,6 +25,7 @@ export function SqlAssistant({ onShowApi, sql, getSql, source = "", title = "SQL
   const [models, setModels] = useState<AiModel[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState("");
+  const [settingUp, setSettingUp] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [traces, setTraces] = useState<ToolTrace[]>([]);
   const request = useRef<AbortController | null>(null);
@@ -38,14 +39,22 @@ export function SqlAssistant({ onShowApi, sql, getSql, source = "", title = "SQL
   useEffect(() => {
     let active = true;
     setBusy(false); setPending(""); setModels([]); setModelsError(""); setModelsLoading(true);
-    api.aiSettings().then(async settings => {
+    api.aiSettings().then(async stored => {
       if (!active) return;
+      let settings = stored;
+      if (!settings.model) {
+        // First use: start the local router, create its key and pick a model without any setup form.
+        setSettingUp(true);
+        try { settings = await api.aiAutoSetup(); } catch (error) { if (active) setFailure(errorText(error)); }
+        if (!active) return;
+        setSettingUp(false);
+      }
       setConfigured(!!settings.model); setRoute(settings.model);
       try {
         const available = await api.aiModels(settings, null);
         if (active) setModels(available);
       } catch (error) { if (active) setModelsError(errorText(error)); }
-    }).catch(error => { if (active) { setFailure(errorText(error)); setConfigured(false); } }).finally(() => { if (active) setModelsLoading(false); });
+    }).catch(error => { if (active) { setFailure(errorText(error)); setConfigured(false); } }).finally(() => { if (active) { setModelsLoading(false); setSettingUp(false); } });
     return () => { active = false; request.current?.abort(); };
   }, [settingsVersion]);
   useEffect(() => { scroll.current?.scrollTo?.({ top: scroll.current.scrollHeight, behavior: "smooth" }); }, [turns, pending, traces, busy, failure]);
@@ -92,7 +101,8 @@ export function SqlAssistant({ onShowApi, sql, getSql, source = "", title = "SQL
         </div>;
       })}
       {pending && <p className="ai-chat-prompt">{pending}</p>}
-      {configured === false && !route && <div className="tw:flex tw:flex-col tw:items-start tw:gap-[10px]"><Note>Choose an AI model or routing combo in settings to use SQL assistance.</Note><button type="button" className="btn" onClick={onSettings}>Configure AI providers</button></div>}
+      {settingUp && <p role="status" className="tw:flex tw:items-center tw:gap-[8px] tw:text-label tw:text-muted-foreground"><span className="spinner" />Setting up AI…</p>}
+      {configured === false && !route && !settingUp && <div className="tw:flex tw:flex-col tw:items-start tw:gap-[10px]"><Note>AI could not be set up automatically. Check your connection, or connect a provider in settings.</Note><button type="button" className="btn" onClick={onSettings}>Open AI settings</button></div>}
       {traces.length > 0 && <details className="ai-tool-log ai-tool-activity">
         <summary><Icon name="chevronRight" size={12} className="ai-tool-chevron" /><span>Database activity</span><small role="status">{toolsRunning ? "Running…" : toolsFailed ? "Completed with errors" : "Done"}</small>{toolsRunning ? <span className="spinner" aria-hidden="true" /> : <Icon name={toolsFailed ? "close" : "check"} size={12} />}</summary>
         <section aria-label="Database tool activity">{traces.map((trace, index) => <details key={`${trace.id}-${index}`}><summary>{trace.status === "running" ? <span className="spinner" aria-hidden="true" /> : <Icon name={trace.status === "error" ? "close" : "check"} size={11} />}{trace.name === "read_schema" ? "Inspect schema" : "Read-only query"}<small>{trace.status === "running" ? "Running…" : trace.status === "error" ? "Failed" : "Done"}</small></summary>{trace.sql && <pre className="ai-code">{trace.sql}</pre>}{trace.result && <pre className="ai-code">{trace.result}</pre>}</details>)}</section>

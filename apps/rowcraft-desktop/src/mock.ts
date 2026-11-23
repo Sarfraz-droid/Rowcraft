@@ -91,6 +91,7 @@ export function installMock(): void {
     switch (cmd) {
       case "ai_settings": return { base_url: "http://127.0.0.1:20128/v1", model: "", fallback_models: [], has_api_key: false };
       case "ai_router_status": return { installed: false, running: false, managed: false, version: "0.5.104", pid: null, base_url: null };
+      case "ai_auto_setup": return { base_url: "http://127.0.0.1:20128/v1", model: "oc/demo-free", fallback_models: [], has_api_key: true };
       case "save_ai_settings":
       case "ai_models":
       case "ai_complete":

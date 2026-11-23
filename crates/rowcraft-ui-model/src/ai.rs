@@ -102,9 +102,9 @@ pub fn load(path: &Path) -> Result<AiSettingsView, String> {
     Ok(AiSettingsView { settings: stored.settings, has_api_key: stored.api_key_account.is_some() })
 }
 
-/// Reuse an enabled key from the bundled router without copying its secret into settings.
+/// The bundled router's database, only for its own loopback gateway URL.
 /// Never attach local credentials to a remote gateway or an unrelated local port/path.
-fn local_router_key(settings_path: &Path, base_url: &str) -> Option<String> {
+fn local_router_database(settings_path: &Path, base_url: &str) -> Option<PathBuf> {
     let url = Url::parse(base_url).ok()?;
     if url.scheme() != "http"
         || !matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "[::1]"))
@@ -117,9 +117,13 @@ fn local_router_key(settings_path: &Path, base_url: &str) -> Option<String> {
     {
         return None;
     }
-    let database = settings_path.parent()?.join("ai-router/data/db/data.sqlite");
+    Some(settings_path.parent()?.join("ai-router/data/db/data.sqlite"))
+}
+
+/// Reuse an enabled key from the bundled router without copying its secret into settings.
+fn local_router_key(settings_path: &Path, base_url: &str) -> Option<String> {
     let connection = rusqlite::Connection::open_with_flags(
-        database,
+        local_router_database(settings_path, base_url)?,
         rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
     )
     .ok()?;
@@ -127,6 +131,35 @@ fn local_router_key(settings_path: &Path, base_url: &str) -> Option<String> {
         .query_row(
             "SELECT key FROM apiKeys WHERE isActive = 1 AND coalesce(accessRestricted, 0) = 0 AND length(trim(key)) > 0 ORDER BY createdAt DESC, id LIMIT 1",
             [],
+            |row| row.get::<_, String>(0),
+        )
+        .ok()
+}
+
+/// Create the gateway key the bundled router insists on, so nobody has to open its dashboard.
+/// The router keeps its data in a regular SQLite file and reads keys per request.
+fn provision_local_key(settings_path: &Path, base_url: &str) -> Option<String> {
+    let database = local_router_database(settings_path, base_url)?;
+    // The router creates its database on first start; never create one here.
+    if !database.is_file() {
+        return None;
+    }
+    let machine = std::fs::read_to_string(database.parent()?.parent()?.join("machine-id"))
+        .ok()
+        .map(|id| id.trim().to_owned())
+        .filter(|id| !id.is_empty());
+    let connection = rusqlite::Connection::open_with_flags(
+        &database,
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_WRITE | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+    )
+    .ok()?;
+    connection.busy_timeout(Duration::from_secs(3)).ok()?;
+    connection
+        .query_row(
+            "INSERT INTO apiKeys (id, key, name, machineId, isActive, createdAt, accessRestricted)
+             VALUES (lower(hex(randomblob(16))), 'sk-rowcraft-' || lower(hex(randomblob(16))), 'Rowcraft', ?1, 1, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 0)
+             RETURNING key",
+            [machine],
             |row| row.get::<_, String>(0),
         )
         .ok()
@@ -233,7 +266,7 @@ fn key(path: &Path, entered: Option<&str>, base_url: &str) -> Result<Option<Stri
             return passwords::load(account).map(Some);
         }
     }
-    Ok(local_router_key(path, base_url))
+    Ok(local_router_key(path, base_url).or_else(|| provision_local_key(path, base_url)))
 }
 
 fn authorized(request: reqwest::RequestBuilder, key: Option<&str>) -> reqwest::RequestBuilder {
@@ -289,7 +322,7 @@ pub async fn models(
             .send()
             .await
             .map_err(|_| {
-                "Could not reach the AI gateway. Start 9router or check its URL.".to_owned()
+                "Could not reach the AI gateway. Use Set up automatically in AI settings.".to_owned()
             })?;
     if !response.status().is_success() {
         return Err(format!(
@@ -318,9 +351,12 @@ pub async fn complete(
     if let Some(model) = model {
         requested.model = model.to_owned();
     }
-    let settings = normalize(&requested)?;
+    let mut settings = normalize(&requested)?;
     if settings.model.is_empty() {
-        return Err("Choose a model or routing combo in AI settings first.".into());
+        let listed = models(path, &settings, None).await.unwrap_or_default();
+        settings.model = default_model(&listed).ok_or(
+            "No AI model is available yet. Open AI settings and choose Set up automatically.",
+        )?;
     }
     if messages.is_empty()
         || messages.len() > 80
@@ -337,6 +373,30 @@ pub async fn complete(
     let client = client()?;
     let spare = spare_models(&client, &settings, key.as_deref()).await;
     complete_with(&client, &route(&settings, spare), key.as_deref(), messages, tools_enabled).await
+}
+
+/// The model to use when nothing is configured: a routing combo if the gateway has one, else the
+/// first chat model it lists.
+pub fn default_model(models: &[AiModel]) -> Option<String> {
+    let chat = || models.iter().filter(|model| chat_capable(&model.id));
+    chat().find(|model| model.owned_by == "combo").or_else(|| chat().next()).map(|m| m.id.clone())
+}
+
+/// Finish AI setup for a running local gateway without asking for anything: make sure a key
+/// exists and a model is selected. Returns the saved settings.
+pub async fn prepare(path: &Path) -> Result<AiSettingsView, String> {
+    let stored = read(path)?;
+    let settings = normalize(&stored.settings)?;
+    let models = models(path, &settings, None).await?;
+    if models.is_empty() {
+        return Err("The AI gateway has no models yet. Connect a provider in its dashboard, then try again.".into());
+    }
+    let known = |id: &str| models.iter().any(|model| model.id == id);
+    if known(&settings.model) {
+        return load(path);
+    }
+    let model = default_model(&models).ok_or("The AI gateway lists no chat models.")?;
+    save(path, AiSettings { model, ..settings }, None, false)
 }
 
 /// How long a model that just failed waits at the back of the route.
@@ -922,6 +982,49 @@ mod tests {
         assert_eq!(routed.fallback_models, ["route-test/spare", "route-test/down"]);
         warm("route-test/down");
         assert_eq!(route(&settings, vec![]).model, "route-test/down");
+    }
+
+    #[test]
+    fn creates_a_local_router_key_once_when_none_is_usable() {
+        let directory = fixture().with_extension("provision");
+        let database = directory.join("ai-router/data/db/data.sqlite");
+        std::fs::create_dir_all(database.parent().expect("parent")).expect("fixture directory");
+        let path = directory.join("ai-settings.json");
+        let url = "http://127.0.0.1:20128/v1";
+        // No router database yet: never create one.
+        assert!(key(&path, None, url).expect("key").is_none());
+        assert!(!database.exists());
+        let connection = rusqlite::Connection::open(&database).expect("database");
+        connection.execute_batch(
+            "CREATE TABLE apiKeys (id TEXT PRIMARY KEY, key TEXT UNIQUE NOT NULL, name TEXT, machineId TEXT, isActive INTEGER DEFAULT 1, createdAt TEXT NOT NULL, accessRestricted INTEGER DEFAULT 0, accessAllow TEXT);
+             INSERT INTO apiKeys (id, key, isActive, createdAt) VALUES ('off', 'fixture-disabled', 0, '2026-01-01');",
+        ).expect("fixture keys");
+        let created = key(&path, None, url).expect("key").expect("provisioned key");
+        assert!(created.starts_with("sk-rowcraft-") && created.len() > 20);
+        assert_eq!(key(&path, None, url).expect("key").as_deref(), Some(created.as_str()));
+        let count: i64 = connection
+            .query_row("SELECT count(*) FROM apiKeys WHERE isActive = 1", [], |row| row.get(0))
+            .expect("count");
+        assert_eq!(count, 1);
+        // Remote gateways and other ports never get a local key.
+        assert!(key(&path, None, "https://example.com/v1").expect("remote").is_none());
+        drop(connection);
+        std::fs::remove_dir_all(directory).expect("cleanup");
+    }
+
+    #[test]
+    fn default_model_prefers_a_combo_and_skips_non_chat_models() {
+        let model = |id: &str, owner: &str| AiModel { id: id.into(), owned_by: owner.into() };
+        assert_eq!(
+            default_model(&[model("x/embed-1", "x"), model("a/chat", "a"), model("best", "combo")])
+                .as_deref(),
+            Some("best")
+        );
+        assert_eq!(
+            default_model(&[model("x/embed-1", "x"), model("a/chat", "a")]).as_deref(),
+            Some("a/chat")
+        );
+        assert_eq!(default_model(&[model("x/whisper", "x")]), None);
     }
 
     #[test]

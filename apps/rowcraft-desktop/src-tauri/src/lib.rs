@@ -379,6 +379,24 @@ async fn start_ai_router(
         .map_err(|e| e.to_string())?
 }
 
+/// One click: start the local router if needed, create its gateway key and choose a model.
+#[tauri::command]
+async fn ai_auto_setup(
+    router: State<'_, Arc<ai_router::RouterManager>>,
+) -> Result<rowcraft_ui_model::ai::AiSettingsView, String> {
+    let base_url =
+        rowcraft_ui_model::ai::load(&rowcraft_ui_model::ai::settings_path())?.settings.base_url;
+    let current = router_status(Arc::clone(router.inner()), Some(base_url.clone())).await?;
+    if !current.running {
+        let router = Arc::clone(router.inner());
+        let url = base_url.clone();
+        tauri::async_runtime::spawn_blocking(move || router.start(&url))
+            .await
+            .map_err(|e| e.to_string())??;
+    }
+    rowcraft_ui_model::ai::prepare(&rowcraft_ui_model::ai::settings_path()).await
+}
+
 #[tauri::command]
 async fn stop_ai_router(
     router: State<'_, Arc<ai_router::RouterManager>>,
@@ -510,6 +528,7 @@ pub fn run() {
             ai_complete,
             ai_router_status,
             start_ai_router,
+            ai_auto_setup,
             stop_ai_router,
             open_ai_dashboard,
             bootstrap,

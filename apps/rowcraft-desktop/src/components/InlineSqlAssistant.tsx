@@ -30,7 +30,7 @@ export function InlineSqlAssistant({ target, dialect, source, schema, catalog, e
     try {
       const settings = await api.aiSettings();
       if (controller.signal.aborted) return;
-      if (!settings.model) throw new Error("Choose a model in AI settings first.");
+      if (!settings.model) { await api.aiAutoSetup(); if (controller.signal.aborted) return; }
       const reply = await runSqlAssistance({ action, prompt, sql: target.selectedSql || target.fullSql, source, dialect, schema, catalog, includeSchema: false, allowTools, error }, setTraces, controller.signal);
       if (controller.signal.aborted) return;
       const query = suggestedSql(reply.content);
@@ -49,7 +49,7 @@ export function InlineSqlAssistant({ target, dialect, source, schema, catalog, e
           }
         }} />
         <button type="button" className="icon-button" aria-label="Inline AI options" aria-expanded={optionsOpen} onClick={() => setOptionsOpen(open => !open)}><Icon name="filter" size={12} /></button>
-        <button type="button" className="icon-button" aria-label="Open AI settings" title="AI settings · Start 9router or configure providers" onClick={onSettings}><Icon name="settings" size={12} /></button>
+        <button type="button" className="icon-button" aria-label="Open AI settings" title="AI settings" onClick={onSettings}><Icon name="settings" size={12} /></button>
         <button type="submit" className="icon-button" aria-label="Submit inline AI instruction" title="Submit (Enter)" disabled={busy || (!prompt.trim() && !(action === "fix" && error))}>{busy ? <span className="spinner" aria-hidden /> : <Icon name="arrow" size={14} />}</button>
         <button type="button" className="icon-button" aria-label="Close inline AI" title="Dismiss (Esc)" onClick={onClose}><Icon name="close" size={12} /></button>
       </div>

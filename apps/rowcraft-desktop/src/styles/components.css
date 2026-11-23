@@ -863,3 +863,10 @@
   .export-toast-body { @apply tw:flex tw:flex-col tw:gap-[2px] tw:min-w-0; }
   .export-toast-path { @apply tw:text-label tw:text-muted-foreground tw:font-mono tw:truncate tw:select-text; }
 }
+
+@layer components {
+  @keyframes select-content-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+  .tw\:select-content-motion[data-state="open"] { animation: select-content-in 120ms ease-out; }
+  @media (prefers-reduced-motion: reduce) { .tw\:select-content-motion[data-state="open"] { animation: none; } }
+  [data-slot="select-content"] { z-index: 2000; }
+}

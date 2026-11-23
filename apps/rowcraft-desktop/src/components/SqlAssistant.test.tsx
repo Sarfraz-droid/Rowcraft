@@ -42,11 +42,21 @@ it("previews generated SQL and inserts it only after the user explicitly chooses
   expect(use).toHaveBeenCalledWith("SELECT count(*) FROM people;");
 });
 
-it("points to provider settings when no AI model is configured", async () => {
+it("sets AI up automatically on first use", async () => {
   vi.mocked(api.aiSettings).mockResolvedValue({ base_url: "http://localhost:20128/v1", model: "", fallback_models: [], has_api_key: false });
+  const setup = vi.spyOn(api, "aiAutoSetup").mockResolvedValue({ base_url: "http://localhost:20128/v1", model: "auto/model", fallback_models: [], has_api_key: true });
+  render(<SqlAssistant sql="SELECT 1" dialect="pg" schema="main" catalog={null} onClose={vi.fn()} onSettings={vi.fn()} onUse={vi.fn()} />);
+  await waitFor(() => expect(setup).toHaveBeenCalledOnce());
+  await waitFor(() => expect(screen.queryByText("Setting up AI…")).toBeNull());
+  expect(screen.queryByRole("button", { name: "Open AI settings" })).toBeNull();
+});
+
+it("points to settings only when automatic setup fails", async () => {
+  vi.mocked(api.aiSettings).mockResolvedValue({ base_url: "http://localhost:20128/v1", model: "", fallback_models: [], has_api_key: false });
+  vi.spyOn(api, "aiAutoSetup").mockRejectedValue(new Error("Install Node.js"));
   const settings = vi.fn();
   render(<SqlAssistant sql="SELECT 1" dialect="pg" schema="main" catalog={null} onClose={vi.fn()} onSettings={settings} onUse={vi.fn()} />);
-  fireEvent.click(await screen.findByRole("button", { name: "Configure AI providers" }));
+  fireEvent.click((await screen.findAllByRole("button", { name: "Open AI settings" }))[0]!);
   expect(settings).toHaveBeenCalledOnce();
   expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(true);
 });

@@ -292,6 +292,7 @@ export const api = {
   aiReadonlyQuery: (source: string, statement: string, schema?: string) => call<QueryOutput>("ai_readonly_query", { source, statement, schema }),
   aiRouterStatus: (baseUrl?: string) => call<RouterStatus>("ai_router_status", { baseUrl }),
   startAiRouter: (baseUrl: string) => call<RouterStatus>("start_ai_router", { baseUrl }),
+  aiAutoSetup: () => call<AiSettingsView>("ai_auto_setup"),
   stopAiRouter: (baseUrl: string) => call<RouterStatus>("stop_ai_router", { baseUrl }),
   openAiDashboard: (settings: AiSettings) => call<void>("open_ai_dashboard", { settings }),
   saveExport: (fileName: string, contents: string) => call<string>("save_export", { fileName, contents }),

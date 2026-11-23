@@ -14,6 +14,19 @@ function boundedResult(value: unknown): string {
   return text.length <= 12_000 ? text : `${text.slice(0, 12_000)}\n[Result truncated to 12 KB]`;
 }
 
+/** Failures that automatic setup can repair: router stopped, key missing, or no model chosen. */
+const SETUP_REPAIRABLE = /Could not reach the AI gateway|HTTP 40[13]|No AI model is available/;
+
+/** Completes a request, repairing the local gateway once (start, key, model) if it is not ready. */
+async function complete(messages: AiMessage[], toolsEnabled: boolean, model?: string): Promise<AiReply> {
+  try { return await api.aiComplete(messages, toolsEnabled, model); }
+  catch (error) {
+    if (!SETUP_REPAIRABLE.test(errorText(error))) throw error;
+    try { await api.aiAutoSetup(); } catch { throw error; }
+    return api.aiComplete(messages, toolsEnabled, model);
+  }
+}
+
 /** Model rounds that may call database tools; one more round always asks for the answer. */
 const TOOL_ROUNDS = 6;
 /** Database calls per request, and per model turn. */
@@ -45,7 +58,7 @@ export async function runSqlAssistance(context: AssistanceContext, onTrace: (tra
     if (new TextEncoder().encode(JSON.stringify(messages)).length > 92_000) throw new Error("AI context is too large. Narrow the request or turn off schema context.");
     const toolsEnabled = context.allowTools && round < TOOL_ROUNDS && traces.length < TOOL_CALLS;
     const request = toolsEnabled ? messages : withoutToolTurns(traces.length ? [...messages, { role: "user", content: WRAP_UP }] : messages);
-    const reply = await api.aiComplete(request, toolsEnabled, context.model);
+    const reply = await complete(request, toolsEnabled, context.model);
     check();
     if (!reply.tool_calls?.length) return reply;
     // Tools that were not offered are never run; keep whatever the model said alongside them.

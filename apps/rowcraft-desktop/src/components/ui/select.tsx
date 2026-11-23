@@ -51,7 +51,8 @@ function SelectContent({
   className,
   children,
   position = "item-aligned",
-  align = "center",
+  align = "start",
+  sideOffset = 4,
   container,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content> & {
@@ -65,19 +66,20 @@ function SelectContent({
           data-slot="select-content"
           style={{ zoom: "var(--app-scale, 1)" }}
           className={cn(
-            "tw:relative tw:z-50 tw:max-h-[calc(var(--radix-select-content-available-height)/var(--app-scale,1))] tw:min-w-[8rem] tw:origin-(--radix-select-content-transform-origin) tw:overflow-x-hidden tw:overflow-y-auto tw:rounded-md tw:border tw:border-border tw:bg-popover tw:text-popover-foreground tw:shadow-mdnn-0n-95",
+            "tw:relative tw:z-50 tw:max-h-[calc(var(--radix-select-content-available-height)/var(--app-scale,1))] tw:min-w-[8rem] tw:origin-(--radix-select-content-transform-origin) tw:overflow-x-hidden tw:overflow-y-auto tw:rounded-md tw:border tw:border-border tw:bg-popover tw:text-popover-foreground tw:shadow-[0_10px_28px_rgb(0_0_0/0.38),0_2px_6px_rgb(0_0_0/0.25)] tw:max-w-[max(calc(var(--radix-select-trigger-width)/var(--app-scale,1)),min(560px,calc(100vw-24px)))] tw:select-content-motion",
             position === "popper" &&
               "tw:data-[side=bottom]:translate-y-1 tw:data-[side=left]:-translate-x-1 tw:data-[side=right]:translate-x-1 tw:data-[side=top]:-translate-y-1",
             className
           )}
           position={position}
           align={align}
+          sideOffset={sideOffset}
           {...props}
         >
           <SelectScrollUpButton />
           <SelectPrimitive.Viewport
             className={cn(
-              "tw:p-1",
+              "tw:p-[4px]",
               position === "popper" &&
                 "tw:w-full tw:min-w-[calc(var(--radix-select-trigger-width)/var(--app-scale,1))] tw:scroll-my-1"
             )}
@@ -113,7 +115,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "tw:relative tw:flex tw:w-full tw:cursor-default tw:items-center tw:gap-2 tw:rounded-sm tw:py-[6px] tw:pr-[28px] tw:pl-[8px] tw:text-label tw:outline-hidden tw:select-none tw:focus:bg-accent tw:focus:text-accent-foreground tw:data-[disabled]:pointer-events-none tw:data-[disabled]:opacity-50 tw:[&_svg]:pointer-events-none tw:[&_svg]:shrink-0 tw:[&_svg:not([class*=size-])]:size-4 tw:[&_svg:not([class*=text-])]:text-muted-foreground tw:*:[span]:last:flex tw:*:[span]:last:items-center tw:*:[span]:last:gap-2",
+        "tw:relative tw:flex tw:w-full tw:cursor-default tw:items-center tw:gap-2 tw:rounded-sm tw:min-h-[26px] tw:py-[5px] tw:pr-[28px] tw:pl-[8px] tw:break-all tw:text-label tw:outline-hidden tw:select-none tw:focus:bg-accent tw:focus:text-accent-foreground tw:data-[disabled]:pointer-events-none tw:data-[disabled]:opacity-50 tw:[&_svg]:pointer-events-none tw:[&_svg]:shrink-0 tw:[&_svg:not([class*=size-])]:size-4 tw:[&_svg:not([class*=text-])]:text-muted-foreground tw:*:[span]:last:flex tw:*:[span]:last:items-center tw:*:[span]:last:gap-2",
         className
       )}
       {...props}
