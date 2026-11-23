@@ -389,7 +389,7 @@ impl Api {
     }
 }
 
-fn result_json(rs: &ResultSet, elapsed_ms: u128) -> serde_json::Value {
+pub fn result_json(rs: &ResultSet, elapsed_ms: u128) -> serde_json::Value {
     let rows: Vec<serde_json::Value> = rs
         .rows
         .iter()

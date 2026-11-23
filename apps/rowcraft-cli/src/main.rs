@@ -38,6 +38,8 @@ enum Command {
     Introspect(IntrospectArgs),
     /// Serve a local HTTP API: every saved data source gets endpoints to run SQL against it.
     Serve(ServeArgs),
+    /// Run an MCP server so AI clients (Claude Code, Codex, Cursor, …) can query your saved data sources.
+    Mcp(McpArgs),
 }
 
 #[derive(Debug, Subcommand)]
@@ -220,6 +222,42 @@ struct ServeArgs {
     token_env: Option<String>,
 }
 
+#[derive(Debug, Args)]
+struct McpArgs {
+    #[command(subcommand)]
+    action: Option<McpCommand>,
+    /// Let the assistant run statements that change data. Default: read-only.
+    #[arg(long, global = true)]
+    allow_write: bool,
+}
+
+#[derive(Debug, Subcommand)]
+enum McpCommand {
+    /// Register this server with local AI clients (runs `claude mcp add` / `codex mcp add`).
+    Install(McpInstallArgs),
+    /// Print the JSON that other MCP clients (Cursor, Claude Desktop, …) need to launch this server.
+    Config,
+}
+
+#[derive(Debug, Args)]
+struct McpInstallArgs {
+    /// Client to register with; repeat for several. Default: every client found on PATH.
+    #[arg(long = "client", value_enum)]
+    clients: Vec<McpClient>,
+    /// Claude Code scope: user (all projects), local (this project, private) or project (shared `.mcp.json`).
+    #[arg(long, default_value = "user")]
+    scope: String,
+    /// Show the commands without running them.
+    #[arg(long)]
+    dry_run: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum McpClient {
+    Claude,
+    Codex,
+}
+
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 enum IntrospectFormat {
     Tree,
@@ -290,6 +328,15 @@ async fn main() -> ExitCode {
         Command::Query(q) => commands::query(&engine, q).await,
         Command::Introspect(a) => commands::introspect(&engine, a).await,
         Command::Serve(a) => commands::serve(engine, a).await,
+        Command::Mcp(McpArgs { action: None, allow_write }) => {
+            commands::mcp_serve(engine, allow_write).await
+        }
+        Command::Mcp(McpArgs { action: Some(McpCommand::Install(a)), allow_write }) => {
+            commands::mcp_install(a, allow_write)
+        }
+        Command::Mcp(McpArgs { action: Some(McpCommand::Config), allow_write }) => {
+            commands::mcp_config(allow_write)
+        }
     }
 }
 
@@ -415,6 +462,36 @@ mod tests {
         assert_eq!(s.listen, "127.0.0.1:7878".parse().unwrap());
         assert!(s.token_env.is_none());
         assert!(Cli::try_parse_from(["rowcraft", "serve", "--listen", "nope"]).is_err());
+    }
+
+    #[test]
+    fn mcp_runs_by_default_and_takes_install() {
+        let run = Cli::try_parse_from(["rowcraft", "mcp"]).unwrap();
+        let Command::Mcp(McpArgs { action: None, allow_write: false }) = run.command else {
+            panic!("not a read-only mcp server")
+        };
+        let write = Cli::try_parse_from(["rowcraft", "mcp", "--allow-write"]).unwrap();
+        assert!(matches!(write.command, Command::Mcp(McpArgs { action: None, allow_write: true })));
+        let install = Cli::try_parse_from([
+            "rowcraft",
+            "mcp",
+            "install",
+            "--client",
+            "codex",
+            "--allow-write",
+            "--dry-run",
+        ])
+        .unwrap();
+        let Command::Mcp(McpArgs { action: Some(McpCommand::Install(i)), allow_write }) =
+            install.command
+        else {
+            panic!("not mcp install")
+        };
+        assert_eq!(
+            (i.clients, i.scope.as_str(), i.dry_run, allow_write),
+            (vec![McpClient::Codex], "user", true, true)
+        );
+        assert!(Cli::try_parse_from(["rowcraft", "mcp", "install", "--client", "vim"]).is_err());
     }
 
     #[test]

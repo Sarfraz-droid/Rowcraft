@@ -3,7 +3,7 @@ resolver = "3"
 members = ["crates/*", "dialects/*", "wire/*", "apps/rowcraft-cli", "apps/rowcraft-desktop/src-tauri"]
 
 [workspace.package]
-version = "0.0.12"
+version = "0.0.13"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT OR Apache-2.0"
@@ -68,6 +68,7 @@ rowcraft-dialect = { path = "crates/rowcraft-dialect" }
 rowcraft-drivers = { path = "crates/rowcraft-drivers" }
 rowcraft-grid = { path = "crates/rowcraft-grid" }
 rowcraft-io = { path = "crates/rowcraft-io" }
+rowcraft-mcp = { path = "crates/rowcraft-mcp" }
 rowcraft-model = { path = "crates/rowcraft-model" }
 rowcraft-registry = { path = "crates/rowcraft-registry" }
 rowcraft-script = { path = "crates/rowcraft-script" }

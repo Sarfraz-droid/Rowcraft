@@ -226,6 +226,17 @@ curl -s -X POST http://127.0.0.1:7878/datasources/local-pg/query --data-binary '
 
 See [the HTTP API](docs/api.md) for every endpoint, response shape, and security rule.
 
+#### Use Rowcraft from AI clients (MCP)
+
+`rowcraft mcp` is a local [MCP](https://modelcontextprotocol.io) server over stdio. It lets Claude Code, Codex, Cursor and other clients list your saved data sources, read their catalogs and run queries. It is read-only unless you opt in.
+
+```sh
+rowcraft mcp install            # registers with `claude` and `codex` when they are on PATH
+rowcraft mcp config             # JSON for Cursor, Claude Desktop and other clients
+```
+
+See [the MCP server](docs/mcp.md) for the tools, write access and its limits.
+
 CLI exit codes are `0` for success, `1` for statement errors, `2` for connection/authentication errors, and `3` for usage/configuration errors.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -460,6 +471,7 @@ For bugs and feature ideas, [open an issue](https://github.com/Sarfraz-droid/Row
 - [Data source options](docs/data-source-options.md)
 - [JDBC drivers](docs/jdbc-drivers.md)
 - [HTTP API (`rowcraft serve`)](docs/api.md)
+- [MCP server (`rowcraft mcp`)](docs/mcp.md)
 - [Installer builds and signing](docs/installers.md)
 - [Package distribution](docs/package-distribution.md)
 - [Landing-page development](apps/landing/README.md)

@@ -22,6 +22,7 @@ rowcraft-core.workspace = true
 rowcraft-dialect.workspace = true
 rowcraft-drivers.workspace = true
 rowcraft-io.workspace = true
+rowcraft-mcp.workspace = true
 rowcraft-model.workspace = true
 rowcraft-registry.workspace = true
 rowcraft-ssh.workspace = true
