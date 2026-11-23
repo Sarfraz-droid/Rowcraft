@@ -24,6 +24,7 @@ tauri-build.workspace = true
 [dependencies]
 rowcraft-config.workspace = true
 rowcraft-core.workspace = true
+rowcraft-mcp.workspace = true
 rowcraft-model.workspace = true
 rowcraft-registry.workspace = true
 rowcraft-ui-model.workspace = true

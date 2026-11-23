@@ -506,6 +506,98 @@ fn unique_path(directory: &std::path::Path, name: &str) -> std::path::PathBuf {
         .unwrap_or(candidate)
 }
 
+/// Serves MCP on stdio for an AI client that launched this executable with `mcp`. Returns the
+/// process exit code; stdout carries protocol messages only.
+pub fn run_mcp(allow_write: bool) -> i32 {
+    let engine = Arc::new(Engine::new(rowcraft_registry::default_registry()));
+    for warning in rowcraft_config::register_custom_drivers() {
+        eprintln!("rowcraft: warning: drivers.toml: {warning}");
+    }
+    let options =
+        rowcraft_mcp::Options { datasources: rowcraft_config::datasources_path(), allow_write };
+    match tauri::async_runtime::block_on(rowcraft_mcp::serve_stdio(engine, options)) {
+        Ok(()) => 0,
+        Err(e) => {
+            eprintln!("rowcraft: MCP server stopped: {e}");
+            1
+        }
+    }
+}
+
+#[derive(serde::Serialize)]
+struct McpClientStatus {
+    id: &'static str,
+    label: &'static str,
+    installed: bool,
+    registered: bool,
+}
+
+#[derive(serde::Serialize)]
+struct McpStatus {
+    clients: Vec<McpClientStatus>,
+    /// What a client runs to start the server.
+    command: Vec<String>,
+    /// `mcpServers` JSON for clients Rowcraft cannot register with itself.
+    config_json: String,
+}
+
+fn mcp_status_for(allow_write: bool) -> Result<McpStatus, String> {
+    use rowcraft_mcp::install;
+    let exe =
+        std::env::current_exe().map_err(|e| format!("cannot find the app executable: {e}"))?;
+    let command = install::server_command(&exe, allow_write);
+    let clients = install::Client::ALL
+        .into_iter()
+        .map(|client| {
+            let installed = install::find(client).is_some();
+            McpClientStatus {
+                id: client.id(),
+                label: client.label(),
+                installed,
+                registered: installed && install::is_registered(client),
+            }
+        })
+        .collect();
+    Ok(McpStatus { clients, config_json: install::config_json(&command), command })
+}
+
+fn mcp_client(id: &str) -> Result<rowcraft_mcp::install::Client, String> {
+    rowcraft_mcp::install::Client::parse(id).ok_or_else(|| format!("unknown AI client `{id}`"))
+}
+
+/// Which AI clients are installed and already connected to Rowcraft.
+#[tauri::command]
+async fn mcp_status(allow_write: bool) -> Result<McpStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || mcp_status_for(allow_write))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+/// Connects an AI client to this app's MCP server (replacing an earlier connection).
+#[tauri::command]
+async fn mcp_connect(client: String, allow_write: bool) -> Result<McpStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let client = mcp_client(&client)?;
+        let exe =
+            std::env::current_exe().map_err(|e| format!("cannot find the app executable: {e}"))?;
+        let command = rowcraft_mcp::install::server_command(&exe, allow_write);
+        rowcraft_mcp::install::register(client, "user", &command)?;
+        mcp_status_for(allow_write)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+async fn mcp_disconnect(client: String, allow_write: bool) -> Result<McpStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        rowcraft_mcp::install::unregister(mcp_client(&client)?, "user")?;
+        mcp_status_for(allow_write)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 pub fn run() {
     let engine = Arc::new(Engine::new(rowcraft_registry::default_registry()));
     // Before anything reads the driver catalog.
@@ -529,6 +621,9 @@ pub fn run() {
             ai_router_status,
             start_ai_router,
             ai_auto_setup,
+            mcp_status,
+            mcp_connect,
+            mcp_disconnect,
             stop_ai_router,
             open_ai_dashboard,
             bootstrap,

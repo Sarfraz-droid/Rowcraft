@@ -449,20 +449,36 @@ fn chat_capable(id: &str) -> bool {
     .any(|word| id.contains(word))
 }
 
-/// Up to two gateway models outside the configured route, tried only after it fails: first those
-/// from the primary model's provider (`provider/model`), then the gateway's order.
+/// The provider of a `provider/model` id; ids without a slash have their own.
+fn provider_of(id: &str) -> &str {
+    id.split_once('/').map_or(id, |(provider, _)| provider)
+}
+
+/// Gateway models outside the configured route, tried only after it fails. A rejected login
+/// fails every model of that provider, so spares come first from *other* providers (one each,
+/// up to four); the primary provider's own models only fill the list up to two.
 fn pick_spares(settings: &AiSettings, listed: &[String]) -> Vec<String> {
-    let provider = settings.model.split_once('/').map(|(provider, _)| provider);
-    let mut spare: Vec<&String> = listed
-        .iter()
-        .filter(|id| {
-            chat_capable(id) && **id != settings.model && !settings.fallback_models.contains(id)
-        })
-        .collect();
-    spare.sort_by_key(|id| {
-        provider.is_none_or(|p| id.split_once('/').map(|(own, _)| own) != Some(p))
-    });
-    spare.into_iter().take(2).cloned().collect()
+    let primary = provider_of(&settings.model);
+    let outside = |id: &&String| {
+        chat_capable(id) && **id != settings.model && !settings.fallback_models.contains(id)
+    };
+    let mut spare: Vec<String> = Vec::new();
+    for id in listed.iter().filter(outside) {
+        let provider = provider_of(id);
+        if provider != primary && !spare.iter().any(|have| provider_of(have) == provider) {
+            spare.push(id.clone());
+        }
+    }
+    spare.truncate(4);
+    for id in listed.iter().filter(outside) {
+        if spare.len() >= 2 {
+            break;
+        }
+        if !spare.contains(id) {
+            spare.push(id.clone());
+        }
+    }
+    spare
 }
 
 async fn spare_models(client: &Client, settings: &AiSettings, key: Option<&str>) -> Vec<String> {
@@ -613,7 +629,12 @@ where
 {
     let mut failures = Vec::new();
     let mut access_rejected = false;
+    // Providers whose login was refused: their other models would be refused too.
+    let mut rejected_providers: Vec<&str> = Vec::new();
     for model in std::iter::once(&settings.model).chain(&settings.fallback_models) {
+        if rejected_providers.contains(&provider_of(model)) {
+            continue;
+        }
         let mut response = send(model.clone(), tools_enabled).await?;
         if matches!(response.status.as_u16(), 502..=504)
             && provider_access_error(response.data.as_ref()).is_none()
@@ -639,6 +660,7 @@ where
             {
                 Some(upstream) => {
                     access_rejected = true;
+                    rejected_providers.push(provider_of(model));
                     failures.push(format!("{model}: provider rejected access (HTTP {upstream})"));
                 }
                 None => failures.push(format!("{model} (HTTP {})", status.as_u16())),
@@ -951,7 +973,7 @@ mod tests {
     }
 
     #[test]
-    fn spare_models_prefer_the_primary_provider_and_skip_non_chat_models() {
+    fn spare_models_prefer_other_providers_and_skip_non_chat_models() {
         let settings = AiSettings {
             model: "gc/gemini-2.5-pro".into(),
             fallback_models: vec!["gc/gemini-2.5-flash".into()],
@@ -966,7 +988,48 @@ mod tests {
             "openai/whisper-1",
         ]
         .map(String::from);
-        assert_eq!(pick_spares(&settings, &listed), ["gc/gemini-2.0-flash", "openai/gpt-4o-mini"]);
+        assert_eq!(pick_spares(&settings, &listed), ["openai/gpt-4o-mini", "gc/gemini-2.0-flash"]);
+    }
+
+    #[test]
+    fn spares_take_one_model_per_other_provider() {
+        let settings = AiSettings { model: "cc/sonnet".into(), ..Default::default() };
+        let listed = [
+            "cc/opus", "mmf/auto", "oc/a-free", "oc/b-free", "oc/c-free", "x/one", "y/two", "z/three",
+        ]
+        .map(String::from);
+        assert_eq!(
+            pick_spares(&settings, &listed),
+            ["mmf/auto", "oc/a-free", "x/one", "y/two"]
+        );
+    }
+
+    #[tokio::test]
+    async fn a_rejected_provider_is_skipped_and_the_next_provider_is_used() {
+        let settings = AiSettings {
+            model: "cc/sonnet".into(),
+            fallback_models: vec!["cc/opus".into(), "oc/free".into()],
+            ..Default::default()
+        };
+        let mut sent = Vec::new();
+        let reply = route_completion(&settings, false, |model, _| {
+            sent.push(model.clone());
+            std::future::ready(Ok(if model.starts_with("cc/") {
+                GatewayResponse {
+                    status: StatusCode::SERVICE_UNAVAILABLE,
+                    data: Some(json!({"error":{"message":"[401]: HTTP 401"}})),
+                }
+            } else {
+                GatewayResponse {
+                    status: StatusCode::OK,
+                    data: Some(json!({"choices":[{"message":{"content":"SELECT 1;"}}]})),
+                }
+            }))
+        })
+        .await
+        .expect("fallback reply");
+        assert_eq!(reply.model, "oc/free");
+        assert_eq!(sent, ["cc/sonnet", "oc/free"], "cc/opus is not tried after cc rejected access");
     }
 
     #[test]

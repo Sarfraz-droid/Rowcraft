@@ -8,10 +8,11 @@ use rowcraft_config::{
 };
 use rowcraft_core::Engine;
 use rowcraft_dialect::IntrospectScope;
+use rowcraft_mcp::install;
 
 use crate::{
-    AddArgs, DriverAddArgs, IntrospectArgs, IntrospectFormat, McpClient, McpInstallArgs, QueryArgs,
-    ServeArgs, SshAddArgs, tree,
+    AddArgs, DriverAddArgs, IntrospectArgs, IntrospectFormat, McpInstallArgs, QueryArgs, ServeArgs,
+    SshAddArgs, tree,
 };
 
 const EXIT_STATEMENT: u8 = 1;
@@ -446,9 +447,6 @@ pub async fn ssh_test(name: &str) -> ExitCode {
     }
 }
 
-/// Name the server is registered under in AI clients.
-const MCP_NAME: &str = "rowcraft";
-
 /// Serves MCP on stdio until the client disconnects. Nothing may be printed to stdout here.
 pub async fn mcp_serve(engine: Engine, allow_write: bool) -> ExitCode {
     let options = rowcraft_mcp::Options { datasources: datasources_path(), allow_write };
@@ -467,36 +465,17 @@ pub async fn mcp_serve(engine: Engine, allow_write: bool) -> ExitCode {
 fn mcp_command(allow_write: bool) -> Result<Vec<String>, ExitCode> {
     let exe = std::env::current_exe()
         .map_err(|e| fail(EXIT_USAGE, format!("cannot find this executable: {e}")))?;
-    let mut command = vec![exe.display().to_string(), "mcp".to_owned()];
-    if allow_write {
-        command.push("--allow-write".to_owned());
-    }
-    Ok(command)
+    Ok(install::server_command(&exe, allow_write))
 }
 
 pub fn mcp_config(allow_write: bool) -> ExitCode {
-    let command = match mcp_command(allow_write) {
-        Ok(c) => c,
-        Err(code) => return code,
-    };
-    let config = serde_json::json!({
-        "mcpServers": { MCP_NAME: { "command": command[0], "args": command[1..] } }
-    });
-    match serde_json::to_string_pretty(&config) {
-        Ok(json) => {
-            println!("{json}");
+    match mcp_command(allow_write) {
+        Ok(command) => {
+            println!("{}", install::config_json(&command));
             ExitCode::SUCCESS
         }
-        Err(e) => fail(EXIT_USAGE, format!("cannot encode config: {e}")),
+        Err(code) => code,
     }
-}
-
-/// Binaries named on PATH, found the way a shell would.
-fn on_path(binary: &str) -> bool {
-    let Some(paths) = std::env::var_os("PATH") else { return false };
-    std::env::split_paths(&paths).any(|dir| {
-        dir.join(binary).is_file() || (cfg!(windows) && dir.join(format!("{binary}.exe")).is_file())
-    })
 }
 
 fn quote(arg: &str) -> String {
@@ -522,52 +501,35 @@ pub fn mcp_install(args: McpInstallArgs, allow_write: bool) -> ExitCode {
             command[0]
         );
     }
-    let clients = if args.clients.is_empty() {
-        let found: Vec<McpClient> = [(McpClient::Claude, "claude"), (McpClient::Codex, "codex")]
-            .into_iter()
-            .filter(|(_, binary)| on_path(binary))
-            .map(|(client, _)| client)
-            .collect();
+    let clients: Vec<install::Client> = if args.clients.is_empty() {
+        let found: Vec<_> =
+            install::Client::ALL.into_iter().filter(|c| install::find(*c).is_some()).collect();
         if found.is_empty() {
             eprintln!(
-                "rowcraft: neither `claude` nor `codex` is on PATH. For other clients, add this to their MCP config:"
+                "rowcraft: neither `claude` nor `codex` was found. For other clients, add this to their MCP config:"
             );
             return mcp_config(allow_write);
         }
         found
     } else {
-        args.clients.clone()
+        args.clients.iter().map(|c| c.client()).collect()
     };
 
     let mut failed = false;
     for client in clients {
-        let (binary, mut argv) = match client {
-            McpClient::Claude => {
-                ("claude", vec!["mcp", "add", "--scope", args.scope.as_str(), MCP_NAME, "--"])
-            }
-            McpClient::Codex => ("codex", vec!["mcp", "add", MCP_NAME, "--"]),
-        };
-        argv.extend(command.iter().map(String::as_str));
-        let shown = argv.iter().map(|a| quote(a)).collect::<Vec<_>>().join(" ");
         if args.dry_run {
-            println!("{binary} {shown}");
+            let shown = install::add_args(client, &args.scope, &command)
+                .iter()
+                .map(|a| quote(a))
+                .collect::<Vec<_>>()
+                .join(" ");
+            println!("{} {shown}", client.id());
             continue;
         }
-        if !on_path(binary) {
-            eprintln!("rowcraft: `{binary}` is not on PATH; skipped");
-            failed = true;
-            continue;
-        }
-        match std::process::Command::new(binary).args(&argv).status() {
-            Ok(status) if status.success() => println!("registered `{MCP_NAME}` with {binary}"),
-            Ok(status) => {
-                eprintln!(
-                    "rowcraft: `{binary} {shown}` failed ({status}); if `{MCP_NAME}` already exists, run `{binary} mcp remove {MCP_NAME}` first"
-                );
-                failed = true;
-            }
+        match install::register(client, &args.scope, &command) {
+            Ok(()) => println!("registered `{}` with {}", install::NAME, client.label()),
             Err(e) => {
-                eprintln!("rowcraft: cannot run `{binary}`: {e}");
+                eprintln!("rowcraft: {}: {e}", client.label());
                 failed = true;
             }
         }

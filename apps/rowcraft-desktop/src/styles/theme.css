@@ -245,6 +245,13 @@
   .ai-markdown { @apply tw:text-label tw:leading-[1.75] tw:text-foreground; }
   .ai-markdown p { @apply tw:my-[10px]; }
   .ai-markdown pre { @apply tw:p-[12px] tw:overflow-auto tw:bg-background tw:border tw:border-border tw:font-mono tw:text-label tw:leading-[1.6]; }
+  .ai-markdown { @apply tw:min-w-0 tw:max-w-full; overflow-wrap: anywhere; }
+  .ai-markdown code { overflow-wrap: anywhere; }
+  .ai-table-scroll { @apply tw:my-[10px] tw:max-w-full tw:overflow-x-auto; }
+  .ai-markdown table { @apply tw:border-collapse tw:text-meta; }
+  .ai-markdown th, .ai-markdown td { @apply tw:border tw:border-border tw:px-[8px] tw:py-[4px] tw:text-left tw:align-top; overflow-wrap: anywhere; }
+  .ai-markdown th { @apply tw:bg-hover tw:font-semibold; }
+  .ai-code-block { @apply tw:min-w-0 tw:max-w-full; }
   .ai-markdown pre code { @apply tw:whitespace-pre tw:bg-transparent tw:p-0; }
   .ai-markdown code { @apply tw:font-mono tw:bg-hover tw:px-[3px]; }
   .ai-markdown ul { @apply tw:list-disc tw:pl-[18px] tw:my-[10px]; }

@@ -1,5 +1,6 @@
 import { databaseProfile } from "../database-profile";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Children, isValidElement, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, errorText, type Catalog } from "../api";
 import { suggestedSql, type AiModel, type AiReply } from "../ai";
@@ -90,7 +91,7 @@ export function SqlAssistant({ onShowApi, sql, getSql, source = "", title = "SQL
       {turns.map((turn, index) => {
         return <div className="ai-chat-turn" key={index}>
           <p className="ai-chat-prompt">{turn.prompt}</p>
-          <section aria-label="AI response"><div className="ai-message-heading"><Icon name="ai" size={12} /><span>Assistant</span><small title={turn.reply.model}>{turn.reply.model}</small></div><div className="ai-markdown"><ReactMarkdown components={{ pre: ({ children }) => {
+          <section aria-label="AI response"><div className="ai-message-heading"><Icon name="ai" size={12} /><span>Assistant</span><small title={turn.reply.model}>{turn.reply.model}</small></div><div className="ai-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ table: ({ children }) => <div className="ai-table-scroll"><table>{children}</table></div>, pre: ({ children }) => {
             const code = Children.toArray(children).find(child => isValidElement(child));
             const props = isValidElement<{ className?: string; children?: ReactNode }>(code) ? code.props : null;
             const language = props?.className?.replace(/^language-/, "") ?? "";

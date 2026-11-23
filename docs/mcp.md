@@ -2,7 +2,13 @@
 
 `rowcraft mcp` runs a [Model Context Protocol](https://modelcontextprotocol.io) server on stdio, so an AI client such as Claude Code, Codex, Cursor or Claude Desktop can look at and query the data sources you saved with the CLI or the desktop app. It is the same engine, drivers, SSH tunnels and `datasources.toml` as the rest of Rowcraft. Passwords are read from the environment variable named in each data source, and are never sent to the client.
 
-## Register it with your clients
+## Connect from the desktop app
+
+Open the **HTTP API** panel in Rowcraft and use **AI clients (MCP)**: it lists Claude Code and Codex, shows whether each is installed and connected, and connects or disconnects it with one click. Tick *Allow changes* before connecting to let the assistant write. Other clients (Cursor, Claude Desktop, …) get a copyable `mcpServers` block.
+
+The desktop app is its own MCP server: clients start the app's executable as `rowcraft-desktop mcp`, so the CLI does not need to be installed. Move or reinstall the app and connect again, because the clients remember the path.
+
+## Register it from the command line
 
 ```sh
 rowcraft mcp install                    # every client found on PATH (claude, codex)

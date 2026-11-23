@@ -258,6 +258,15 @@ enum McpClient {
     Codex,
 }
 
+impl McpClient {
+    fn client(self) -> rowcraft_mcp::install::Client {
+        match self {
+            McpClient::Claude => rowcraft_mcp::install::Client::Claude,
+            McpClient::Codex => rowcraft_mcp::install::Client::Codex,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 enum IntrospectFormat {
     Tree,

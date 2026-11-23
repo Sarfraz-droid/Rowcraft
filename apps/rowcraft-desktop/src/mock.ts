@@ -91,6 +91,9 @@ export function installMock(): void {
     switch (cmd) {
       case "ai_settings": return { base_url: "http://127.0.0.1:20128/v1", model: "", fallback_models: [], has_api_key: false };
       case "ai_router_status": return { installed: false, running: false, managed: false, version: "0.5.104", pid: null, base_url: null };
+      case "mcp_status": return { clients: [{ id: "claude", label: "Claude Code", installed: true, registered: false }, { id: "codex", label: "Codex", installed: true, registered: false }], command: ["/Applications/Rowcraft.app/Contents/MacOS/rowcraft-desktop", "mcp"], config_json: "{\n  \"mcpServers\": {\n    \"rowcraft\": { \"command\": \"rowcraft-desktop\", \"args\": [\"mcp\"] }\n  }\n}" };
+      case "mcp_connect":
+      case "mcp_disconnect": throw new Error("Connecting AI clients is available in the desktop app. The browser preview cannot reach them.");
       case "ai_auto_setup": return { base_url: "http://127.0.0.1:20128/v1", model: "oc/demo-free", fallback_models: [], has_api_key: true };
       case "save_ai_settings":
       case "ai_models":

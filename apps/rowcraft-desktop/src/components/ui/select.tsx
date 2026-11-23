@@ -146,6 +146,14 @@ function SelectSeparator({
   )
 }
 
+/** Radix arrows only auto-scroll on hover/press; also scroll a page when clicked. */
+function scrollViewport(event: React.MouseEvent<HTMLElement>, direction: 1 | -1) {
+  const viewport = event.currentTarget.parentElement?.querySelector<HTMLElement>(
+    "[data-radix-select-viewport]"
+  )
+  viewport?.scrollBy({ top: direction * viewport.clientHeight * 0.8, behavior: "smooth" })
+}
+
 function SelectScrollUpButton({
   className,
   ...props
@@ -153,8 +161,9 @@ function SelectScrollUpButton({
   return (
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
+      onClick={event => scrollViewport(event, -1)}
       className={cn(
-        "tw:flex tw:cursor-default tw:items-center tw:justify-center tw:py-1",
+        "tw:flex tw:cursor-pointer tw:items-center tw:justify-center tw:py-1",
         className
       )}
       {...props}
@@ -171,8 +180,9 @@ function SelectScrollDownButton({
   return (
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
+      onClick={event => scrollViewport(event, 1)}
       className={cn(
-        "tw:flex tw:cursor-default tw:items-center tw:justify-center tw:py-1",
+        "tw:flex tw:cursor-pointer tw:items-center tw:justify-center tw:py-1",
         className
       )}
       {...props}

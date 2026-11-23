@@ -267,6 +267,15 @@ export interface Catalog {
   schemas: SchemaInfo[];
 }
 
+export interface McpClientStatus { id: string; label: string; installed: boolean; registered: boolean }
+export interface McpStatus {
+  clients: McpClientStatus[];
+  /** What an AI client runs to start the server. */
+  command: string[];
+  /** `mcpServers` JSON for clients Rowcraft cannot register with itself. */
+  config_json: string;
+}
+
 /** Commands reject with complete diagnostics for the error panels. */
 async function call<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   try {
@@ -292,6 +301,9 @@ export const api = {
   aiReadonlyQuery: (source: string, statement: string, schema?: string) => call<QueryOutput>("ai_readonly_query", { source, statement, schema }),
   aiRouterStatus: (baseUrl?: string) => call<RouterStatus>("ai_router_status", { baseUrl }),
   startAiRouter: (baseUrl: string) => call<RouterStatus>("start_ai_router", { baseUrl }),
+  mcpStatus: (allowWrite: boolean) => call<McpStatus>("mcp_status", { allowWrite }),
+  mcpConnect: (client: string, allowWrite: boolean) => call<McpStatus>("mcp_connect", { client, allowWrite }),
+  mcpDisconnect: (client: string, allowWrite: boolean) => call<McpStatus>("mcp_disconnect", { client, allowWrite }),
   aiAutoSetup: () => call<AiSettingsView>("ai_auto_setup"),
   stopAiRouter: (baseUrl: string) => call<RouterStatus>("stop_ai_router", { baseUrl }),
   openAiDashboard: (settings: AiSettings) => call<void>("open_ai_dashboard", { settings }),

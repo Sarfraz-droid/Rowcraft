@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { API_PORT_KEY, DEFAULT_API_PORT, apiSnippets } from "../api-snippets";
 import { Icon } from "./Icon";
+import { McpConnect } from "./McpConnect";
 
 function savedPort(): number {
   try {
@@ -44,6 +45,7 @@ export function ApiPanel({ source, getSql, onClose, onShowAssistant, onAddSource
         </section>)}
         {failure && <p className="tw:text-destructive tw:text-label" role="alert">{failure}</p>}
       </>}
+      <McpConnect />
     </div>
   </aside>;
 }

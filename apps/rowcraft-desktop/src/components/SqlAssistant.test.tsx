@@ -140,3 +140,15 @@ it("stops a pending response and ignores its late result", async () => {
   await act(async () => { resolve({ content: "Late response", model: "free-sql" }); });
   expect(screen.queryByText("Late response")).toBeNull();
 });
+
+it("renders a markdown table from the model as a real table", async () => {
+  vi.spyOn(api, "aiComplete").mockResolvedValue({ content: "Result:\n\n| Column | Value |\n|:---|:---|\n| Id | 2891691 |\n| Reason | NO-MORE |\n", model: "free-sql", tool_calls: [] });
+  render(<SqlAssistant sql="" dialect="mysql" schema="main" catalog={null} onClose={vi.fn()} onSettings={vi.fn()} onUse={vi.fn()} />);
+  fireEvent.change(screen.getByLabelText("Message AI assistant"), { target: { value: "Show row" } });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Send" }).hasAttribute("disabled")).toBe(false));
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  const response = await screen.findByRole("region", { name: "AI response" });
+  expect(within(response).getAllByRole("columnheader").map(cell => cell.textContent)).toEqual(["Column", "Value"]);
+  expect(within(response).getAllByRole("row")).toHaveLength(3);
+  expect(within(response).getByRole("cell", { name: "NO-MORE" })).toBeTruthy();
+});

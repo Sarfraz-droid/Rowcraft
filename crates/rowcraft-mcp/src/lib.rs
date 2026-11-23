@@ -10,6 +10,7 @@
 //! boundary: mark the data source `read_only` (or use a read-only database user) to enforce it.
 
 mod guard;
+pub mod install;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
